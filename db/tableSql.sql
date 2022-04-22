@@ -9,8 +9,6 @@
 --  profilePicture TEXT NOT NULL,
 --  location VARCHAR(255)
 -- )
--- DROP TABLE userTBL;
-
 -- CREATE TABLE petTBL
 -- (
 --  petID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -18,18 +16,31 @@
 --  petName VARCHAR(20) NOT NULL,
 --  birthDate DATE NOT NULL,
 --  petProfilePicture TEXT NOT NULL,
---  petLevel TINYINT NOT NULL DEFAULT 1,
+--  petLevel TINYINT UNSIGNED NOT NULL DEFAULT 1,
 --  petSex VARCHAR(2) NOT NULL,
+--  weight float(5,2),
 --  UNIQUE KEY (ownerID, petName),
 --  FOREIGN KEY (ownerID) REFERENCES userTBL(userID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
+-- CREATE TABLE walkInforTBL
+-- (
+--  petID INT UNSIGNED NOT NULL UNIQUE,
+--  walkNum TINYINT UNSIGNED NOT NULL,
+--  walkMinute SMALLINT UNSIGNED NOT NULL,
+--  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
+-- CREATE TABLE diseaseInforTBL
+-- (
+--  petID INT UNSIGNED NOT NULL,
+--  diseaseName VARCHAR(20) NOT NULL,
+--  UNIQUE KEY (petID, diseaseName),
+--  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
 -- CREATE TABLE petSpeciesTBL
 -- (
 --  petSpeciesID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  petSpeciesName VARCHAR(20) NOT NULL UNIQUE
 -- );
-
 -- CREATE TABLE pet_petSpeciesTBL
 -- (
 --  petID INT UNSIGNED NOT NULL,
@@ -38,7 +49,6 @@
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE,
 --  FOREIGN KEY (petSpeciesID) REFERENCES petSpeciesTBL(petSpeciesID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE medicinePreTBL
 -- (
 --  medicinePreID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +59,6 @@
 --  oneDayNum TINYINT UNSIGNED NOT NULL DEFAULT 1,
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE medicinePreWeekTBL
 -- (
 --  medicinepreweektblmedicinepreweektblmedicinepreweektblmedicinePreID INT UNSIGNED NOT NULL,
@@ -57,15 +66,13 @@
 --  UNIQUE KEY (medicinePreID, dayOfWeek),
 --  FOREIGN KEY (medicinePreID) REFERENCES medicinePreTBL(medicinePreID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE medicinePreDayTBL
 -- (
 --  medicinePreID INT UNSIGNED NOT NULL UNIQUE,
 --  startDate DATE NOT NULL,
---  cycleDayNum TINYINT NOT NULL,
+--  cycleDayNum TINYINT UNSIGNED NOT NULL,
 --  FOREIGN KEY (medicinePreID) REFERENCES medicinePreTBL(medicinePreID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE medicinePreTimeTBL
 -- (
 --  medicinePreID INT UNSIGNED NOT NULL,
@@ -73,7 +80,6 @@
 --  UNIQUE KEY (medicinePreID, takeTime),
 --  FOREIGN KEY (medicinePreID) REFERENCES medicinePreTBL(medicinePreID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE medicineDiaryTBL
 -- (
 --  medicineDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -83,7 +89,6 @@
 --  memo VARCHAR(255),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE diaryTBL
 -- (
 --  diaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -99,7 +104,6 @@
 --  UNIQUE KEY (petID, diaryDate),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE diary_hashTagTBL
 -- (
 --  diaryID INT UNSIGNED NOT NULL,
@@ -107,7 +111,6 @@
 --  UNIQUE KEY (diaryID, hashTagName),
 --  FOREIGN KEY (diaryID) REFERENCES diaryTBL(diaryID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE walkDiaryTBL
 -- (
 --  walkDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -115,22 +118,30 @@
 --  walkDate DATE NOT NULL,
 --  walkStartTime TIME NOT NULL,
 --  walkEndTime TIME NOT NULL,
---  totalTime TIME NOT NULL,
+--  totalTime TIME,
 --  UNIQUE KEY (petID, walkDate, walkStartTime, walkEndTime),
 --  CONSTRAINT start_end_time CHECK ( walkStartTime < walkEndTime),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
+-- alter table mealinfortbl modify mealAmount float(3,1) NOT NULL;
 -- CREATE TABLE mealInforTBL
 -- (
 --  mealInforID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  petID INT UNSIGNED NOT NULL UNIQUE,
 --  oneDayMealNum TINYINT UNSIGNED NOT NULL,
---  mealAmount VARCHAR(6) NOT NULL,
+--  mealAmount float(3,1) NOT NULL,
 --  memo VARCHAR(255),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
+-- CREATE TABLE snackInforTBL
+-- (
+--  snackInforID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+--  petID INT UNSIGNED NOT NULL UNIQUE,
+--  oneDaySnackNum TINYINT UNSIGNED NOT NULL,
+--  snackAmount float(3,1) NOT NULL,
+--  memo VARCHAR(255),
+--  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
 -- CREATE TABLE showerDiaryTBL
 -- (
 --  showerDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -138,10 +149,19 @@
 --  cycleDay TINYINT UNSIGNED NOT NULL,
 --  dueDate DATE NOT NULL,
 --  lastShowerDate DATE NOT NULL,
---  CONSTRAINT start_end_date CHECK ( dueDate > lastShowerDate),
+- - CONSTRAINT start_end_date CHECK (dueDate > lastShowerDate),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
+-- CREATE TABLE beautyDiaryTBL
+-- (
+--  beautyDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+--  petID INT UNSIGNED NOT NULL UNIQUE,
+--  cycleDay TINYINT UNSIGNED NOT NULL,
+--  dueDate DATE NOT NULL,
+--  lastBeautyDate DATE NOT NULL,
+- - CONSTRAINT start_end_date_beauty CHECK (dueDate > lastBeautyDate),
+--  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
 -- CREATE TABLE hospitalDiaryTBL
 -- (
 --  hospitalDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -153,7 +173,6 @@
 --  memo VARCHAR(1000),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE hospitalReservationTBL
 -- (
 --  hospitalReservationID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -163,7 +182,6 @@
 --  visitIs TINYINT(1) NOT NULL DEFAULT 0,
 --  FOREIGN KEY (hospitalDiaryID) REFERENCES hospitalDiaryTBL(hospitalDiaryID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE todoListTBL
 -- (
 --  todoListID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -173,13 +191,11 @@
 --  checkIs TINYINT(1) NOT NULL DEFAULT 0,
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
-
 -- CREATE TABLE todoListKeywordTBL
 -- (
 --  todoListKeywordID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  keyword VARCHAR(20) NOT NULL
 -- );
-
 -- CREATE TABLE todoList_keywordTBL
 -- (
 --  todoListID INT UNSIGNED NOT NULL UNIQUE,

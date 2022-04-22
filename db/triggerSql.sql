@@ -46,3 +46,43 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
+
+-- DELIMITER //
+-- CREATE TRIGGER check_shower_diary_due_Date_calcul
+-- 	BEFORE INSERT
+--     ON showerdiarytbl FOR EACH ROW
+-- BEGIN
+-- 	SET NEW.dueDate = DATE_ADD(NEW.lastShowerDate, INTERVAL NEW.cycleDay DAY);
+-- END// 
+-- DELIMITER ;
+
+-- DELIMITER //
+-- CREATE TRIGGER check_shower_diary_due_Date_calcul_update
+-- 	BEFORE UPDATE
+--     ON showerdiarytbl FOR EACH ROW
+-- BEGIN
+-- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastShowerDate != NEW.lastShowerDate THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastShowerDate, INTERVAL NEW.cycleDay DAY);
+-- 	END IF;
+-- END// 
+-- DELIMITER ;
+
+-- DELIMITER //
+-- CREATE TRIGGER check_beauty_diary_due_Date_calcul
+-- 	BEFORE INSERT
+--     ON beautydiarytbl FOR EACH ROW
+-- BEGIN
+-- 	SET NEW.dueDate = DATE_ADD(NEW.lastBeautyDate, INTERVAL NEW.cycleDay DAY);
+-- END// 
+-- DELIMITER ;
+
+-- DELIMITER //
+-- CREATE TRIGGER check_beauty_diary_due_Date_calcul_update
+-- 	BEFORE UPDATE
+--     ON beautydiarytbl FOR EACH ROW
+-- BEGIN
+-- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastBeautyDate != NEW.lastBeautyDate THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastBeautyDate, INTERVAL NEW.cycleDay DAY);
+-- 	END IF;
+-- END// 
+-- DELIMITER ;

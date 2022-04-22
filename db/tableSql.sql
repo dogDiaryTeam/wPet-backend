@@ -118,7 +118,7 @@
 --  walkDate DATE NOT NULL,
 --  walkStartTime TIME NOT NULL,
 --  walkEndTime TIME NOT NULL,
---  totalTime TIME,
+--  totalTime TIME NOT NULL,
 --  UNIQUE KEY (petID, walkDate, walkStartTime, walkEndTime),
 --  CONSTRAINT start_end_time CHECK ( walkStartTime < walkEndTime),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
@@ -149,7 +149,6 @@
 --  cycleDay TINYINT UNSIGNED NOT NULL,
 --  dueDate DATE NOT NULL,
 --  lastShowerDate DATE NOT NULL,
-- - CONSTRAINT start_end_date CHECK (dueDate > lastShowerDate),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE beautyDiaryTBL
@@ -159,7 +158,6 @@
 --  cycleDay TINYINT UNSIGNED NOT NULL,
 --  dueDate DATE NOT NULL,
 --  lastBeautyDate DATE NOT NULL,
-- - CONSTRAINT start_end_date_beauty CHECK (dueDate > lastBeautyDate),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE hospitalDiaryTBL

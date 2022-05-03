@@ -1,6 +1,6 @@
 import * as mysql from "mysql";
 
-import passw from "./db-password";
+import passw from "../secret/db-password";
 
 console.log(passw);
 

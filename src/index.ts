@@ -1,14 +1,14 @@
 import express, { Express, Request, Response } from "express";
 
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import mql from "../db/mysql";
 import testRoutes from "../routes/test.route";
+import userRoutes from "../routes/user.route";
 
 // import mysql from "mysql";
 
-
 const { swaggerUI, specs } = require("../swagger/swagger");
-const cors = require("cors");
-
 const app: Express = express();
 const port = 3000;
 
@@ -19,8 +19,11 @@ mql.connect(function (err: any) {
 
 app.use(cors());
 app.use(express.json());
+//cookie
+app.use(cookieParser());
 
 app.use(testRoutes);
+app.use(userRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

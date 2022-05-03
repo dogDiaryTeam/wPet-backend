@@ -1,13 +1,19 @@
-import { getTest, getTest2 } from "../controllers/test.controller";
+import {
+  authUser,
+  creatUser,
+  loginUser,
+  logoutUser,
+} from "../controllers/user.controller";
 
 import { Router } from "express";
+import { auth } from "../middleware/auth";
 
 const router = Router();
 
 /**
  * @swagger
  * paths:
- *   /test:
+ *   /user/createuser:
  *     get:
  *        tags:
  *        - user
@@ -145,7 +151,13 @@ const router = Router();
  *              type: "string"
  */
 
-router.get("/test", getTest);
-router.get("/test2", getTest2);
+router.post("/api/user/create", creatUser);
+router.post("/api/user/login", loginUser);
+
+//middleware
+router.get("/api/user/auth", auth, authUser);
+
+//logout (login된 상태이기 때문에 auth를 넣어준다.)
+router.get("/api/user/logout", auth, logoutUser);
 
 export default router;

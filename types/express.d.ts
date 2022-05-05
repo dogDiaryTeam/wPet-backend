@@ -31,8 +31,29 @@ import { Request } from "express";
 declare global {
   namespace Express {
     interface Request {
-      user: any;
+      user: {
+        userID: number;
+        email: string;
+        pw: string;
+        token: string | null;
+        joinDate: string;
+        nickName: string;
+        profilePicture: string;
+        location: string | null;
+      } | null;
       token: any;
     }
   }
+}
+
+interface PersoneModel extends mongoose.Document {
+  email: string;
+  pw: string;
+  nickName: string;
+  profilePicture: string;
+  location: string | null;
+}
+
+interface CustomRequest<T> extends Request {
+  body: T;
 }

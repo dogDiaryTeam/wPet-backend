@@ -3,6 +3,8 @@ import {
   creatUser,
   loginUser,
   logoutUser,
+  patchUser,
+  test,
 } from "../controllers/user.controller";
 
 import { Router } from "express";
@@ -13,11 +15,11 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /user/createuser:
- *     get:
+ *   /user/create:
+ *     post:
  *        tags:
- *        - user
- *        description: "테스트 라우트"
+ *        - users
+ *        description: "create user"
  *        produces:
  *        - applicaion/json
  *        parameters:
@@ -151,6 +153,8 @@ const router = Router();
  *              type: "string"
  */
 
+router.post("/api/user/test", test);
+
 router.post("/api/user/create", creatUser);
 router.post("/api/user/login", loginUser);
 
@@ -159,5 +163,7 @@ router.get("/api/user/auth", auth, authUser);
 
 //logout (login된 상태이기 때문에 auth를 넣어준다.)
 router.get("/api/user/logout", auth, logoutUser);
+
+router.patch("/api/user/update", auth, patchUser);
 
 export default router;

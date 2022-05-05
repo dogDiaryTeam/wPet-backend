@@ -3,7 +3,6 @@ import express, { Express, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import mql from "../db/mysql";
-import testRoutes from "../routes/test.route";
 import userRoutes from "../routes/user.route";
 
 // import mysql from "mysql";
@@ -22,7 +21,6 @@ app.use(express.json());
 //cookie
 app.use(cookieParser());
 
-app.use(testRoutes);
 app.use(userRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 

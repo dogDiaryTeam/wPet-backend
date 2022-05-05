@@ -29,7 +29,7 @@ export const auth: Handler = (req, res, next) => {
           next();
         } else {
           //유저 인증 no
-          return res.status(409).json({
+          return res.status(444).json({
             isAuth: false,
             message: "유저 인증에 실패하였습니다.",
           });
@@ -41,7 +41,7 @@ export const auth: Handler = (req, res, next) => {
       // eslint-disable-next-line no-console
       console.log(error);
     }
-    return res.status(409).json({
+    return res.status(444).json({
       isAuth: false,
       message: "token decode에 실패하였습니다.",
     });

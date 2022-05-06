@@ -1,13 +1,21 @@
 import {
-  authUser,
+  CreateUserModel,
+  CreateUserReqDTO,
+  LoginUserModel,
+  UpdateUserModel,
+  UpdateUserReqDTO,
+  UserInforDTO,
+} from "../types/user";
+import { Handler, Router } from "express";
+import {
   creatUser,
   loginUser,
   logoutUser,
-  patchUser,
   test,
+  updateUser,
 } from "../controllers/user.controller";
 
-import { Router } from "express";
+import { UserRequest } from "../types/express";
 import { auth } from "../middleware/auth";
 
 const router = Router();
@@ -155,15 +163,81 @@ const router = Router();
 
 router.post("/api/user/test", test);
 
-router.post("/api/user/create", creatUser);
-router.post("/api/user/login", loginUser);
+router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
+  //회원가입 할때 필요한 정보들을 client에서 가져오면
+  //그것들을 데이터 베이스에 넣어준다.
+  const user: CreateUserReqDTO = req.body;
+  console.log("🚀 ~ user", user);
+  console.log("🚀 ~ req.body", req.body);
+  creatUser(user, res);
+});
+router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
+  //로그인 정보(email:uq, pw:uq)들을 client에서 가져오면
+  //데이터베이스의 정보(email, pw)들과 비교해서
+  //존재하는 유저라면 success=true
+  const param: Array<string> = [req.body.email, req.body.pw];
+  console.log("🚀 ~ param", param);
+  loginUser(param, res);
+});
 
 //middleware
-router.get("/api/user/auth", auth, authUser);
+router.get("/api/user/auth", auth, (req, res) => {
+  //middleware를 통해 얻은 유저 정보를 반환한다.
+  //인증 완료
+  let user: UserInforDTO | null = req.user;
+  //후에 디벨롭
+  //role:0 -> 일반인
+  //role:1,2.... -> 관리자
+  if (user) {
+    res.status(200).json({
+      success: true,
+      // id: user.userID,
+      // email: user.email,
+      // joinDate: user.joinDate,
+      // nickName: user.nickName,
+      // profilePicture: user.profilePicture,
+      // location: user.location,
+      // isAuth: true,
+    });
+  } else {
+    //유저 인증 no
+    return res.status(401).json({
+      isAuth: false,
+      message: "유저 인증에 실패하였습니다.",
+    });
+  }
+});
 
 //logout (login된 상태이기 때문에 auth를 넣어준다.)
-router.get("/api/user/logout", auth, logoutUser);
+router.get("/api/user/logout", auth, (req, res) => {
+  //middleware를 통해 얻은 유저 정보를 이용해
+  //해당 유저를 로그아웃해준다. (token 제거)
+  let user: UserInforDTO | null = req.user;
+  if (user) {
+    console.log("logout");
+    logoutUser(user, res);
+  }
+});
 
-router.patch("/api/user/update", auth, patchUser);
+router.patch(
+  "/api/user/update",
+  auth,
+  (req: UserRequest<UpdateUserModel>, res) => {
+    //middleware를 통해 얻은 유저 정보를 이용해
+    //해당 유저 정보를 수정한다.
+    let user: UserInforDTO | null = req.user;
+
+    if (user) {
+      console.log("PATCH");
+      console.log("🚀 ~ req.body", req.body);
+
+      let userID: number = user.userID;
+
+      //object
+      const param: UpdateUserReqDTO = req.body;
+      updateUser(userID, param, res);
+    }
+  }
+);
 
 export default router;

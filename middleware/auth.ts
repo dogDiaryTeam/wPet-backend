@@ -1,6 +1,8 @@
 import jwt, { VerifyErrors } from "jsonwebtoken";
 
+import { CreateUserModel } from "../types/user";
 import { Handler } from "express";
+import { UserRequest } from "../types/express";
 import mql from "../db/mysql";
 import secretToken from "../secret/jwt-token";
 
@@ -29,7 +31,7 @@ export const auth: Handler = (req, res, next) => {
           next();
         } else {
           //유저 인증 no
-          return res.status(444).json({
+          return res.status(401).json({
             isAuth: false,
             message: "유저 인증에 실패하였습니다.",
           });
@@ -41,7 +43,7 @@ export const auth: Handler = (req, res, next) => {
       // eslint-disable-next-line no-console
       console.log(error);
     }
-    return res.status(444).json({
+    return res.status(401).json({
       isAuth: false,
       message: "token decode에 실패하였습니다.",
     });

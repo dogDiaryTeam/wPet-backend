@@ -46,14 +46,6 @@ declare global {
   }
 }
 
-interface PersoneModel extends mongoose.Document {
-  email: string;
-  pw: string;
-  nickName: string;
-  profilePicture: string;
-  location: string | null;
-}
-
-interface CustomRequest<T> extends Request {
+interface UserRequest<T> extends Request {
   body: T;
 }

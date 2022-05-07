@@ -28,18 +28,16 @@ const saltRounds = 10;
 //401 : 비인증. (비번틀림)
 //403 : 비인증. (서버는 클라이언트가 누군지 알고있음).
 //404 : 찾을 수 없음.
+//409: 중복 경우 (충돌을 수정해서 요청을 다시 보낼 경우)
 
-export const test: Handler = (req: UserRequest<CreateUserModel>, res) => {
+export const test: Handler = (req, res) => {
   //test
-  const user: CreateUserReqDTO = req.body;
+  const user = req;
   console.log("🚀 ~ user", user);
   console.log("🚀 ~ req.body", user);
-  //유효성 검사
-  if (checkName(user.nickName)) {
-    console.log("ㅇㅇ");
-  } else {
-    console.log("ㄴㄴ");
-  }
+  return res.json({
+    user: user,
+  });
 };
 
 export const creatUser = (
@@ -72,7 +70,7 @@ export const creatUser = (
         .status(400)
         .json({ success: false, message: "이메일이 유효하지 않습니다." });
     } else if (isUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         message: "해당 이메일의 유저가 이미 존재합니다.",
       });
@@ -84,7 +82,7 @@ export const creatUser = (
           .status(400)
           .json({ success: false, message: "닉네임이 유효하지 않습니다." });
       } else if (isUser) {
-        return res.status(400).json({
+        return res.status(409).json({
           success: false,
           message: "해당 닉네임의 유저가 이미 존재합니다.",
         });
@@ -147,7 +145,6 @@ export const loginUser = (
             res.cookie("x_auth", userToken).status(200).json({
               success: true,
               email: param[0],
-              login: true,
               token: userToken,
             });
           }
@@ -173,6 +170,7 @@ export const logoutUser = (
     if (!success) {
       return res.status(400).json({ success: false, message: error });
     }
+    res.clearCookie("x_auth");
     return res.json({ success: true });
   });
 };
@@ -243,7 +241,7 @@ function updateUserNickName(
     if (err) {
       return res.status(400).json({ success: false, message: err });
     } else if (isUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         message: "해당 닉네임의 유저가 이미 존재합니다.",
       });
@@ -340,8 +338,8 @@ function checkPw(pw: string) {
 //   return regExp.test(location);
 // }
 
-//location 유효성 검사 (1-10자)
+//location 유효성 검사 (1-15자)
 function checkLocation(location: string) {
-  var regExp = /^.{1,10}$/;
+  var regExp = /^.{1,15}$/;
   return regExp.test(location);
 }

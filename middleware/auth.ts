@@ -21,7 +21,11 @@ export const auth: Handler = (req, res, next) => {
       "SELECT * FROM usertbl WHERE userID=? AND token=?",
       [decoded, token],
       (err, row) => {
-        if (err) throw err;
+        if (err)
+          return res.status(401).json({
+            isAuth: false,
+            message: err,
+          });
         if (row.length > 0) {
           //유저 인증 ok
           console.log("auth token=", token);

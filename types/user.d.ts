@@ -36,11 +36,6 @@ export interface CreateUserReqDTO {
   location: string | null;
 }
 
-// export interface LoginUserReqDTO {
-//   email: string;
-//   pw: string;
-// }
-
 export interface UpdateUserReqDTO {
   nickName?: string;
   profilePicture?: string;

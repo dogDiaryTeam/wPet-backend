@@ -23,63 +23,224 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /user/create:
+ *   /api/user/test:
  *     post:
  *        tags:
  *        - users
- *        description: "create user"
+ *        description: "test"
+ *        consumes:
+ *          - "application/json"
+ *          - "application/xml"
  *        produces:
- *        - applicaion/json
- *        parameters:
- *        - name: hello
- *          in: query
- *          description: "출력문자"
+ *          - "application/xml"
+ *          - "application/json"
+ *        requestBody:
  *          required: true
- *          type: string
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - username
+ *                properties:
+ *                  artist_name:
+ *                    type: string
+ *                    description: 사용자 이메일 주소
+ *                    example: "dd"
+ *                  albums_recorded:
+ *                    type: integer
+ *                  username:
+ *                    type: string
  *        responses:
  *          "200":
- *            description: "출력 성공"
+ *            description: "사용자 생성 성공"
  *            content:
  *              application/json:
  *                  schema:
  *                      $ref: '#/definitions/User_list'
+ *          "400":
+ *            description: "사용자 생성 실패"
+ *          "409":
+ *            description: "이미 유일값을 가진 유저가 존재"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/create:
+ *     post:
+ *        tags:
+ *        - users
+ *        description: "create user"
+ *        consumes:
+ *          - "application/json"
+ *          - "application/xml"
+ *        produces:
+ *          - "application/xml"
+ *          - "application/json"
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: "#/definitions/User_create_req"
+ *        responses:
+ *          "200":
+ *            description: "사용자 생성 성공"
+ *          "400":
+ *            description: "사용자 생성 실패"
+ *          "409":
+ *            description: "이미 유일값을 가진 유저가 존재"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/login:
+ *     post:
+ *        tags:
+ *        - users
+ *        description: "login user"
+ *        produces:
+ *        - applicaion/json
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - email
+ *                  - pw
+ *                properties:
+ *                  email:
+ *                    type: string
+ *                    description: 사용자 이메일 주소
+ *                    example: "test4@naver.com"
+ *                  pw:
+ *                    type: string
+ *                    description: 사용자 비밀번호(8-13자)
+ *                    example: "1111111a"
+ *        responses:
+ *          "200":
+ *            description: "사용자 로그인 성공"
+ *          "400":
+ *            description: "사용자 로그인 실패"
+ *          "401":
+ *            description: "비밀번호 불일치"
  *          "404":
- *            description: "차량 리스트 불러오기 실패"
- *          "406":
- *            description: "sql injection 발생"
- *          "501":
- *            description: "파라미터값 오류"
+ *            description: "이메일이 존재하지 않음"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/auth:
+ *     get:
+ *        tags:
+ *        - users
+ *        description: "auth user"
+ *        produces:
+ *        - applicaion/json
+ *        responses:
+ *          "200":
+ *            description: "사용자 인증 성공"
+ *          "401":
+ *            description: "사용자 인증 실패"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/logout:
+ *     get:
+ *        tags:
+ *        - users
+ *        description: "logout user"
+ *        produces:
+ *        - applicaion/json
+ *        responses:
+ *          "200":
+ *            description: "사용자 로그아웃 성공"
+ *          "400":
+ *            description: "사용자 로그아웃 실패"
+ *          "401":
+ *            description: "사용자 인증 실패"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/update:
+ *     patch:
+ *        tags:
+ *        - users
+ *        description: "update user (update할 element만 요청)"
+ *        produces:
+ *        - applicaion/json
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  nickName:
+ *                    type: string
+ *                    description: 수정할 사용자 닉네임
+ *                    example: "수민2"
+ *                  profilePicture:
+ *                    type: string
+ *                    description: 수정할 사용자 프로필사진
+ *                    example: "bbb"
+ *                  location:
+ *                    type: string
+ *                    description: 수정할 사용자 지역
+ *                    example: "서울"
+ *        responses:
+ *          "200":
+ *            description: "사용자 정보 수정 성공"
+ *          "400":
+ *            description: "사용자 정보 수정 실패"
+ *          "409":
+ *            description: "수정할 이메일이 이미 존재함"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
  * definitions:
+ *   User_create_req:
+ *     type: object
+ *     required:
+ *       - email
+ *       - pw
+ *       - nickName
+ *       - profilePicture
+ *     properties:
+ *       email:
+ *         type: string
+ *         description: 사용자 이메일 주소
+ *         example: "test1@naver.com"
+ *       pw:
+ *         type: string
+ *         description: 사용자 비밀번호(8-13자)
+ *         example: "1111aaaa"
+ *       nickName:
+ *         type: string
+ *         description: 사용자 닉네임(1-15자)
+ *         example: "수민"
+ *       profilePicture:
+ *         type: string
+ *         description: 사용자 프로필사진
+ *         example: "aaa"
+ *       location:
+ *         type: string
+ *         description: 사용자 주소
+ *         example: "수원"
  *   User_list:
  *     type: object
  *     required:
- *       - c_index
- *       - c_type
- *       - c_name
- *       - c_max_number_of_people
- *       - c_gear
- *       - c_number_of_load
- *       - c_number_of_door
- *       - c_air_conditioner_or_not
- *       - c_production_year
- *       - c_fuel
- *       - c_description
- *       - c_driver_age
- *       - a_index
- *       - a_name
- *       - a_info
- *       - a_number_of_reservation
- *       - a_grade
- *       - a_new_or_not
- *       - rs_index
- *       - car_price
+ *       - success
+ *       - email
+ *       - token
  *     properties:
- *       c_index:
- *         type: integer
+ *       success:
+ *         type: boolean
  *         description: 자동차 고유번호
  *       c_type:
  *         type: string
@@ -87,78 +248,6 @@ const router = Router();
  *       c_name:
  *         type: string
  *         description: 자동차 모델명
- *       c_max_number_of_people:
- *         type: integer
- *         description: 최대 탑승 인원수
- *       c_gear:
- *         type: string
- *         description: 기어 종류
- *       c_number_of_load:
- *         type: integer
- *         description: 짐 개수
- *       c_number_of_door:
- *         type: integer
- *         description: 문 개수
- *       c_air_conditioner_or_not:
- *         type: string
- *         enum: [y, n]
- *         description: 에어컨 유무
- *       c_production_year:
- *         type: string
- *         description: 자동차 제조년도
- *       c_fuel:
- *         type: string
- *         description: 연료 종류
- *       c_description:
- *         type: string
- *         description: 자동차 설명
- *       c_driver_age:
- *         type: integer
- *         description: 자동차 보험나이
- *       a_index:
- *         type: integer
- *         description: 업체 고유번호
- *       a_name:
- *         type: string
- *         description: 업체 이름
- *       a_info:
- *         type: string
- *         description: 업체 정보
- *       a_number_of_reservation:
- *         type: integer
- *         description: 업체 예약수
- *       a_grade:
- *         type: number
- *         format: float
- *         description: 업체 평점
- *       a_new_or_not:
- *         type: string
- *         enum: [y, n]
- *         description: 신규등록업체 유무
- *       rs_index:
- *         type: integer
- *         description: 렌트가능차량 고유번호
- *       car_price:
- *         type: integer
- *         description: 렌트가능차량 가격
- *   Error_404:
- *     type: object
- *     required:
- *       - code
- *     properties:
- *       code:
- *         type: string
- *         description: 오류 코드
- *   ApiResponse:
- *      type: "object"
- *      properties:
- *          code:
- *              type: "integer"
- *              format: "int32"
- *          type:
- *              type: "string"
- *          message:
- *              type: "string"
  */
 
 router.post("/api/user/test", test);

@@ -2,6 +2,7 @@ import {
   CreateUserModel,
   CreateUserReqDTO,
   LoginUserModel,
+  SendMailModel,
   UpdateUserModel,
   UpdateUserReqDTO,
   UserInforDTO,
@@ -11,6 +12,7 @@ import {
   creatUser,
   loginUser,
   logoutUser,
+  sendEmail,
   test,
   updateUser,
 } from "../controllers/user.controller";
@@ -88,6 +90,8 @@ const router = Router();
  *            description: "사용자 생성 성공"
  *          "400":
  *            description: "사용자 생성 실패"
+ *          "403":
+ *            description: "이메일 인증을 하지않음"
  *          "409":
  *            description: "이미 유일값을 가진 유저가 존재"
  *        security:
@@ -260,6 +264,15 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
   console.log("🚀 ~ req.body", req.body);
   creatUser(user, res);
 });
+
+router.post("/api/user/mail", (req: UserRequest<SendMailModel>, res) => {
+  //회원가입 할때 필요한 정보들을 client에서 가져오면
+  //그것들을 데이터 베이스에 넣어준다.
+  const email: string = req.body.email;
+  console.log("🚀 ~ email", email);
+  sendEmail(email, res);
+});
+
 router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
   //로그인 정보(email:uq, pw:uq)들을 client에서 가져오면
   //데이터베이스의 정보(email, pw)들과 비교해서

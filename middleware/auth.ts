@@ -4,7 +4,8 @@ import { CreateUserModel } from "../types/user";
 import { Handler } from "express";
 import { UserRequest } from "../types/express";
 import mql from "../db/mysql";
-import secretToken from "../secret/jwt-token";
+
+require("dotenv").config();
 
 export const auth: Handler = (req, res, next) => {
   //인증 처리
@@ -13,7 +14,7 @@ export const auth: Handler = (req, res, next) => {
   let token = req.cookies.x_auth;
   let decoded;
   try {
-    decoded = jwt.verify(token, secretToken);
+    decoded = jwt.verify(token, process.env.TOKEN);
     //user id로 user 찾기
     console.log(decoded);
     console.log(token);

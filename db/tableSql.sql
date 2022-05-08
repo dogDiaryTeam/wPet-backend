@@ -7,7 +7,8 @@
 --  joinDate DATE NOT NULL,
 --  nickName VARCHAR(20) NOT NULL UNIQUE,
 --  profilePicture TEXT NOT NULL,
---  location VARCHAR(255)
+--  location VARCHAR(255),
+--  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
 -- )
 -- CREATE TABLE petTBL
 -- (
@@ -123,7 +124,6 @@
 --  CONSTRAINT start_end_time CHECK ( walkStartTime < walkEndTime),
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
--- alter table mealinfortbl modify mealAmount float(3,1) NOT NULL;
 -- CREATE TABLE mealInforTBL
 -- (
 --  mealInforID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -200,4 +200,10 @@
 --  todoListKeywordID INT UNSIGNED NOT NULL,
 --  FOREIGN KEY (todoListID) REFERENCES todoListTBL(todoListID) ON UPDATE CASCADE ON DELETE CASCADE,
 --  FOREIGN KEY (todoListKeywordID) REFERENCES todoListKeywordTBL(todoListKeywordID) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
+-- CREATE TABLE usermail_authstringTBL
+-- (
+--  userEmail varchar(255) NOT NULL UNIQUE,
+--  authString VARCHAR(15) NOT NULL,
+--  FOREIGN KEY (userEmail) REFERENCES userTBL(email) ON UPDATE CASCADE ON DELETE CASCADE
 -- );

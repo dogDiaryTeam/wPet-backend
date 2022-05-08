@@ -17,6 +17,10 @@ interface UpdateUserModel extends mongoose.Document {
   location?: string;
 }
 
+interface SendMailModel extends mongoose.Document {
+  email: string;
+}
+
 export interface UserInforDTO {
   userID: number;
   email: string;

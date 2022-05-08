@@ -1,13 +1,12 @@
 import * as mysql from "mysql";
 
-import passw from "../secret/db-password";
-
-console.log(passw);
+require("dotenv").config();
+console.log(process.env.DB_PASS);
 
 const mql = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: passw,
+  password: process.env.DB_PASS,
   database: "wpet_db",
 });
 

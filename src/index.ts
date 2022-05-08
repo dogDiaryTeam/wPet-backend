@@ -5,6 +5,8 @@ import cors from "cors";
 import mql from "../db/mysql";
 import userRoutes from "../routes/user.route";
 
+require("dotenv").config();
+
 // import mysql from "mysql";
 
 const { swaggerUI, specs } = require("../swagger/swagger");
@@ -14,6 +16,7 @@ const port = 3000;
 mql.connect(function (err: any) {
   if (err) throw err;
   console.log("mysql connected..");
+  // console.log(String(Math.random().toString(36).slice(2)));
 });
 
 app.use(cors());

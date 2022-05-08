@@ -8,6 +8,7 @@ import {
   dbDeleteUserToken,
   dbFindUser,
   dbInsertUser,
+  dbInsertUserEmailAuth,
   dbUpdateUserElement,
   dbUpdateUserToken,
 } from "../db/user.db";
@@ -20,8 +21,9 @@ import bcrypt from "bcrypt";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import mql from "../db/mysql";
-import secretToken from "../secret/jwt-token";
+import { sendEmail } from "./email.controller";
 
+require("dotenv").config();
 const saltRounds = 10;
 
 //400 : 잘못된 요청.
@@ -32,11 +34,43 @@ const saltRounds = 10;
 
 export const test: Handler = (req, res) => {
   //test
-  const user = req;
-  console.log("🚀 ~ user", user);
-  console.log("🚀 ~ req.body", user);
-  return res.json({
-    user: user,
+  const user = req.body;
+  const param = [user.email, user.pw, user.nickName, user.profilePicture];
+  console.log("🚀 ~ param", param);
+  console.log("🚀 ~ req.body", param);
+
+  let locationParam = req.body.location;
+
+  let sql: string =
+    "INSERT INTO usertbl(`email`, `pw`, `nickName`, `profilePicture`, `location`, `joinDate`) VALUES (?,?,?,?,?,NOW())";
+  mql.query(sql, [...param, locationParam], (err, row) => {
+    if (err) {
+      return res.json({
+        param: err,
+      });
+    }
+
+    //1시간 뒤 임시 유저 데이터 삭제
+    setTimeout(function () {
+      //isAuth = 0이라면
+      mql.query("SELECT * FROM usertbl WHERE nickName=?", "kk", (err, row) => {
+        if (err) console.log(err);
+        else if (row.length > 0) {
+          mql.query(
+            "DELETE FROM usertbl WHERE nickName=?",
+            row[0].nickName,
+            (err, row) => {
+              if (err) console.log(err);
+              console.log("삭제");
+            }
+          );
+        }
+        console.log("없");
+      });
+    }, 15000);
+    return res.json({
+      param: param,
+    });
   });
 };
 
@@ -69,7 +103,12 @@ export const creatUser = (
       return res
         .status(400)
         .json({ success: false, message: "이메일이 유효하지 않습니다." });
-    } else if (isUser) {
+    } else if (isUser && user[0].isAuth === 0) {
+      return res.status(409).json({
+        success: false,
+        message: "아직 이메일 인증을 하지 않은 유저입니다.",
+      });
+    } else if (isUser && user[0].isAuth === 1) {
       return res.status(409).json({
         success: false,
         message: "해당 이메일의 유저가 이미 존재합니다.",
@@ -82,17 +121,17 @@ export const creatUser = (
           .status(400)
           .json({ success: false, message: "닉네임이 유효하지 않습니다." });
       } else if (isUser) {
-        return res.status(409).json({
+        return res.status(403).json({
           success: false,
           message: "해당 닉네임의 유저가 이미 존재합니다.",
         });
       }
-
       // 회원가입 시 비밀번호
       bcrypt.hash(param[1], saltRounds, (error, hash) => {
         param[1] = hash;
         console.log(param);
 
+        //DB에 추가 (인증 전)
         dbInsertUser(param, locationParam, function (success, error) {
           if (!success) {
             return res.status(400).json({ success: false, message: error });
@@ -103,6 +142,35 @@ export const creatUser = (
     });
   });
 };
+
+export const authCreateUser = (
+  email: string,
+  res: Response<any, Record<string, any>, number>
+) => {
+  //이메일 주소로 인증
+  if (checkEmail(email)) {
+    let authString: string = String(Math.random().toString(36).slice(2));
+    dbInsertUserEmailAuth(email, authString, function (success, error) {
+      if (!success) {
+        console.log(error);
+      }
+      console.log("db에 authstring 넣기 성공");
+      sendEmail(email, authString);
+    });
+  } else {
+    return res
+      .status(400)
+      .json({ success: false, message: "이메일이 형식이 유효하지 않습니다." });
+  }
+};
+
+// export const sendEmail = (
+//   email: string,
+//   res: Response<any, Record<string, any>, number>
+// ) => {
+//   //이메일 주소로 인증메일을 보내고
+//   //인증 번호
+// };
 
 export const loginUser = (
   param: Array<string>,
@@ -130,9 +198,9 @@ export const loginUser = (
       if (result) {
         //성공
         //비밀번호 일치 -> token 생성
-        console.log(secretToken);
+        console.log(process.env.TOKEN);
         console.log("login");
-        let userToken = jwt.sign(user[0].userID, secretToken);
+        let userToken = jwt.sign(user[0].userID, process.env.TOKEN);
 
         dbUpdateUserToken(
           userToken,

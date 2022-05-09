@@ -17,8 +17,23 @@ interface UpdateUserModel extends mongoose.Document {
   location?: string;
 }
 
-interface SendMailModel extends mongoose.Document {
+interface SendAuthEmailModel extends mongoose.Document {
   email: string;
+}
+
+interface CompareAuthEmailModel extends mongoose.Document {
+  email: string;
+  authString: string;
+}
+
+interface FindPwModel extends mongoose.Document {
+  email: string;
+  nickName: string;
+}
+
+interface UpdatePwModel extends mongoose.Document {
+  originPw: string;
+  newPw: string;
 }
 
 export interface UserInforDTO {
@@ -30,6 +45,7 @@ export interface UserInforDTO {
   nickName: string;
   profilePicture: string;
   location: string | null;
+  isAuth: number;
 }
 
 export interface CreateUserReqDTO {

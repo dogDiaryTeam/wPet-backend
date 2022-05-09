@@ -2,8 +2,10 @@ import express, { Express, Request, Response } from "express";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import createUserRoutes from "../routes/create_user.route";
+import inforUserRoutes from "../routes/infor_user.route";
+import loginLogoutUserRoutes from "../routes/login_logout_user.route";
 import mql from "../db/mysql";
-import userRoutes from "../routes/user.route";
 
 require("dotenv").config();
 
@@ -24,7 +26,9 @@ app.use(express.json());
 //cookie
 app.use(cookieParser());
 
-app.use(userRoutes);
+app.use(createUserRoutes);
+app.use(inforUserRoutes);
+app.use(loginLogoutUserRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

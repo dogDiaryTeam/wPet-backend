@@ -40,6 +40,7 @@ declare global {
         nickName: string;
         profilePicture: string;
         location: string | null;
+        isAuth: number;
       } | null;
       token: any;
     }
@@ -47,5 +48,9 @@ declare global {
 }
 
 interface UserRequest<T> extends Request {
+  body: T;
+}
+
+interface PetRequest<T> extends Request {
   body: T;
 }

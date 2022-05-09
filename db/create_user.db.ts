@@ -17,21 +17,13 @@ export function dbInsertUser(
       setTimeout(function () {
         //인증 확인
         mql.query(
-          "SELECT * FROM usertbl WHERE email=? AND isAuth=0",
+          "DELETE FROM usertbl WHERE email=? AND isAuth=0",
           param[0],
           (err, row) => {
             if (err) console.log(err);
-            //아직 미인증 상태인 경우 -> 데이터 삭제
-            else if (row.length > 0) {
-              mql.query(
-                "DELETE FROM usertbl WHERE email=? AND isAuth=0",
-                row[0].email,
-                (err, row) => {
-                  if (err) console.log(err);
-                  //삭제 완료
-                  else console.log("삭제");
-                }
-              );
+            // 데이터가 삭제된 경우 (아직 미인증 상태인 경우)
+            else if (row.affectedRows > 0) {
+              console.log("삭제");
             }
             //이미 인증된 경우
             else {
@@ -139,45 +131,41 @@ export function dbInsertUserEmailAuth(
   );
 }
 
-//token update
-export function dbUpdateUserToken(
-  token: string,
+//사용자에게 부여된 인증번호 get
+export function dbSelectUserEmailAuth(
   email: string,
-  pw: string,
-  callback: (success: boolean, error?: MysqlError) => void
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    authString?: string | null
+  ) => void
 ): any {
-  let sql: string = "UPDATE usertbl SET token=? WHERE email=? AND pw=?";
-  return mql.query(sql, [token, email, pw], (err, row) => {
+  let sql: string =
+    "SELECT authString FROM usermail_authstringtbl WHERE userEmail=?";
+  return mql.query(sql, email, (err, row) => {
     if (err) callback(false, err);
+    //부여된 인증번호가 있는 경우
+    else if (row.length > 0) {
+      callback(true, null, row[0].authString);
+    }
+    //부여된 인증번호가 없는 경우
     else {
-      console.log("token created");
-      callback(true);
+      callback(true, null, null);
     }
   });
 }
 
-//token delete
-export function dbDeleteUserToken(
-  userID: number,
+//인증된 사용자로 update
+export function dbSuccessUserEmailAuth(
+  email: string,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
-  let sql: string = "UPDATE usertbl SET token='' WHERE userID=?";
-  return mql.query(sql, userID, (err, row) => {
+  let sql: string = "UPDATE usertbl SET isAuth=1 WHERE email=?";
+  return mql.query(sql, email, (err, row) => {
     if (err) callback(false, err);
-    else callback(true);
-  });
-}
-
-//user element update
-export function dbUpdateUserElement(
-  userID: number,
-  elementName: string,
-  elementValue: string,
-  callback: (success: boolean, error?: MysqlError) => void
-): any {
-  let sql: string = `UPDATE usertbl SET ${elementName}=? WHERE userID=?`;
-  return mql.query(sql, [elementValue, userID], (err, row) => {
-    if (err) callback(false, err);
-    else callback(true);
+    //인증 업데이트 성공
+    else {
+      callback(true);
+    }
   });
 }

@@ -8,6 +8,7 @@ const mql = mysql.createConnection({
   user: "root",
   password: process.env.DB_PASS,
   database: "wpet_db",
+  dateStrings: true,
 });
 
 export default mql;

@@ -1,15 +1,24 @@
 interface CreatePetModel extends mongoose.Document {
-  petProfilePicture: string;
   petName: string;
   birthDate: string;
   petSex: string;
-  petSpeciesName: Array<string>;
+  petProfilePicture: string;
+  petSpecies: Array<string>;
 }
 
 export interface PetInforDTO {
-  petProfilePicture: string;
   petName: string;
   birthDate: string;
   petSex: string;
-  petSpeciesName: Array<string>;
+  petProfilePicture: string;
+  petSpecies: Array<string>;
+}
+
+export interface UpdatePetInforDTO {
+  petName?: string;
+  birthDate?: string;
+  petSex?: string;
+  weight?: string;
+  petProfilePicture?: string;
+  petSpecies?: Array<string>;
 }

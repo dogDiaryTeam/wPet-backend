@@ -41,7 +41,7 @@ export interface UserInforDTO {
   email: string;
   pw: string;
   token: string | null;
-  joinDate: string;
+  joinDate: Date;
   nickName: string;
   profilePicture: string;
   location: string | null;

@@ -1,4 +1,11 @@
-import { checkEmail, checkName, checkPw } from "./validate";
+import { Handler, response } from "express";
+import {
+  checkDate,
+  checkEmail,
+  checkName,
+  checkPw,
+  checkSex,
+} from "./validate";
 import {
   dbFindUser,
   dbInsertUser,
@@ -8,9 +15,9 @@ import {
 } from "../db/create_user.db";
 
 import { CreateUserReqDTO } from "../types/user";
-import { Handler } from "express";
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
+import fs from "fs";
 import { mailSendAuthEmail } from "./email.controller";
 import mql from "../db/mysql";
 
@@ -26,43 +33,24 @@ const saltRounds = 10;
 export const test: Handler = (req, res) => {
   //test
   const user = req.body;
-  const param = [user.email, user.pw, user.nickName, user.profilePicture];
+  const param = [user.date, user.sex];
   console.log("🚀 ~ param", param);
-  console.log("🚀 ~ req.body", param);
+  // console.log("🚀 ~ req.body", typeof param);
 
-  let locationParam = req.body.location;
+  console.log(checkDate(param[0]));
+  console.log(checkSex(param[1]));
 
-  let sql: string =
-    "INSERT INTO usertbl(`email`, `pw`, `nickName`, `profilePicture`, `location`, `joinDate`) VALUES (?,?,?,?,?,NOW())";
-  mql.query(sql, [...param, locationParam], (err, row) => {
-    if (err) {
-      return res.json({
-        param: err,
-      });
-    }
-
-    //1시간 뒤 임시 유저 데이터 삭제
-    setTimeout(function () {
-      //isAuth = 0이라면
-      mql.query("SELECT * FROM usertbl WHERE nickName=?", "kk", (err, row) => {
-        if (err) console.log(err);
-        else if (row.length > 0) {
-          mql.query(
-            "DELETE FROM usertbl WHERE nickName=?",
-            row[0].nickName,
-            (err, row) => {
-              if (err) console.log(err);
-              console.log("삭제");
-            }
-          );
-        }
-        console.log("없");
-      });
-    }, 15000);
-    return res.json({
-      param: param,
-    });
-  });
+  // // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
+  // fs.writeFile("./images/test.txt", JSON.stringify(param), "utf8", (err) => {
+  //   if (err) throw err;
+  //   console.log("The file has been saved!");
+  //   // console.log(JSON.stringify(resultObj))
+  //   fs.readFile("./images/test.txt", (err, data) => {
+  //     if (err) throw err;
+  //     console.log(data.toString());
+  //     return res.json({ success: true });
+  //   });
+  // });
 };
 
 export const creatUser = (
@@ -73,10 +61,13 @@ export const creatUser = (
   //그것들을 데이터 베이스에 넣어준다.
 
   const param = [user.email, user.pw, user.nickName, user.profilePicture];
-  //string | null
+  // string | null
   const locationParam: string | null = user.location;
 
-  //요청 데이터 유효성 검사
+  // 중복 에러 메시지
+  let isOverlapUserErr: boolean = false;
+
+  // 요청 데이터 유효성 검사
   if (!checkEmail(param[0]) || !checkPw(param[1]) || !checkName(param[2])) {
     let errMsg = "";
     let emailErr = checkEmail(param[0]) ? "" : "이메일 이상.";
@@ -88,7 +79,7 @@ export const creatUser = (
     return res.status(400).json({ success: false, message: errMsg });
   }
 
-  //(이메일) 유저가 있는지
+  // (이메일) 유저가 있는지
   dbFindUser("email", param[0], function (err, isUser, user) {
     if (err) {
       return res
@@ -100,10 +91,7 @@ export const creatUser = (
         message: "아직 이메일 인증을 하지 않은 유저입니다.",
       });
     } else if (isUser && user[0].isAuth === 1) {
-      return res.status(409).json({
-        success: false,
-        message: "해당 이메일의 유저가 이미 존재합니다.",
-      });
+      isOverlapUserErr = true;
     }
     //(닉네임) 유저가 있는지
     dbFindUser("nickName", param[2], function (err, isUser, user) {
@@ -112,9 +100,24 @@ export const creatUser = (
           .status(400)
           .json({ success: false, message: "닉네임이 유효하지 않습니다." });
       } else if (isUser) {
+        // 이메일 + 닉네임 중복
+        if (isOverlapUserErr) {
+          return res.status(409).json({
+            success: false,
+            message: "이메일중복 + 닉네임중복",
+          });
+        }
+        // 닉네임만 중복
         return res.status(409).json({
           success: false,
-          message: "해당 닉네임의 유저가 이미 존재합니다.",
+          message: "닉네임중복",
+        });
+      }
+      // 이메일만 중복
+      if (isOverlapUserErr) {
+        return res.status(409).json({
+          success: false,
+          message: "이메일중복",
         });
       }
       // 회원가입 시 비밀번호

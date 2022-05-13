@@ -17,9 +17,11 @@ import {
 import { CreateUserReqDTO } from "../types/user";
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
+import { dbCheckPetExist } from "../db/create_pet.db";
 import fs from "fs";
 import { mailSendAuthEmail } from "./email.controller";
 import mql from "../db/mysql";
+import { type } from "os";
 
 require("dotenv").config();
 const saltRounds = 10;
@@ -32,13 +34,17 @@ const saltRounds = 10;
 
 export const test: Handler = (req, res) => {
   //test
-  const user = req.body;
-  const param = [user.date, user.sex];
-  console.log("🚀 ~ param", param);
+  const ownerID = req.body.ownerID;
+  const petName = req.body.petName;
+
+  // console.log("🚀 ~ param", param);
   // console.log("🚀 ~ req.body", typeof param);
 
-  console.log(checkDate(param[0]));
-  console.log(checkSex(param[1]));
+  mql.query("DELETE FROM pet_petspeciestbl WHERE petID=3;", (err, row) => {
+    console.log(row.affectedRows);
+  });
+  //     if (err) callback(false, err);
+  //     else callback(true);
 
   // // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
   // fs.writeFile("./images/test.txt", JSON.stringify(param), "utf8", (err) => {
@@ -114,7 +120,7 @@ export const creatUser = (
         });
       }
       // 이메일만 중복
-      if (isOverlapUserErr) {
+      else if (isOverlapUserErr) {
         return res.status(409).json({
           success: false,
           message: "이메일중복",

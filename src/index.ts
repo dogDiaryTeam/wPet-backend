@@ -2,7 +2,9 @@ import express, { Express, Request, Response } from "express";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import creatDeletePetRoutes from "../routes/create_delete_pet.route";
 import createUserRoutes from "../routes/create_user.route";
+import inforPetRoutes from "../routes/infor_pet.route";
 import inforUserRoutes from "../routes/infor_user.route";
 import loginLogoutUserRoutes from "../routes/login_logout_user.route";
 import mql from "../db/mysql";
@@ -29,6 +31,8 @@ app.use(cookieParser());
 app.use(createUserRoutes);
 app.use(inforUserRoutes);
 app.use(loginLogoutUserRoutes);
+app.use(creatDeletePetRoutes);
+app.use(inforPetRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

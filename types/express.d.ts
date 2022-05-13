@@ -36,7 +36,7 @@ declare global {
         email: string;
         pw: string;
         token: string | null;
-        joinDate: date;
+        joinDate: Date;
         nickName: string;
         profilePicture: string;
         location: string | null;

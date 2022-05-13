@@ -76,3 +76,19 @@ export function checkSex(sex: string): boolean {
   }
   return false;
 }
+
+//pet weight 유효성 검사
+export function checkPetWeight(weight: number): boolean {
+  if (weight <= 0 || weight > 1000) {
+    return false;
+  }
+  return true;
+}
+
+//pet species 유효성 검사
+export function checkPetSpecies(petSpecies: Array<string>): boolean {
+  if (petSpecies.length < 1 || petSpecies.length > 3) {
+    return false;
+  }
+  return true;
+}

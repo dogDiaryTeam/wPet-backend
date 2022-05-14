@@ -2,17 +2,22 @@ import { DBPetInforDTO } from "../types/pet";
 import { MysqlError } from "mysql";
 import mql from "./mysql";
 
+interface DbSelectPetsDTO {
+  petID: number;
+  petName: string;
+}
+
 // 사용자가 등록한 반려견들 정보 (반려견 이름)
 export function dbSelectPets(
   ownerID: number,
   callback: (
     success: boolean,
-    result: Array<string> | null,
+    result: Array<DbSelectPetsDTO> | null,
     error: MysqlError | null,
     message?: string
   ) => void
 ): any {
-  let sql: string = "SELECT petName FROM pettbl WHERE ownerID=?";
+  let sql: string = "SELECT petID, petName FROM pettbl WHERE ownerID=?";
 
   return mql.query(sql, ownerID, (err, row) => {
     if (err) callback(false, null, err);

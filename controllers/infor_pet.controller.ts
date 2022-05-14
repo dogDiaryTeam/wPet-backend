@@ -9,7 +9,7 @@ import {
   dbCheckPetExist,
   dbCheckPetName,
   dbCheckPetSpecies,
-} from "../db/create_pet.db";
+} from "../db/create_delete_pet.db";
 import {
   dbSelectPets,
   dbUpdatePetInfor,
@@ -23,7 +23,7 @@ export const getUserPets = (
   userID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
-  // userID의 사용자가 등록한 pet들 정보 return
+  // userID의 사용자가 등록한 pet들 정보 (petID, petName) return
   dbSelectPets(userID, function (success, result, err, msg) {
     if (!success && err) {
       return res.status(400).json({ success: false, message: err });
@@ -41,18 +41,13 @@ export const getUserPets = (
 
 export const getPetInfor = (
   userID: number,
-  petName: string,
+  petID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
   // userID의 유저가 등록한 pet 한마리 정보 return
-  // petName 유효성 검증
-  if (!checkName(petName))
-    return res
-      .status(400)
-      .json({ success: false, message: "반려견 이름이 유효하지 않습니다." });
 
-  // userID의 유저가 등록한 pet들 중 petName의 pet 존재하는지 검증
-  dbCheckPetExist(userID, petName, function (success, result, err, msg) {
+  // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
       return res.status(400).json({ success: false, message: err });
     }
@@ -68,101 +63,92 @@ export const getPetInfor = (
 
 export const updatePetInfor = (
   userID: number,
-  petName: string,
-  param: UpdatePetInforDTO,
+  updateInfor: UpdatePetInforDTO,
   res: Response<any, Record<string, any>, number>
 ) => {
   // userID의 유저가 등록한 pet 한마리 정보 수정 (weight 포함)
-  // petName 유효성 검증
-  if (!checkName(petName))
-    return res
-      .status(400)
-      .json({ success: false, message: "반려견 이름이 유효하지 않습니다." });
 
-  // userID의 유저가 등록한 pet들 중 petName의 pet 존재하는지 검증
-  dbCheckPetExist(userID, petName, function (success, result, err, msg) {
-    if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+  // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
+  dbCheckPetExist(
+    userID,
+    updateInfor.petID,
+    function (success, result, err, msg) {
+      if (!success && err) {
+        return res.status(400).json({ success: false, message: err });
+      }
+      // 사용자에게 해당 이름의 pet이 존재하지 않는 경우
+      else if (!success && !err) {
+        return res.status(404).json({ success: false, message: msg });
+      } else if (result) {
+        // pet이 존재하는 경우
+        // param 유효성 검증
+        let patchValue: string | Date | number | Array<string> | undefined;
+        let patchKeys: Array<string> = Object.keys(updateInfor.updateElement);
+        let patchLength: number = patchKeys.length;
+        //key가 하나 이상이라면
+        if (patchLength > 1) {
+          return res.status(400).json({
+            success: false,
+            message: "수정 항목의 최대 길이(1)를 초과하는 리스트입니다.",
+          });
+        }
+
+        //petName 수정
+        if ("petName" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["petName"];
+          console.log("petName 있음");
+          if (patchValue)
+            updatePetName(userID, updateInfor.petID, patchValue, res);
+        }
+        //birthDate 수정
+        else if ("birthDate" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["birthDate"];
+          //birthDate 있다면
+          console.log("birthDate 있음");
+          //birthDate 유효
+          if (patchValue)
+            updatePetBirthDate(updateInfor.petID, patchValue, res);
+        }
+        //petSex 수정
+        else if ("petSex" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["petSex"];
+          console.log("petSex 있음");
+          //petSex 유효
+          if (patchValue) updatePetSex(updateInfor.petID, patchValue, res);
+        }
+        //weight 수정
+        else if ("weight" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["weight"];
+          console.log("weight 있음");
+          //weight 유효
+          if (patchValue) updatePetWeight(updateInfor.petID, patchValue, res);
+        }
+        //petProfilePicture 수정
+        else if ("petProfilePicture" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["petProfilePicture"];
+          console.log("petProfilePicture 있음");
+          //petProfilePicture 유효
+          if (patchValue)
+            updatePetProfilePicture(updateInfor.petID, patchValue, res);
+        }
+        //petSpecies 수정
+        else if ("petSpecies" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["petSpecies"];
+          console.log("petSpecies 있음");
+          //petSpecies 유효
+          if (patchValue) updatePetSpecies(updateInfor.petID, patchValue, res);
+        }
+
+        //그 외 (err)
+        else {
+          return res.status(400).json({
+            success: false,
+            message: "수정이 불가능한 항목이 존재합니다.",
+          });
+        }
+      }
     }
-    // 사용자에게 해당 이름의 pet이 존재하지 않는 경우
-    else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
-    } else if (result) {
-      // pet이 존재하는 경우
-      let petID: number = result.petID;
-      // param 유효성 검증
-      let patchValue: string | Date | number | Array<string> | undefined;
-      let patchKeys: Array<string> = Object.keys(param);
-      let patchLength: number = patchKeys.length;
-      //key가 하나 이상이라면
-      if (patchLength > 1) {
-        return res.status(400).json({
-          success: false,
-          message: "수정 항목의 최대 길이(1)를 초과하는 리스트입니다.",
-        });
-      }
-
-      //petName 수정
-      if ("petName" in param) {
-        patchValue = param["petName"];
-        console.log("petName 있음");
-        // if (patchValue) updateUserNickName(userID, patchValue, res);
-      }
-      //birthDate 수정
-      else if ("birthDate" in param) {
-        patchValue = param["birthDate"];
-        //birthDate 있다면
-        console.log("birthDate 있음");
-        //birthDate 유효
-        // if (patchValue) updateUserProfilePicture(userID, patchValue, res);
-      }
-      //petSex 수정
-      else if ("petSex" in param) {
-        patchValue = param["petSex"];
-        console.log("petSex 있음");
-        //petSex 유효
-        // if (patchValue) updateUserLocation(userID, patchValue, res);
-      }
-      //weight 수정
-      else if ("weight" in param) {
-        patchValue = param["weight"];
-        console.log("weight 있음");
-        //weight 유효
-        // if (patchValue) updateUserLocation(userID, patchValue, res);
-      }
-      //petProfilePicture 수정
-      else if ("petProfilePicture" in param) {
-        patchValue = param["petProfilePicture"];
-        console.log("petProfilePicture 있음");
-        //petProfilePicture 유효
-        // if (patchValue) updateUserLocation(userID, patchValue, res);
-      }
-      //petSpecies 수정
-      else if ("petSpecies" in param) {
-        patchValue = param["petSpecies"];
-        console.log("petSpecies 있음");
-        //petSpecies 유효
-        // if (patchValue) updateUserLocation(userID, patchValue, res);
-      }
-
-      //그 외 (err)
-      else {
-        return res.status(400).json({
-          success: false,
-          message: "수정이 불가능한 항목이 존재합니다.",
-        });
-      }
-    }
-  });
-
-  // userID의 유저가 등록한 pet들 중 petName의 pet 존재하는지 검증
-  // 있다면
-  // 그 pet의 정보 update
-  // petname -> 그 user의 다른 petname 중복 안되는지 확인
-  // petProfilePicture -> 기존 사진 덮어씌우기
-  // petSpecies -> table에 있는 종인지
-  // pettbl + species return
-  //
+  );
 };
 
 // 반려견 이름 업데이트

@@ -6,16 +6,19 @@ interface CreatePetModel extends mongoose.Document {
   petSpecies: Array<string>;
 }
 
-interface PetNameModel extends mongoose.Document {
-  petName: string;
+interface PetIDModel extends mongoose.Document {
+  petID: number;
 }
 interface UpdatePetModel extends mongoose.Document {
-  petName?: string;
-  birthDate?: Date;
-  petSex?: string;
-  weight?: number;
-  petProfilePicture?: string;
-  petSpecies?: Array<string>;
+  petID: number;
+  updateElement: {
+    petName?: string;
+    birthDate?: Date;
+    petSex?: string;
+    weight?: number;
+    petProfilePicture?: string;
+    petSpecies?: Array<string>;
+  };
 }
 
 export interface PetInforDTO {
@@ -38,10 +41,13 @@ export interface DBPetInforDTO {
 }
 
 export interface UpdatePetInforDTO {
-  petName?: string;
-  birthDate?: Date;
-  petSex?: string;
-  weight?: number;
-  petProfilePicture?: string;
-  petSpecies?: Array<string>;
+  petID: number;
+  updateElement: {
+    petName?: string;
+    birthDate?: Date;
+    petSex?: string;
+    weight?: number;
+    petProfilePicture?: string;
+    petSpecies?: Array<string>;
+  };
 }

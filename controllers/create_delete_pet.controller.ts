@@ -6,7 +6,7 @@ import {
   dbCheckPetSpecies,
   dbDeletePet,
   dbInsertPet,
-} from "../db/create_pet.db";
+} from "../db/create_delete_pet.db";
 
 import { Response } from "express-serve-static-core";
 
@@ -90,18 +90,13 @@ export const createPet = (
 };
 export const deletePet = (
   userID: number,
-  petName: string,
+  petID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
   // userID의 유저가 등록한 pet 한마리 삭제
-  // petName 유효성 검증
-  if (!checkName(petName))
-    return res
-      .status(400)
-      .json({ success: false, message: "반려견 이름이 유효하지 않습니다." });
 
-  // userID의 유저가 등록한 pet들 중 petName의 pet 존재하는지 검증
-  dbCheckPetExist(userID, petName, function (success, result, err, msg) {
+  // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
       return res.status(400).json({ success: false, message: err });
     }

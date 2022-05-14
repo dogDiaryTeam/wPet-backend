@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import creatDeletePetRoutes from "../routes/create_delete_pet.route";
+import createDeleteDiaryRoutes from "../routes/create_delete_diary.route";
 import createUserRoutes from "../routes/create_user.route";
 import inforPetRoutes from "../routes/infor_pet.route";
 import inforUserRoutes from "../routes/infor_user.route";
@@ -33,6 +34,7 @@ app.use(inforUserRoutes);
 app.use(loginLogoutUserRoutes);
 app.use(creatDeletePetRoutes);
 app.use(inforPetRoutes);
+app.use(createDeleteDiaryRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

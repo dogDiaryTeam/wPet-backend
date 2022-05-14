@@ -1,10 +1,14 @@
 import {
+  PetIDModel,
   PetInforDTO,
-  PetNameModel,
   UpdatePetInforDTO,
   UpdatePetModel,
 } from "../types/pet";
-import { getPetInfor, getUserPets } from "../controllers/infor_pet.controller";
+import {
+  getPetInfor,
+  getUserPets,
+  updatePetInfor,
+} from "../controllers/infor_pet.controller";
 
 import { PetRequest } from "../types/express";
 import { Router } from "express";
@@ -30,16 +34,16 @@ router.get("/api/pet/getnames", auth, (req, res) => {
   }
 });
 
-router.post("/api/pet/getinfor", auth, (req: PetRequest<PetNameModel>, res) => {
+router.post("/api/pet/getinfor", auth, (req: PetRequest<PetIDModel>, res) => {
   // 사용자가 등록한 pet 중
   // 해당 petName의 pet 정보 return
   let user: UserInforDTO | null = req.user;
 
   if (user) {
     // 유저 인증 완료
-    const petName: string = req.body.petName;
-    console.log("🚀 ~ pet", petName);
-    getPetInfor(user.userID, petName, res);
+    const petID: number = req.body.petID;
+    console.log("🚀 ~ pet", petID);
+    getPetInfor(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({
@@ -60,7 +64,7 @@ router.post("/api/pet/update", auth, (req: PetRequest<UpdatePetModel>, res) => {
     //object
     const param: UpdatePetInforDTO = req.body;
     console.log("🚀 ~ pet", param);
-    // getPetInfor(user.userID, param, res);
+    updatePetInfor(user.userID, param, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({

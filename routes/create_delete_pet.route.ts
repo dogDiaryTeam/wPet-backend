@@ -1,4 +1,4 @@
-import { CreatePetModel, PetInforDTO, PetNameModel } from "../types/pet";
+import { CreatePetModel, PetIDModel, PetInforDTO } from "../types/pet";
 import {
   createPet,
   deletePet,
@@ -31,15 +31,15 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
   }
 });
 
-router.post("/api/pet/delete", auth, (req: PetRequest<PetNameModel>, res) => {
+router.post("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
   // petName에 해당하는 펫을 삭제
   let user: UserInforDTO | null = req.user;
 
   if (user) {
     // 유저 인증 완료
-    const petName: string = req.body.petName;
-    console.log("🚀 ~ pet", petName);
-    deletePet(user.userID, petName, res);
+    const petID: number = req.body.petID;
+    console.log("🚀 ~ pet", petID);
+    deletePet(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({

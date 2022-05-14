@@ -17,7 +17,7 @@ import {
 import { CreateUserReqDTO } from "../types/user";
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
-import { dbCheckPetExist } from "../db/create_pet.db";
+import { dbCheckPetExist } from "../db/create_delete_pet.db";
 import fs from "fs";
 import { mailSendAuthEmail } from "./email.controller";
 import mql from "../db/mysql";
@@ -40,9 +40,16 @@ export const test: Handler = (req, res) => {
   // console.log("🚀 ~ param", param);
   // console.log("🚀 ~ req.body", typeof param);
 
-  mql.query("DELETE FROM pet_petspeciestbl WHERE petID=3;", (err, row) => {
-    console.log(row.affectedRows);
-  });
+  mql.query(
+    `INSERT INTO diarytbl (petID, diaryDate, title, picture, texts, shareIs, petState, weather, color, font) VALUES (3, NOW(), 'aa', 'aa', 'aa', 0, 'aa', 'aa', 'aa', 'aa'), (7, NOW(), 'aa', 'aa', 'aa', 0, 'aa', 'aa', 'aa', 'aa')`,
+    (err, row) => {
+      if (err) console.log(err);
+      else {
+        console.log(row);
+        console.log(row.insertId);
+      }
+    }
+  );
   //     if (err) callback(false, err);
   //     else callback(true);
 

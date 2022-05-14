@@ -1,4 +1,4 @@
-import { dbCheckPetSpecies } from "../db/create_pet.db";
+import { dbCheckPetSpecies } from "../db/create_delete_pet.db";
 
 //email 유효성 검사
 export function checkEmail(email: string): boolean {
@@ -89,6 +89,40 @@ export function checkPetWeight(weight: number): boolean {
 export function checkPetSpecies(petSpecies: Array<string>): boolean {
   if (petSpecies.length < 1 || petSpecies.length > 3) {
     return false;
+  }
+  return true;
+}
+
+// string length 유효성 검사
+export function checkStringLen(str: string, len: number): boolean {
+  // str 길이가 len 을 넘으면 false
+  if (str.length > len) {
+    return false;
+  }
+  return true;
+}
+
+// diary weather 유효성 검사
+export function checkDiaryWeather(weather: string): boolean {
+  // 추후 수정
+  let dbWeather: Array<string> = ["맑음", "흐림", "비", "번개", "눈", "바람"];
+  // 포함
+  if (dbWeather.indexOf(weather) > -1) {
+    return true;
+  }
+  // 미포함
+  return false;
+}
+
+// diary hashtags 유효성 검사
+export function checkDiaryHashTags(hashTags: Array<string>): boolean {
+  // 추후 수정
+  let maxNum: number = 30;
+  let hashTagsLen: number = hashTags.length;
+  for (let i = 0; i < hashTagsLen; i++) {
+    if (hashTags[i].length > maxNum) {
+      return false;
+    }
   }
   return true;
 }

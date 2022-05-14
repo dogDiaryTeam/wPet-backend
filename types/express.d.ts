@@ -54,3 +54,7 @@ interface UserRequest<T> extends Request {
 interface PetRequest<T> extends Request {
   body: T;
 }
+
+interface DiaryRequest<T> extends Request {
+  body: T;
+}

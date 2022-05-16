@@ -4,7 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import creatDeletePetRoutes from "../routes/create_delete_pet.route";
 import createDeleteDiaryRoutes from "../routes/create_delete_diary.route";
-import createUserRoutes from "../routes/create_user.route";
+import createUserRoutes from "../routes/create_delete_user.route";
+import inforDiaryRoutes from "../routes/infor_diary.route";
 import inforPetRoutes from "../routes/infor_pet.route";
 import inforUserRoutes from "../routes/infor_user.route";
 import loginLogoutUserRoutes from "../routes/login_logout_user.route";
@@ -24,7 +25,8 @@ mql.connect(function (err: any) {
   // console.log(String(Math.random().toString(36).slice(2)));
 });
 
-app.use(cors());
+// app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:5000" }));
 app.use(express.json());
 //cookie
 app.use(cookieParser());
@@ -35,6 +37,7 @@ app.use(loginLogoutUserRoutes);
 app.use(creatDeletePetRoutes);
 app.use(inforPetRoutes);
 app.use(createDeleteDiaryRoutes);
+app.use(inforDiaryRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

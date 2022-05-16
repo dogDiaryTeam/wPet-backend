@@ -15,11 +15,12 @@ import {
   creatUser,
   sendAuthEmail,
   test,
-} from "../controllers/create_user.controller";
+} from "../controllers/create_delete_user.controller";
 
 import { Router } from "express";
 import { UserRequest } from "../types/express";
 import { auth } from "../middleware/auth";
+import { checkEmptyValue } from "../controllers/validate";
 
 const router = Router();
 
@@ -160,6 +161,18 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
   const user: CreateUserReqDTO = req.body;
   console.log("🚀 ~ user", user);
   console.log("🚀 ~ req.body", req.body);
+  if (
+    checkEmptyValue(user.email) ||
+    checkEmptyValue(user.pw) ||
+    checkEmptyValue(user.nickName) ||
+    checkEmptyValue(user.profilePicture) ||
+    checkEmptyValue(user.location)
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "PARAMETER IS EMPTY",
+    });
+  }
   creatUser(user, res);
 });
 
@@ -171,6 +184,12 @@ router.post(
     // 인증번호 담은 인증메일 전송
     const email: string = req.body.email;
     console.log("🚀 ~ email", email);
+    if (checkEmptyValue(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "PARAMETER IS EMPTY",
+      });
+    }
     sendAuthEmail(email, res);
   }
 );
@@ -185,6 +204,12 @@ router.post(
     const email: string = req.body.email;
     const authString: string = req.body.authString;
     console.log("🚀 ~ email", email);
+    if (checkEmptyValue(email) || checkEmptyValue(authString)) {
+      return res.status(400).json({
+        success: false,
+        message: "PARAMETER IS EMPTY",
+      });
+    }
     compareAuthEmail(email, authString, res);
   }
 );

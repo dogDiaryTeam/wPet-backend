@@ -2,13 +2,15 @@ import { UpdateUserReqDTO, UserInforDTO } from "../types/user";
 import { checkLocation, checkName, checkPw } from "./validate";
 import {
   dbAuthUserOriginPw,
+  dbSelectUserProfilePictureUrl,
   dbUpdateUserElement,
   dbUpdateUserNewPw,
 } from "../db/infor_user.db";
+import { dbDeletePictureFile, imageController } from "./image.controller";
 
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../db/create_user.db";
+import { dbFindUser } from "../db/create_delete_user.db";
 
 const saltRounds = 10;
 
@@ -153,20 +155,53 @@ function updateUserProfilePicture(
   patchValue: string,
   res: Response<any, Record<string, any>, number>
 ) {
-  dbUpdateUserElement(
-    userID,
-    "profilePicture",
-    patchValue,
-    function (success, error) {
-      if (!success) {
-        return res.status(400).json({ success: false, message: error });
-      }
-      //update profilePicture 성공
-      else {
-        return res.json({ success: true });
-      }
+  // 기존 사용자 사진 파일의 url 가져오기
+  dbSelectUserProfilePictureUrl(userID, function (success, result, err, msg) {
+    if (!success && err) {
+      return res.status(400).json({ success: false, message: err });
     }
-  );
+    // 사용자가 존재하지 않는 경우
+    else if (!success && !err) {
+      return res.status(404).json({ success: false, message: msg });
+    } else if (result) {
+      // result == 기존 사용자 사진 파일의 url
+      // 해당 파일 삭제
+      dbDeletePictureFile(result, function (success, error) {
+        if (!success) {
+          return res.status(400).json({ success: false, message: error });
+        }
+        // 파일 삭제 완료
+        // 수정할 이미지 데이터 -> 새로운 파일에 삽입
+        // 이미지 파일 컨트롤러
+        imageController(patchValue, function (success, imageFileUrl, error) {
+          if (!success) {
+            return res.status(400).json({ success: false, message: error });
+          }
+          // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+          else if (imageFileUrl) {
+            patchValue = imageFileUrl;
+
+            dbUpdateUserElement(
+              userID,
+              "profilePicture",
+              patchValue,
+              function (success, error) {
+                if (!success) {
+                  return res
+                    .status(400)
+                    .json({ success: false, message: error });
+                }
+                //update profilePicture 성공
+                else {
+                  return res.json({ success: true });
+                }
+              }
+            );
+          }
+        });
+      });
+    }
+  });
 }
 
 //user location 업데이트

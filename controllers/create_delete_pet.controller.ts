@@ -7,6 +7,7 @@ import {
   dbDeletePet,
   dbInsertPet,
 } from "../db/create_delete_pet.db";
+import { dbDeletePictureFile, imageController } from "./image.controller";
 
 import { Response } from "express-serve-static-core";
 
@@ -62,7 +63,7 @@ export const createPet = (
         }
         // pet 종이 db에 존재하지 않는 경우
         else if (!success && !err) {
-          return res.status(400).json({ success: false, message: msg });
+          return res.status(404).json({ success: false, message: msg });
         }
         // pet 종이 db에 존재하는 경우
         // userID, petname -> 그 user의 petName 중복 안되는지 확인
@@ -76,13 +77,29 @@ export const createPet = (
           }
           // petName 중복 안되는 경우
           // pet insert
-          dbInsertPet(userID, pet, function (success, err) {
-            if (!success) {
-              return res.status(400).json({ success: false, message: err });
+          // DB에 추가 (인증 전)
+          // 이미지 파일 컨트롤러
+          imageController(
+            pet.petProfilePicture,
+            function (success, imageFileUrl, error) {
+              if (!success) {
+                return res.status(400).json({ success: false, message: error });
+              }
+              // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+              else if (imageFileUrl) {
+                pet.petProfilePicture = imageFileUrl;
+                dbInsertPet(userID, pet, function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(400)
+                      .json({ success: false, message: err });
+                  }
+                  // insert 성공
+                  return res.json({ success: true });
+                });
+              }
             }
-            // insert 성공
-            return res.json({ success: true });
-          });
+          );
         });
       }
     );
@@ -114,7 +131,17 @@ export const deletePet = (
           return res.status(400).json({ success: false, message: err });
         }
         // pet 삭제 성공
-        return res.json({ success: true });
+        // pet 사진url -> 사진 파일 삭제
+        dbDeletePictureFile(
+          result.petProfilePicture,
+          function (success, error) {
+            if (!success) {
+              return res.status(400).json({ success: false, message: error });
+            }
+            // 파일 삭제 성공
+            return res.json({ success: true });
+          }
+        );
       });
     }
   });

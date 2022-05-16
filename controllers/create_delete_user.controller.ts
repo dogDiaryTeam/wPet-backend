@@ -12,13 +12,14 @@ import {
   dbInsertUserEmailAuth,
   dbSelectUserEmailAuth,
   dbSuccessUserEmailAuth,
-} from "../db/create_user.db";
+} from "../db/create_delete_user.db";
 
 import { CreateUserReqDTO } from "../types/user";
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
 import { dbCheckPetExist } from "../db/create_delete_pet.db";
 import fs from "fs";
+import { imageController } from "./image.controller";
 import { mailSendAuthEmail } from "./email.controller";
 import mql from "../db/mysql";
 import { type } from "os";
@@ -34,25 +35,10 @@ const saltRounds = 10;
 
 export const test: Handler = (req, res) => {
   //test
-  const ownerID = req.body.ownerID;
-  const petName = req.body.petName;
-
   // console.log("🚀 ~ param", param);
   // console.log("🚀 ~ req.body", typeof param);
-
-  mql.query(
-    `INSERT INTO diarytbl (petID, diaryDate, title, picture, texts, shareIs, petState, weather, color, font) VALUES (3, NOW(), 'aa', 'aa', 'aa', 0, 'aa', 'aa', 'aa', 'aa'), (7, NOW(), 'aa', 'aa', 'aa', 0, 'aa', 'aa', 'aa', 'aa')`,
-    (err, row) => {
-      if (err) console.log(err);
-      else {
-        console.log(row);
-        console.log(row.insertId);
-      }
-    }
-  );
   //     if (err) callback(false, err);
   //     else callback(true);
-
   // // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
   // fs.writeFile("./images/test.txt", JSON.stringify(param), "utf8", (err) => {
   //   if (err) throw err;
@@ -138,12 +124,22 @@ export const creatUser = (
         param[1] = hash;
         console.log(param);
 
-        //DB에 추가 (인증 전)
-        dbInsertUser(param, locationParam, function (success, error) {
+        // DB에 추가 (인증 전)
+        // 이미지 파일 컨트롤러
+        imageController(param[3], function (success, imageFileUrl, error) {
           if (!success) {
             return res.status(400).json({ success: false, message: error });
           }
-          return res.json({ success: true });
+          // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+          else if (imageFileUrl) {
+            param[3] = imageFileUrl;
+            dbInsertUser(param, locationParam, function (success, error) {
+              if (!success) {
+                return res.status(400).json({ success: false, message: error });
+              }
+              return res.json({ success: true });
+            });
+          }
         });
       });
     });
@@ -220,3 +216,27 @@ export const compareAuthEmail = (
       .json({ success: false, message: "이메일이 형식이 유효하지 않습니다." });
   }
 };
+
+// export const deleteUser = (
+//   email: string,
+//   res: Response<any, Record<string, any>, number>
+// ) => {
+//   //이메일 주소로 인증
+//   if (checkEmail(email)) {
+//     let authString: string = String(Math.random().toString(36).slice(2));
+//     dbInsertUserEmailAuth(email, authString, function (success, error) {
+//       if (!success) {
+//         console.log(error);
+//       } else {
+//         //인증번호 부여 성공
+//         console.log("db에 authstring 넣기 성공");
+//         //인증번호를 담은 메일 전송
+//         mailSendAuthEmail(email, authString, res);
+//       }
+//     });
+//   } else {
+//     return res
+//       .status(400)
+//       .json({ success: false, message: "이메일 형식이 유효하지 않습니다." });
+//   }
+// };

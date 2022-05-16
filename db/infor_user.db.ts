@@ -89,3 +89,22 @@ export function dbUpdateUserElement(
     else callback(true);
   });
 }
+
+// user (기존) 사진파일 가져오기
+export function dbSelectUserProfilePictureUrl(
+  userID: number,
+  callback: (
+    success: boolean,
+    result: string | null,
+    error: MysqlError | null,
+    message?: string
+  ) => void
+): any {
+  // 기존 사진파일 url 가져오기
+  let sql: string = `SELECT profilePicture FROM usertbl WHERE userID=?`;
+  return mql.query(sql, userID, (err, row) => {
+    if (err) callback(false, null, err);
+    else if (row.length > 0) callback(true, row[0], null);
+    else callback(false, null, null, "사용자가 존재하지 않습니다.");
+  });
+}

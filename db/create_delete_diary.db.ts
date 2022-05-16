@@ -63,7 +63,9 @@ export function dbWriteDiary(
   let petIDs: Array<number> = diaryInfor.petIDs;
   let petNum: number = petIDs.length;
 
-  let sql: string = `INSERT INTO diarytbl (petID, diaryDate, title, picture, texts, shareIs, petState, weather, color, font) VALUES ("${diaryInfor.petIDs[0]}",NOW(),"${diaryInfor.title}", "${diaryInfor.picture}", "${diaryInfor.texts}", "${diaryInfor.shareIs}", "${diaryInfor.petState}", "${diaryInfor.weather}", "${diaryInfor.color}", "${diaryInfor.font}")`;
+  let sql: string = `INSERT INTO diarytbl (petID, diaryDate, title, picture, texts, shareIs, petState, weather, color, font) 
+                    VALUES ("${diaryInfor.petIDs[0]}",NOW(),"${diaryInfor.title}", "${diaryInfor.picture}", "${diaryInfor.texts}", 
+                    "${diaryInfor.shareIs}", "${diaryInfor.petState}", "${diaryInfor.weather}", "${diaryInfor.color}", "${diaryInfor.font}")`;
   for (let i = 0; i < petNum - 1; i++) {
     sql += `,("${diaryInfor.petIDs[i + 1]}",NOW(),"${diaryInfor.title}", "${
       diaryInfor.picture
@@ -118,8 +120,9 @@ export function dbWriteDiary(
   });
 }
 
-// 다이어리 삭제
-export function dbDeleteDiary(
+// 반려견의 다이어리가 맞는지 검증
+export function dbCheckPetsDiary(
+  petID: number,
   diaryID: number,
   callback: (
     success: boolean,
@@ -127,22 +130,30 @@ export function dbDeleteDiary(
     message?: string
   ) => void
 ): any {
-  let selectSql: string = "SELECT * FROM diarytbl WHERE diaryID=?";
+  let checkSql: string = "SELECT * FROM diarytbl WHERE diaryID=? AND petID=?";
 
-  return mql.query(selectSql, diaryID, (err, row) => {
+  return mql.query(checkSql, [diaryID, petID], (err, row) => {
     if (err) callback(false, err);
     else if (row.length === 0) {
-      // 해당 다이어리 없음
-      callback(false, null, "삭제할 다이어리가 존재하지 않습니다.");
+      // 반려견의 다이어리가 아님
+      callback(false, null, "반려견의 다이어리가 아닙니다.");
     } else {
-      // 해당 다이어리 있음
-      // 다이어리 삭제
-      let diaryDeleteSql: string = "DELETE FROM diarytbl WHERE diaryID=?";
-      mql.query(diaryDeleteSql, diaryID, (err, row) => {
-        if (err) callback(false, err);
-        // 다이어리 삭제 성공
-        else callback(true, null);
-      });
+      // 반려견의 다이어리가 맞음
+      callback(true, null);
     }
+  });
+}
+
+// 다이어리 삭제
+export function dbDeleteDiary(
+  diaryID: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let diaryDeleteSql: string = "DELETE FROM diarytbl WHERE diaryID=?";
+
+  return mql.query(diaryDeleteSql, diaryID, (err, row) => {
+    if (err) callback(false, err);
+    // 다이어리 삭제 성공
+    else callback(true);
   });
 }

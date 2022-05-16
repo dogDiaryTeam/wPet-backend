@@ -11,8 +11,13 @@ interface CreateDiaryModel extends mongoose.Document {
   hashTags: Array<string>;
 }
 
-interface DeleteDiaryModel extends mongoose.Document {
+interface PetDiaryModel extends mongoose.Document {
+  petID: number;
   diaryID: number;
+}
+
+interface PetAllDiaryModel extends mongoose.Document {
+  petID: number;
 }
 
 export interface DiaryInforDTO {
@@ -27,3 +32,8 @@ export interface DiaryInforDTO {
   font: string;
   hashTags: Array<string>;
 }
+
+// export interface DeleteDiaryDTO {
+//   petID: number;
+//   diaryID: number;
+// }

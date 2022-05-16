@@ -9,6 +9,8 @@ import { updateUser, updateUserPw } from "../controllers/infor_user.controller";
 import { Router } from "express";
 import { UserRequest } from "../types/express";
 import { auth } from "../middleware/auth";
+import { checkEmptyValue } from "../controllers/validate";
+import { dbSelectPictureFile } from "../controllers/image.controller";
 
 const router = Router();
 
@@ -145,19 +147,37 @@ router.get("/api/user/auth", auth, (req, res) => {
   //role:0 -> 일반인
   //role:1,2.... -> 관리자
   if (user) {
-    res.status(200).json({
-      success: true,
-      email: user.email,
-      joinDate: user.joinDate,
-      nickName: user.nickName,
-      profilePicture: user.profilePicture,
-      location: user.location,
-    });
+    // 사용자 사진 가져오기
+    dbSelectPictureFile(
+      user.profilePicture,
+      function (success, result, error, msg) {
+        if (!success && error) {
+          return res.status(400).json({ success: false, message: error });
+        }
+        // 파일이 없는 경우
+        else if (!success && !error) {
+          return res.status(404).json({ success: false, message: msg });
+        }
+        // 파일에서 이미지 데이터 가져오기 성공
+        else if (result && user) {
+          let userImage: string = result;
+
+          res.status(200).json({
+            success: true,
+            email: user.email,
+            joinDate: user.joinDate,
+            nickName: user.nickName,
+            profilePicture: userImage,
+            location: user.location,
+          });
+        }
+      }
+    );
   } else {
     //유저 인증 no
     return res.status(401).json({
       isAuth: false,
-      message: "유저 인증에 실패하였습니다.",
+      message: "USER AUTH FAILED",
     });
   }
 });
@@ -173,16 +193,20 @@ router.patch(
     if (user) {
       console.log("PATCH");
       console.log("🚀 ~ req.body", req.body);
-
       let userID: number = user.userID;
-
       //object
       const param: UpdateUserReqDTO = req.body;
+      if (checkEmptyValue(param)) {
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      }
       updateUser(userID, param, res);
     } else {
       return res.status(401).json({
         isAuth: false,
-        message: "유저 인증에 실패하였습니다.",
+        message: "USER AUTH FAILED",
       });
     }
   }
@@ -200,11 +224,17 @@ router.post(
       const originPw: string = req.body.originPw;
       const newPw: string = req.body.newPw;
       console.log("🚀 ~ pw", originPw, newPw);
+      if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      }
       updateUserPw(originPw, newPw, user, res);
     } else {
       return res.status(401).json({
         isAuth: false,
-        message: "유저 인증에 실패하였습니다.",
+        message: "USER AUTH FAILED",
       });
     }
   }

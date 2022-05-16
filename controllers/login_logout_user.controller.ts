@@ -8,7 +8,7 @@ import {
 import { Response } from "express-serve-static-core";
 import { UserInforDTO } from "../types/user";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../db/create_user.db";
+import { dbFindUser } from "../db/create_delete_user.db";
 import jwt from "jsonwebtoken";
 import { mailSendTempPw } from "./email.controller";
 

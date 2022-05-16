@@ -1,9 +1,16 @@
 import { dbCheckPetSpecies } from "../db/create_delete_pet.db";
 
+//null 값 유효성 검사
+export function checkEmptyValue(value: any): boolean {
+  return typeof value === "undefined" || value === null || value === ""
+    ? true
+    : false;
+}
+
 //email 유효성 검사
 export function checkEmail(email: string): boolean {
   let regExp =
-    /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
   return regExp.test(email);
 }
 

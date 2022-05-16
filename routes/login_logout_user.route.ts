@@ -8,6 +8,7 @@ import {
 import { Router } from "express";
 import { UserRequest } from "../types/express";
 import { auth } from "../middleware/auth";
+import { checkEmptyValue } from "../controllers/validate";
 
 const router = Router();
 
@@ -121,6 +122,12 @@ router.post("/api/user/findpw", (req: UserRequest<FindPwModel>, res) => {
   const email: string = req.body.email;
   const nickName: string = req.body.nickName;
   console.log("🚀 ~ email ~ nickName", email, nickName);
+  if (checkEmptyValue(email) || checkEmptyValue(nickName)) {
+    return res.status(400).json({
+      success: false,
+      message: "PARAMETER IS EMPTY",
+    });
+  }
   findUserPw(email, nickName, res);
 });
 
@@ -130,6 +137,12 @@ router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
   //존재하는 유저라면 success=true
   const param: Array<string> = [req.body.email, req.body.pw];
   console.log("🚀 ~ param", param);
+  if (checkEmptyValue(param[0]) || checkEmptyValue(param[1])) {
+    return res.status(400).json({
+      success: false,
+      message: "PARAMETER IS EMPTY",
+    });
+  }
   loginUser(param, res);
 });
 
@@ -140,11 +153,12 @@ router.get("/api/user/logout", auth, (req, res) => {
   let user: UserInforDTO | null = req.user;
   if (user) {
     console.log("logout");
+
     logoutUser(user, res);
   } else {
     return res.status(401).json({
       isAuth: false,
-      message: "유저 인증에 실패하였습니다.",
+      message: "USER AUTH FAILED",
     });
   }
 });

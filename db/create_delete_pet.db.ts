@@ -94,7 +94,8 @@ export function dbInsertPet(
         //pet 종 insert
         let petSpeciesLen: number = pet.petSpecies.length;
         let petID: number = row.insertId;
-        let petSpeciesSql: string = `INSERT INTO pet_petspeciestbl (petSpeciesID, petID) SELECT petSpeciesID, ${petID} FROM petspeciestbl WHERE petSpeciesName=?`;
+        let petSpeciesSql: string = `INSERT INTO pet_petspeciestbl (petSpeciesID, petID) 
+                                      SELECT petSpeciesID, ${petID} FROM petspeciestbl WHERE petSpeciesName=?`;
         if (petSpeciesLen === 2) {
           petSpeciesSql += " OR petSpeciesName=?";
         } else if (petSpeciesLen === 3) {
@@ -122,8 +123,12 @@ export function dbCheckPetExist(
     message?: string
   ) => void
 ): any {
-  let sql: string =
-    "SELECT pettbl.petID, pettbl.petName, pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS petpecies FROM pettbl, pet_petspeciestbl, petspeciestbl WHERE pettbl.ownerID=? AND pettbl.petID=? AND pettbl.petID=pet_petspeciestbl.petID AND pet_petspeciestbl.petSpeciesID=petspeciestbl.petSpeciesID GROUP BY pettbl.petName,pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight";
+  let sql: string = `SELECT pettbl.petID, pettbl.petName, pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, 
+    pettbl.petLevel, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS petpecies 
+    FROM pettbl, pet_petspeciestbl, petspeciestbl WHERE pettbl.ownerID=? AND pettbl.petID=? 
+    AND pettbl.petID=pet_petspeciestbl.petID AND pet_petspeciestbl.petSpeciesID=petspeciestbl.petSpeciesID 
+    GROUP BY pettbl.petName,pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight`;
+
   return mql.query(sql, [ownerID, petID], (err, row) => {
     if (err) callback(false, null, err);
     // db error (최대 길이 = 1)
@@ -140,26 +145,6 @@ export function dbCheckPetExist(
       );
   });
 }
-
-// // (petID) -> 사용자 반려견이 존재하는지
-// export function dbCheckPetID(
-//   ownerID: number,
-//   petID: number,
-//   callback: (success: boolean, error?: MysqlError) => void
-// ): any {
-//   let sql: string =
-//     "SELECT * FROM pettbl WHERE ownerID=? AND petID=?";
-//   return mql.query(
-//     sql,
-//     [ownerID, petID],
-//     (err, row) => {
-//       if (err) callback(false, err);
-//       // 존재
-//       else if(row.length > 0) callback(true);
-//       else callback(true);
-//     }
-//   );
-// }
 
 // 사용자 반려견 삭제
 export function dbDeletePet(

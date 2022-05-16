@@ -11,6 +11,12 @@ import {
   dbCheckPetSpecies,
 } from "../db/create_delete_pet.db";
 import {
+  dbDeletePictureFile,
+  dbSelectPictureFile,
+  imageController,
+} from "./image.controller";
+import {
+  dbSelectPetProfilePictureUrl,
   dbSelectPets,
   dbUpdatePetInfor,
   dbUpdatePetSpecies,
@@ -24,18 +30,12 @@ export const getUserPets = (
   res: Response<any, Record<string, any>, number>
 ) => {
   // userID의 사용자가 등록한 pet들 정보 (petID, petName) return
-  dbSelectPets(userID, function (success, result, err, msg) {
-    if (!success && err) {
+  dbSelectPets(userID, function (success, result, err) {
+    if (!success) {
       return res.status(400).json({ success: false, message: err });
     }
-    // 사용자가 등록한 반려견이 없는 경우
-    else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
-    }
-    // 사용자가 등록한 반려견이 있는 경우
-    else if (result) {
-      return res.json({ success: true, result });
-    }
+    // 출력 성공
+    return res.json({ success: true, result });
   });
 };
 
@@ -57,7 +57,26 @@ export const getPetInfor = (
     }
     // pet이 존재하는 경우
     // 그 pet의 정보 (pettbl + speciestbl) return
-    else if (result) res.json({ success: true, result });
+    else if (result) {
+      // pet 사진url -> 파일안의 데이터 가져오기
+      dbSelectPictureFile(
+        result.petProfilePicture,
+        function (success, petProfilePictureData, error, msg) {
+          if (!success && error) {
+            return res.status(400).json({ success: false, message: error });
+          }
+          // 파일이 없는 경우
+          else if (!success && !error) {
+            return res.status(404).json({ success: false, message: msg });
+          }
+          // 파일에서 이미지 데이터 가져오기 성공
+          else if (petProfilePictureData) {
+            result.petProfilePicture = petProfilePictureData;
+            res.json({ success: true, result });
+          }
+        }
+      );
+    }
   });
 };
 
@@ -273,20 +292,56 @@ function updatePetProfilePicture(
   res: Response<any, Record<string, any>, number>
 ) {
   // profilePicture update
-  dbUpdatePetInfor(
-    petID,
-    "petProfilePicture",
-    patchProfilePicture,
-    function (success, err) {
-      if (!success) {
-        return res.status(400).json({ success: false, message: err });
-      }
-      //update 성공
-      else {
-        return res.json({ success: true });
-      }
+
+  // 기존 반려견 사진 파일의 url 가져오기
+  dbSelectPetProfilePictureUrl(petID, function (success, result, err, msg) {
+    if (!success && err) {
+      return res.status(400).json({ success: false, message: err });
     }
-  );
+    // pet 이 존재하지 않는 경우
+    else if (!success && !err) {
+      return res.status(404).json({ success: false, message: msg });
+    } else if (result) {
+      // result == 기존 반려견 사진 파일의 url
+      // 해당 파일 삭제
+      dbDeletePictureFile(result, function (success, error) {
+        if (!success) {
+          return res.status(400).json({ success: false, message: error });
+        }
+        // 파일 삭제 완료
+        // 수정할 이미지 데이터 -> 새로운 파일에 삽입
+        // 이미지 파일 컨트롤러
+        imageController(
+          patchProfilePicture,
+          function (success, imageFileUrl, error) {
+            if (!success) {
+              return res.status(400).json({ success: false, message: error });
+            }
+            // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+            else if (imageFileUrl) {
+              patchProfilePicture = imageFileUrl;
+              dbUpdatePetInfor(
+                petID,
+                "petProfilePicture",
+                patchProfilePicture,
+                function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(400)
+                      .json({ success: false, message: err });
+                  }
+                  //update 성공
+                  else {
+                    return res.json({ success: true });
+                  }
+                }
+              );
+            }
+          }
+        );
+      });
+    }
+  });
 }
 
 // 반려견 종 업데이트
@@ -313,7 +368,7 @@ function updatePetSpecies(
       }
       // pet 종이 db에 존재하지 않는 경우
       else if (!success && !err) {
-        return res.status(400).json({ success: false, message: msg });
+        return res.status(404).json({ success: false, message: msg });
       }
       // pet 종이 db에 존재하는 경우
       //petSpecies update

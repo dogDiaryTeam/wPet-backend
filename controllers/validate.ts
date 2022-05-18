@@ -109,6 +109,15 @@ export function checkStringLen(str: string, len: number): boolean {
   return true;
 }
 
+// array length 유효성 검사
+export function checkArrayLen(arr: Array<any>, len: number): boolean {
+  // arr 길이가 len 을 넘으면 false
+  if (arr.length > len) {
+    return false;
+  }
+  return true;
+}
+
 // diary weather 유효성 검사
 export function checkDiaryWeather(weather: string): boolean {
   // 추후 수정

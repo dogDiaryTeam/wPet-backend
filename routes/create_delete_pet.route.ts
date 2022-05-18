@@ -35,6 +35,8 @@ const router = Router();
  *            description: "반려견 정보 형식이 유효하지 않습니다."
  *          "401":
  *            description: "사용자 인증 실패"
+ *          "403":
+ *            description: "등록가능한 최대 반려견 수를 초과 (5마리)"
  *          "404":
  *            description: "반려견 종이 DB에 존재하지 않습니다."
  *          "409":

@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import creatDeletePetRoutes from "../routes/create_delete_pet.route";
 import createDeleteDiaryRoutes from "../routes/create_delete_diary.route";
-import createUserRoutes from "../routes/create_delete_user.route";
+import createDeleteUserRoutes from "../routes/create_delete_user.route";
 import inforDiaryRoutes from "../routes/infor_diary.route";
 import inforPetRoutes from "../routes/infor_pet.route";
 import inforUserRoutes from "../routes/infor_user.route";
@@ -31,7 +31,7 @@ app.use(express.json());
 //cookie
 app.use(cookieParser());
 
-app.use(createUserRoutes);
+app.use(createDeleteUserRoutes);
 app.use(inforUserRoutes);
 app.use(loginLogoutUserRoutes);
 app.use(creatDeletePetRoutes);

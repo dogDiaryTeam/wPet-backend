@@ -120,3 +120,19 @@ export function dbSelectPetProfilePictureUrl(
     else callback(false, null, null, "반려견이 존재하지 않습니다.");
   });
 }
+
+// petSpecies get
+export function dbSelectPetSpecies(
+  callback: (
+    success: boolean,
+    result: Array<{ petSpeciesName: string }> | null,
+    error?: MysqlError
+  ) => void
+): any {
+  // DB에 저장된 모든 반려견 종들 가져오기
+  let sql: string = `SELECT petSpeciesName FROM petspeciestbl ORDER BY petSpeciesID`;
+  return mql.query(sql, (err, row) => {
+    if (err) callback(false, null, err);
+    else callback(true, row);
+  });
+}

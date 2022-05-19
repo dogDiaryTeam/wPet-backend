@@ -17,6 +17,7 @@ import {
 } from "./image.controller";
 import {
   dbSelectPetProfilePictureUrl,
+  dbSelectPetSpecies,
   dbSelectPets,
   dbUpdatePetInfor,
   dbUpdatePetSpecies,
@@ -386,3 +387,19 @@ function updatePetSpecies(
     }
   );
 }
+
+export const getAllSpecies = (
+  res: Response<any, Record<string, any>, number>
+) => {
+  // DB에 저장된 모든 반려견 종들 가져오기
+  dbSelectPetSpecies(function (success, result, err) {
+    if (!success) {
+      return res.status(400).json({ success: false, message: err });
+    }
+    // 출력 성공
+    else if (result) {
+      let speciesArr: Array<string> = result.map((x) => x.petSpeciesName);
+      return res.json({ success: true, result: speciesArr });
+    }
+  });
+};

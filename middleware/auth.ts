@@ -13,11 +13,13 @@ export const auth: Handler = (req, res, next) => {
   //client cookie
   let token = req.cookies.x_auth;
   let decoded;
+
   try {
     decoded = jwt.verify(token, process.env.TOKEN);
     //user id로 user 찾기
     console.log(decoded);
     console.log(token);
+
     mql.query(
       "SELECT * FROM usertbl WHERE userID=? AND token=?",
       [decoded, token],

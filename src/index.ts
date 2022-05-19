@@ -22,12 +22,11 @@ const port = 3000;
 mql.connect(function (err: any) {
   if (err) throw err;
   console.log("mysql connected..");
-  // console.log(String(Math.random().toString(36).slice(2)));
 });
 
-// app.use(cors());
 app.use(cors({ credentials: true, origin: "http://localhost:5000" }));
-app.use(express.json());
+// 기존의 express.json()는 100kb까지만 받기 가능
+app.use(express.json({ limit: "50mb" }));
 //cookie
 app.use(cookieParser());
 

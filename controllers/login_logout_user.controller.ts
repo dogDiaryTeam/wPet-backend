@@ -125,16 +125,20 @@ export const loginUser = (
             if (!success) {
               return res.status(400).json({ success: false, message: error });
             }
-            res.cookie("x_auth", userToken).status(200).json({
-              success: true,
-              email: param[0],
-              token: userToken,
-            });
+            // 쿠키 유효기간 : 일주일
+            return res
+              .cookie("x_auth", userToken, { maxAge: 7 * 24 * 60 * 60 })
+              .status(200)
+              .json({
+                success: true,
+                email: param[0],
+                token: userToken,
+              });
           }
         );
       } else {
         //비밀번호 불일치
-        res
+        return res
           .status(401)
           .json({ success: false, message: "비밀번호가 일치하지 않습니다." });
       }

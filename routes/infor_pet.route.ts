@@ -5,6 +5,7 @@ import {
   UpdatePetModel,
 } from "../types/pet";
 import {
+  getAllSpecies,
   getPetInfor,
   getUserPets,
   updatePetInfor,
@@ -214,4 +215,20 @@ router.patch(
     }
   }
 );
+
+router.get("/api/pet/species", auth, (req, res) => {
+  // 사용자가 등록한 pet들 정보 return
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    // 유저 인증 완료
+    getAllSpecies(res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      isAuth: false,
+      message: "USER AUTH FAILED",
+    });
+  }
+});
 export default router;

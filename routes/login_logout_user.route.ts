@@ -120,15 +120,13 @@ router.post("/api/user/findpw", (req: UserRequest<FindPwModel>, res) => {
   //client에게서 받은 이메일로
   //임시 비밀번호를 제공 후, 비밀번호 update
   const email: string = req.body.email;
-  const nickName: string = req.body.nickName;
-  console.log("🚀 ~ email ~ nickName", email, nickName);
-  if (checkEmptyValue(email) || checkEmptyValue(nickName)) {
+  if (checkEmptyValue(email)) {
     return res.status(400).json({
       success: false,
       message: "PARAMETER IS EMPTY",
     });
   }
-  findUserPw(email, nickName, res);
+  findUserPw(email, res);
 });
 
 router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {

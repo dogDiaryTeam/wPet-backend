@@ -32,8 +32,10 @@ export const updateUserPw = (
     console.log("errMsg:", errMsg);
 
     return res.status(400).json({ success: false, message: errMsg });
-  }
-
+  } else if (originPw === newPw)
+    return res
+      .status(409)
+      .json({ success: false, message: "기존 비밀번호와 동일합니다." });
   //auth 정보와 비밀번호 정보 비교
   dbAuthUserOriginPw(originPw, user, function (success, err, msg) {
     if (!success && err) {
@@ -62,6 +64,9 @@ export const updateUserPw = (
 //PATCH
 export const updateUser = (
   userID: number,
+  userNickName: string,
+  userProfilePicture: string | null,
+  userLocation: string | null,
   param: UpdateUserReqDTO,
   res: Response<any, Record<string, any>, number>
 ) => {
@@ -81,22 +86,36 @@ export const updateUser = (
   if ("nickName" in param) {
     patchValue = param["nickName"];
     console.log("닉네임 있음");
-    if (patchValue) updateUserNickName(userID, patchValue, res);
+    if (patchValue === userNickName)
+      return res.status(409).json({
+        success: false,
+        message: "기존 닉네임과 동일합니다.",
+      });
+    else if (patchValue) updateUserNickName(userID, patchValue, res);
   }
   //profilePicture 수정
   else if ("profilePicture" in param) {
     patchValue = param["profilePicture"];
     //profilePicture 있다면
     console.log("프로필 있음");
-    //프로필사진 유효
-    if (patchValue) updateUserProfilePicture(userID, patchValue, res);
+    if (patchValue === userProfilePicture)
+      return res.status(409).json({
+        success: false,
+        message: "기존 프로필 사진과 동일합니다.",
+      });
+    else if (patchValue) updateUserProfilePicture(userID, patchValue, res);
   }
   //location 수정
   else if ("location" in param) {
     patchValue = param["location"];
     console.log("지역명 있음");
     //지역명 유효
-    if (patchValue) updateUserLocation(userID, patchValue, res);
+    if (patchValue === userLocation)
+      return res.status(409).json({
+        success: false,
+        message: "기존 지역과 동일합니다.",
+      });
+    else if (patchValue) updateUserLocation(userID, patchValue, res);
   }
   //그 외 (err)
   else {

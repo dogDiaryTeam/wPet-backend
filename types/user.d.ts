@@ -28,7 +28,6 @@ interface CompareAuthEmailModel extends mongoose.Document {
 
 interface FindPwModel extends mongoose.Document {
   email: string;
-  nickName: string;
 }
 
 interface UpdatePwModel extends mongoose.Document {

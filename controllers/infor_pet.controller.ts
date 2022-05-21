@@ -114,10 +114,15 @@ export const updatePetInfor = (
         }
 
         //petName 수정
-        if ("petName" in updateInfor.updateElement) {
+        else if ("petName" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petName"];
           console.log("petName 있음");
-          if (patchValue)
+          if (patchValue === result.petName)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 이름과 동일합니다.",
+            });
+          else if (patchValue)
             updatePetName(userID, updateInfor.petID, patchValue, res);
         }
         //birthDate 수정
@@ -126,7 +131,12 @@ export const updatePetInfor = (
           //birthDate 있다면
           console.log("birthDate 있음");
           //birthDate 유효
-          if (patchValue)
+          if (patchValue === result.birthDate)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 생년월일과 동일합니다.",
+            });
+          else if (patchValue)
             updatePetBirthDate(updateInfor.petID, patchValue, res);
         }
         //petSex 수정
@@ -134,21 +144,37 @@ export const updatePetInfor = (
           patchValue = updateInfor.updateElement["petSex"];
           console.log("petSex 있음");
           //petSex 유효
-          if (patchValue) updatePetSex(updateInfor.petID, patchValue, res);
+          if (patchValue === result.petSex)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 성별과 동일합니다.",
+            });
+          else if (patchValue) updatePetSex(updateInfor.petID, patchValue, res);
         }
         //weight 수정
         else if ("weight" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["weight"];
           console.log("weight 있음");
           //weight 유효
-          if (patchValue) updatePetWeight(updateInfor.petID, patchValue, res);
+          if (patchValue === result.weight)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 몸무게와 동일합니다.",
+            });
+          else if (patchValue)
+            updatePetWeight(updateInfor.petID, patchValue, res);
         }
         //petProfilePicture 수정
         else if ("petProfilePicture" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petProfilePicture"];
           console.log("petProfilePicture 있음");
           //petProfilePicture 유효
-          if (patchValue)
+          if (patchValue === result.petProfilePicture)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 사진과 동일합니다.",
+            });
+          else if (patchValue)
             updatePetProfilePicture(updateInfor.petID, patchValue, res);
         }
         //petSpecies 수정
@@ -156,7 +182,13 @@ export const updatePetInfor = (
           patchValue = updateInfor.updateElement["petSpecies"];
           console.log("petSpecies 있음");
           //petSpecies 유효
-          if (patchValue) updatePetSpecies(updateInfor.petID, patchValue, res);
+          if (patchValue === result.petSpecies)
+            return res.status(409).json({
+              success: false,
+              message: "기존 반려견 종과 동일합니다.",
+            });
+          else if (patchValue)
+            updatePetSpecies(updateInfor.petID, patchValue, res);
         }
 
         //그 외 (err)

@@ -193,6 +193,9 @@ router.patch(
       console.log("PATCH");
       console.log("🚀 ~ req.body", req.body);
       let userID: number = user.userID;
+      let userNickName: string = user.nickName;
+      let userProfilePicture: string | null = user.profilePicture;
+      let userLocation: string | null = user.location;
       //object
       const param: UpdateUserReqDTO = req.body;
       // test 필요
@@ -216,7 +219,14 @@ router.patch(
           success: false,
           message: "PARAMETER IS EMPTY",
         });
-      updateUser(userID, param, res);
+      updateUser(
+        userID,
+        userNickName,
+        userProfilePicture,
+        userLocation,
+        param,
+        res
+      );
     } else {
       return res.status(401).json({
         isAuth: false,

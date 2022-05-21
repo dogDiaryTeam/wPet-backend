@@ -124,7 +124,7 @@ export function dbCheckPetExist(
   ) => void
 ): any {
   let sql: string = `SELECT pettbl.petID, pettbl.petName, pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, 
-    pettbl.petLevel, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS petpecies 
+    pettbl.petLevel, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS petSpecies 
     FROM pettbl, pet_petspeciestbl, petspeciestbl WHERE pettbl.ownerID=? AND pettbl.petID=? 
     AND pettbl.petID=pet_petspeciestbl.petID AND pet_petspeciestbl.petSpeciesID=petspeciestbl.petSpeciesID 
     GROUP BY pettbl.petName,pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight`;
@@ -134,7 +134,10 @@ export function dbCheckPetExist(
     // db error (최대 길이 = 1)
     else if (row.length > 1) callback(false, null, "db error");
     // 존재하는 경우
-    else if (row.length === 1) callback(true, row[0], null);
+    else if (row.length === 1) {
+      row[0].petSpecies = row[0].petSpecies.split(",");
+      callback(true, row[0], null);
+    }
     // 존재하지 않는 경우
     else
       callback(

@@ -37,7 +37,7 @@ export interface DBPetInforDTO {
   petProfilePicture: string | null;
   petLevel: number;
   weight: number | null;
-  petpecies: string;
+  petSpecies: Array<string>;
 }
 
 export interface UpdatePetInforDTO {

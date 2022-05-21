@@ -1,6 +1,17 @@
 import { MysqlError } from "mysql";
 import mql from "./mysql";
 
+interface DbFindUserDTO {
+  userID: number;
+  email: string;
+  pw: string;
+  joinDate: Date;
+  nickName: string;
+  profilePicture: string | null;
+  location: string | null;
+  isAuth: number;
+}
+
 //user 생성
 export function dbInsertUser(
   email: string,
@@ -48,15 +59,20 @@ export function dbInsertUser(
 export function dbFindUser(
   element: string,
   elementName: string,
-  callback: (error: MysqlError | null, isUser?: boolean, user?: any) => void
+  callback: (
+    error: MysqlError | null,
+    isUser?: boolean,
+    user?: DbFindUserDTO
+  ) => void
 ): any {
-  let sql: string = `SELECT * FROM usertbl WHERE ${element} = ?`;
+  let sql: string = `SELECT userID, email, pw, joinDate, nickName, profilePicture, location, isAuth 
+                      FROM usertbl WHERE ${element} = ?`;
   console.log(elementName);
   return mql.query(sql, elementName, (err, row) => {
     if (err) callback(err);
     //유저 존재
     else if (row.length > 0) {
-      callback(null, true, row);
+      callback(null, true, row[0]);
     }
     //유저 없음
     else {

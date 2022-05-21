@@ -55,7 +55,4 @@ export const auth: Handler = (req, res, next) => {
       message: "token decode에 실패하였습니다.",
     });
   }
-  //   jwt.verify(token, secretToken, (err:VerifyErrors | null, decoded:number | undefined) => {
-
-  //   });
 };

@@ -104,7 +104,7 @@ export function dbSelectUserProfilePictureUrl(
   let sql: string = `SELECT profilePicture FROM usertbl WHERE userID=?`;
   return mql.query(sql, userID, (err, row) => {
     if (err) callback(false, null, err);
-    else if (row.length > 0) callback(true, row[0], null);
+    else if (row.length > 0) callback(true, row[0].profilePicture, null);
     else callback(false, null, null, "사용자가 존재하지 않습니다.");
   });
 }

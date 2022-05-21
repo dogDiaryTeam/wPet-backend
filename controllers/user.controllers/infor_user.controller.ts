@@ -1,16 +1,19 @@
-import { UpdateUserReqDTO, UserInforDTO } from "../types/user";
-import { checkLocation, checkName, checkPw } from "./validate";
+import { UpdateUserReqDTO, UserInforDTO } from "../../types/user";
+import { checkLocation, checkName, checkPw } from "../validations/validate";
 import {
   dbAuthUserOriginPw,
   dbSelectUserProfilePictureUrl,
   dbUpdateUserElement,
   dbUpdateUserNewPw,
-} from "../db/infor_user.db";
-import { dbDeletePictureFile, imageController } from "./image.controller";
+} from "../../db/user.db/infor_user.db";
+import {
+  dbDeletePictureFile,
+  imageController,
+} from "../image.controllers/image.controller";
 
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../db/create_delete_user.db";
+import { dbFindUser } from "../../db/user.db/create_delete_user.db";
 
 const saltRounds = 10;
 
@@ -70,7 +73,7 @@ export const updateUser = (
   param: UpdateUserReqDTO,
   res: Response<any, Record<string, any>, number>
 ) => {
-  let patchValue: string | undefined;
+  let patchValue: string | undefined | null;
 
   let patchKeys: Array<string> = Object.keys(param);
   let patchLength: number = patchKeys.length;
@@ -96,6 +99,8 @@ export const updateUser = (
   //profilePicture 수정
   else if ("profilePicture" in param) {
     patchValue = param["profilePicture"];
+    // 프로필 사진 은 빈값일 수 있음
+    patchValue = patchValue === "" ? null : patchValue;
     //profilePicture 있다면
     console.log("프로필 있음");
     if (patchValue === userProfilePicture)
@@ -103,11 +108,14 @@ export const updateUser = (
         success: false,
         message: "기존 프로필 사진과 동일합니다.",
       });
-    else if (patchValue) updateUserProfilePicture(userID, patchValue, res);
+    else if (patchValue || patchValue === null)
+      updateUserProfilePicture(userID, patchValue, res);
   }
   //location 수정
   else if ("location" in param) {
     patchValue = param["location"];
+    // 지역 은 빈값일 수 있음
+    patchValue = patchValue === "" ? null : patchValue;
     console.log("지역명 있음");
     //지역명 유효
     if (patchValue === userLocation)
@@ -115,7 +123,8 @@ export const updateUser = (
         success: false,
         message: "기존 지역과 동일합니다.",
       });
-    else if (patchValue) updateUserLocation(userID, patchValue, res);
+    else if (patchValue || patchValue === null)
+      updateUserLocation(userID, patchValue, res);
   }
   //그 외 (err)
   else {
@@ -171,7 +180,7 @@ function updateUserNickName(
 //user profilePicture 업데이트
 function updateUserProfilePicture(
   userID: number,
-  patchValue: string,
+  patchValue: string | null,
   res: Response<any, Record<string, any>, number>
 ) {
   // 기존 사용자 사진 파일의 url 가져오기
@@ -197,26 +206,23 @@ function updateUserProfilePicture(
             return res.status(400).json({ success: false, message: error });
           }
           // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-          else if (imageFileUrl) {
-            patchValue = imageFileUrl;
+          // else if (imageFileUrl) {
+          patchValue = imageFileUrl;
 
-            dbUpdateUserElement(
-              userID,
-              "profilePicture",
-              patchValue,
-              function (success, error) {
-                if (!success) {
-                  return res
-                    .status(400)
-                    .json({ success: false, message: error });
-                }
-                //update profilePicture 성공
-                else {
-                  return res.json({ success: true });
-                }
+          dbUpdateUserElement(
+            userID,
+            "profilePicture",
+            patchValue,
+            function (success, error) {
+              if (!success) {
+                return res.status(400).json({ success: false, message: error });
               }
-            );
-          }
+              //update profilePicture 성공
+              else {
+                return res.json({ success: true });
+              }
+            }
+          );
         });
       });
     }
@@ -226,10 +232,10 @@ function updateUserProfilePicture(
 //user location 업데이트
 function updateUserLocation(
   userID: number,
-  patchValue: string,
+  patchValue: string | null,
   res: Response<any, Record<string, any>, number>
 ) {
-  if (!checkLocation(patchValue)) {
+  if (patchValue && !checkLocation(patchValue)) {
     return res.status(400).json({
       success: false,
       message: "수정할 지역명의 형식이 유효하지 않습니다.",

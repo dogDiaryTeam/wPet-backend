@@ -1,7 +1,7 @@
-import { DBPetInforDTO, PetInforDTO } from "../types/pet";
+import { DBPetInforDTO, PetInforDTO } from "../../types/pet";
 
 import { MysqlError } from "mysql";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 // DB에 반려견 종이 있는지 확인
 export function dbCheckPetSpecies(

@@ -1,7 +1,7 @@
 import { MysqlError } from "mysql";
-import { UserInforDTO } from "../types/user";
+import { UserInforDTO } from "../../types/user";
 import bcrypt from "bcrypt";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 //(비밀번호 변경) 유저 정보 일치하는지 검증
 export function dbAuthUserOriginPw(
@@ -80,7 +80,7 @@ export function dbUpdateUserNewPw(
 export function dbUpdateUserElement(
   userID: number,
   elementName: string,
-  elementValue: string,
+  elementValue: string | null,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string = `UPDATE usertbl SET ${elementName}=? WHERE userID=?`;

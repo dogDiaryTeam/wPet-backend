@@ -2,18 +2,21 @@ import {
   checkDiaryHashTags,
   checkDiaryWeather,
   checkStringLen,
-} from "./validate";
+} from "../validations/validate";
 import {
   dbCheckPetIDs,
   dbCheckPetsDiary,
   dbDeleteDiary,
   dbWriteDiary,
-} from "../db/create_delete_diary.db";
-import { dbDeletePictureFile, imageController } from "./image.controller";
+} from "../../db/diary.db/create_delete_diary.db";
+import {
+  dbDeletePictureFile,
+  imageController,
+} from "../image.controllers/image.controller";
 
-import { DiaryInforDTO } from "../types/diary";
+import { DiaryInforDTO } from "../../types/diary";
 import { Response } from "express-serve-static-core";
-import { dbSelectDiaryPicture } from "../db/infor_diary.db";
+import { dbSelectDiaryPicture } from "../../db/diary.db/infor_diary.db";
 
 export const createDiary = (
   userID: number,

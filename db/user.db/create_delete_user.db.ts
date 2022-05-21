@@ -1,5 +1,5 @@
 import { MysqlError } from "mysql";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 interface DbFindUserDTO {
   userID: number;

@@ -1,14 +1,14 @@
-import { CreatePetModel, PetIDModel, PetInforDTO } from "../types/pet";
+import { CreatePetModel, PetIDModel, PetInforDTO } from "../../types/pet";
 import {
   createPet,
   deletePet,
-} from "../controllers/create_delete_pet.controller";
+} from "../../controllers/pet.controllers/create_delete_pet.controller";
 
-import { PetRequest } from "../types/express";
+import { PetRequest } from "../../types/express";
 import { Router } from "express";
-import { UserInforDTO } from "../types/user";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
+import { UserInforDTO } from "../../types/user";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
 
 const router = Router();
 

@@ -3,14 +3,17 @@ import {
   UpdateUserModel,
   UpdateUserReqDTO,
   UserInforDTO,
-} from "../types/user";
-import { updateUser, updateUserPw } from "../controllers/infor_user.controller";
+} from "../../types/user";
+import {
+  updateUser,
+  updateUserPw,
+} from "../../controllers/user.controllers/infor_user.controller";
 
 import { Router } from "express";
-import { UserRequest } from "../types/express";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
-import { dbSelectPictureFile } from "../controllers/image.controller";
+import { UserRequest } from "../../types/express";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
+import { dbSelectPictureFile } from "../../controllers/image.controllers/image.controller";
 
 const router = Router();
 
@@ -209,16 +212,7 @@ router.patch(
           success: false,
           message: "PARAMETER IS EMPTY",
         });
-      else if (param.profilePicture && checkEmptyValue(param.profilePicture))
-        return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
-        });
-      else if (param.location && checkEmptyValue(param.location))
-        return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
-        });
+
       updateUser(
         userID,
         userNickName,

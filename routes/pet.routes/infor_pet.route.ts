@@ -3,19 +3,19 @@ import {
   PetInforDTO,
   UpdatePetInforDTO,
   UpdatePetModel,
-} from "../types/pet";
+} from "../../types/pet";
 import {
   getAllSpecies,
   getPetInfor,
   getUserPets,
   updatePetInfor,
-} from "../controllers/infor_pet.controller";
+} from "../../controllers/pet.controllers/infor_pet.controller";
 
-import { PetRequest } from "../types/express";
+import { PetRequest } from "../../types/express";
 import { Router } from "express";
-import { UserInforDTO } from "../types/user";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
+import { UserInforDTO } from "../../types/user";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
 
 const router = Router();
 
@@ -132,9 +132,27 @@ const router = Router();
  *          "404":
  *            description: "사용자가 등록한 반려견이 아니거나 반려견 종이 DB에 존재하지 않습니다."
  *          "409":
- *            description: "수정할 반려견 이름이 사용자가 등록한 반려견의 이름과 중복됩니다."
+ *            description: "기존 요소와 동일하거나 수정할 반려견 이름이 사용자가 등록한 반려견의 이름과 중복됩니다."
  *          "500":
  *            description: "서버 내의 문제 발생"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/pet/species:
+ *     get:
+ *        tags:
+ *        - pets
+ *        description: "모든 반려견 종 가져오기"
+ *        produces:
+ *          - "application/json"
+ *        responses:
+ *          "200":
+ *            description: "모든 반려견 종 가져오기 성공"
+ *          "400":
+ *            description: "모든 반려견 종 가져오기 실패"
+ *          "401":
+ *            description: "사용자 인증 실패"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -232,14 +250,6 @@ router.patch(
       else if (
         param.updateElement.weight &&
         checkEmptyValue(param.updateElement.weight)
-      )
-        return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
-        });
-      else if (
-        param.updateElement.petProfilePicture &&
-        checkEmptyValue(param.updateElement.petProfilePicture)
       )
         return res.status(400).json({
           success: false,

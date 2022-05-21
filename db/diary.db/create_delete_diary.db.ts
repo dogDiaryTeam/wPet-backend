@@ -1,6 +1,6 @@
-import { DiaryInforDTO } from "../types/diary";
+import { DiaryInforDTO } from "../../types/diary";
 import { MysqlError } from "mysql";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 const maxPetNum: number = 5;
 

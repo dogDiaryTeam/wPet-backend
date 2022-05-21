@@ -1,4 +1,4 @@
-import { dbSelectPetProfilePictureUrl } from "../db/infor_pet.db";
+import { dbSelectPetProfilePictureUrl } from "../../db/pet.db/infor_pet.db";
 import fs from "fs";
 
 // 이미지 로직 처리

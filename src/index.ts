@@ -2,14 +2,14 @@ import express, { Express, Request, Response } from "express";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import creatDeletePetRoutes from "../routes/create_delete_pet.route";
-import createDeleteDiaryRoutes from "../routes/create_delete_diary.route";
-import createDeleteUserRoutes from "../routes/create_delete_user.route";
-import inforDiaryRoutes from "../routes/infor_diary.route";
-import inforPetRoutes from "../routes/infor_pet.route";
-import inforUserRoutes from "../routes/infor_user.route";
-import loginLogoutUserRoutes from "../routes/login_logout_user.route";
-import mql from "../db/mysql";
+import creatDeletePetRoutes from "../routes/pet.routes/create_delete_pet.route";
+import createDeleteDiaryRoutes from "../routes/diary.routes/create_delete_diary.route";
+import createDeleteUserRoutes from "../routes/user.routes/create_delete_user.route";
+import inforDiaryRoutes from "../routes/diary.routes/infor_diary.route";
+import inforPetRoutes from "../routes/pet.routes/infor_pet.route";
+import inforUserRoutes from "../routes/user.routes/infor_user.route";
+import loginLogoutUserRoutes from "../routes/user.routes/login_logout_user.route";
+import mql from "../db/mysql/mysql";
 
 require("dotenv").config();
 

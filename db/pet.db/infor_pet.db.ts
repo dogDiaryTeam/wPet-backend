@@ -1,6 +1,6 @@
-import { DBPetInforDTO } from "../types/pet";
+import { DBPetInforDTO } from "../../types/pet";
 import { MysqlError } from "mysql";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 interface DbSelectPetsDTO {
   petID: number;
@@ -29,7 +29,7 @@ export function dbSelectPets(
 export function dbUpdatePetInfor(
   petID: number,
   elementName: string,
-  elementValue: string | Date | number,
+  elementValue: string | Date | number | null,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string = `UPDATE pettbl SET ${elementName}=? WHERE petID=?`;

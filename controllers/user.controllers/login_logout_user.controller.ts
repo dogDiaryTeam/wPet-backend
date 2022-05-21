@@ -1,16 +1,16 @@
-import { checkEmail, checkName } from "./validate";
+import { checkEmail, checkName } from "../validations/validate";
 import {
   dbDeleteUserToken,
   dbUpdateUserTempPw,
   dbUpdateUserToken,
-} from "../db/login_logout_user.db";
+} from "../../db/user.db/login_logout_user.db";
 
 import { Response } from "express-serve-static-core";
-import { UserInforDTO } from "../types/user";
+import { UserInforDTO } from "../../types/user";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../db/create_delete_user.db";
+import { dbFindUser } from "../../db/user.db/create_delete_user.db";
 import jwt from "jsonwebtoken";
-import { mailSendTempPw } from "./email.controller";
+import { mailSendTempPw } from "../email.controllers/email.controller";
 
 const saltRounds = 10;
 

@@ -5,23 +5,23 @@ import {
   checkName,
   checkPw,
   checkSex,
-} from "./validate";
+} from "../validations/validate";
 import {
   dbFindUser,
   dbInsertUser,
   dbInsertUserEmailAuth,
   dbSelectUserEmailAuth,
   dbSuccessUserEmailAuth,
-} from "../db/create_delete_user.db";
+} from "../../db/user.db/create_delete_user.db";
 
-import { CreateUserReqDTO } from "../types/user";
+import { CreateUserReqDTO } from "../../types/user";
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
-import { dbCheckPetExist } from "../db/create_delete_pet.db";
+import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import fs from "fs";
-import { imageController } from "./image.controller";
-import { mailSendAuthEmail } from "./email.controller";
-import mql from "../db/mysql";
+import { imageController } from "../image.controllers/image.controller";
+import { mailSendAuthEmail } from "../email.controllers/email.controller";
+import mql from "../../db/mysql/mysql";
 import { type } from "os";
 
 require("dotenv").config();

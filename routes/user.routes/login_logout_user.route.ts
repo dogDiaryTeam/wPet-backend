@@ -1,14 +1,14 @@
-import { FindPwModel, LoginUserModel, UserInforDTO } from "../types/user";
+import { FindPwModel, LoginUserModel, UserInforDTO } from "../../types/user";
 import {
   findUserPw,
   loginUser,
   logoutUser,
-} from "../controllers/login_logout_user.controller";
+} from "../../controllers/user.controllers/login_logout_user.controller";
 
 import { Router } from "express";
-import { UserRequest } from "../types/express";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
+import { UserRequest } from "../../types/express";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
 
 const router = Router();
 

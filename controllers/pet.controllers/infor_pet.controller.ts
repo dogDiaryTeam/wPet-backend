@@ -4,27 +4,27 @@ import {
   checkPetSpecies,
   checkPetWeight,
   checkSex,
-} from "./validate";
+} from "../validations/validate";
 import {
   dbCheckPetExist,
   dbCheckPetName,
   dbCheckPetSpecies,
-} from "../db/create_delete_pet.db";
+} from "../../db/pet.db/create_delete_pet.db";
 import {
   dbDeletePictureFile,
   dbSelectPictureFile,
   imageController,
-} from "./image.controller";
+} from "../image.controllers/image.controller";
 import {
   dbSelectPetProfilePictureUrl,
   dbSelectPetSpecies,
   dbSelectPets,
   dbUpdatePetInfor,
   dbUpdatePetSpecies,
-} from "../db/infor_pet.db";
+} from "../../db/pet.db/infor_pet.db";
 
 import { Response } from "express-serve-static-core";
-import { UpdatePetInforDTO } from "../types/pet";
+import { UpdatePetInforDTO } from "../../types/pet";
 
 export const getUserPets = (
   userID: number,
@@ -102,7 +102,13 @@ export const updatePetInfor = (
       } else if (result) {
         // pet이 존재하는 경우
         // param 유효성 검증
-        let patchValue: string | Date | number | Array<string> | undefined;
+        let patchValue:
+          | string
+          | Date
+          | number
+          | Array<string>
+          | undefined
+          | null;
         let patchKeys: Array<string> = Object.keys(updateInfor.updateElement);
         let patchLength: number = patchKeys.length;
         //key가 하나 이상이라면
@@ -167,6 +173,8 @@ export const updatePetInfor = (
         //petProfilePicture 수정
         else if ("petProfilePicture" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petProfilePicture"];
+          // 프로필 사진 은 빈값일 수 있음
+          patchValue = patchValue === "" ? null : patchValue;
           console.log("petProfilePicture 있음");
           //petProfilePicture 유효
           if (patchValue === result.petProfilePicture)
@@ -174,7 +182,7 @@ export const updatePetInfor = (
               success: false,
               message: "기존 반려견 사진과 동일합니다.",
             });
-          else if (patchValue)
+          else if (patchValue || patchValue === null)
             updatePetProfilePicture(updateInfor.petID, patchValue, res);
         }
         //petSpecies 수정
@@ -321,7 +329,7 @@ function updatePetWeight(
 // 반려견 사진 업데이트
 function updatePetProfilePicture(
   petID: number,
-  patchProfilePicture: string,
+  patchProfilePicture: string | null,
   res: Response<any, Record<string, any>, number>
 ) {
   // profilePicture update
@@ -351,25 +359,21 @@ function updatePetProfilePicture(
               return res.status(400).json({ success: false, message: error });
             }
             // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-            else if (imageFileUrl) {
-              patchProfilePicture = imageFileUrl;
-              dbUpdatePetInfor(
-                petID,
-                "petProfilePicture",
-                patchProfilePicture,
-                function (success, err) {
-                  if (!success) {
-                    return res
-                      .status(400)
-                      .json({ success: false, message: err });
-                  }
-                  //update 성공
-                  else {
-                    return res.json({ success: true });
-                  }
+            patchProfilePicture = imageFileUrl;
+            dbUpdatePetInfor(
+              petID,
+              "petProfilePicture",
+              patchProfilePicture,
+              function (success, err) {
+                if (!success) {
+                  return res.status(400).json({ success: false, message: err });
                 }
-              );
-            }
+                //update 성공
+                else {
+                  return res.json({ success: true });
+                }
+              }
+            );
           }
         );
       });

@@ -1,6 +1,15 @@
-import { dbCheckPetIDs, dbCheckPetsDiary } from "../db/create_delete_diary.db";
-import { dbSelectDiary, dbSelectPetAllDiarys } from "../db/infor_diary.db";
-import { dbSelectPictureFile, dbSelectPictureFiles } from "./image.controller";
+import {
+  dbCheckPetIDs,
+  dbCheckPetsDiary,
+} from "../../db/diary.db/create_delete_diary.db";
+import {
+  dbSelectDiary,
+  dbSelectPetAllDiarys,
+} from "../../db/diary.db/infor_diary.db";
+import {
+  dbSelectPictureFile,
+  dbSelectPictureFiles,
+} from "../image.controllers/image.controller";
 
 import { Response } from "express-serve-static-core";
 

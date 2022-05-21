@@ -1,5 +1,5 @@
 import { MysqlError } from "mysql";
-import mql from "./mysql";
+import mql from "../mysql/mysql";
 
 //(비밀번호 찾기) 임시 비밀번호로 update
 export function dbUpdateUserTempPw(

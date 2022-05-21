@@ -9,18 +9,18 @@ import {
   UpdateUserModel,
   UpdateUserReqDTO,
   UserInforDTO,
-} from "../types/user";
+} from "../../types/user";
 import {
   compareAuthEmail,
   creatUser,
   sendAuthEmail,
   test,
-} from "../controllers/create_delete_user.controller";
+} from "../../controllers/user.controllers/create_delete_user.controller";
 
 import { Router } from "express";
-import { UserRequest } from "../types/express";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
+import { UserRequest } from "../../types/express";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
 
 const router = Router();
 

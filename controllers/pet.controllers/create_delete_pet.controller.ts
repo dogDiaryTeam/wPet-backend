@@ -1,16 +1,24 @@
-import { PetInforDTO, UpdatePetInforDTO } from "../types/pet";
-import { checkDate, checkName, checkPetSpecies, checkSex } from "./validate";
+import { PetInforDTO, UpdatePetInforDTO } from "../../types/pet";
+import {
+  checkDate,
+  checkName,
+  checkPetSpecies,
+  checkSex,
+} from "../validations/validate";
 import {
   dbCheckPetExist,
   dbCheckPetName,
   dbCheckPetSpecies,
   dbDeletePet,
   dbInsertPet,
-} from "../db/create_delete_pet.db";
-import { dbDeletePictureFile, imageController } from "./image.controller";
+} from "../../db/pet.db/create_delete_pet.db";
+import {
+  dbDeletePictureFile,
+  imageController,
+} from "../image.controllers/image.controller";
 
 import { Response } from "express-serve-static-core";
-import { dbSelectPets } from "../db/infor_pet.db";
+import { dbSelectPets } from "../../db/pet.db/infor_pet.db";
 
 export const createPet = (
   userID: number,

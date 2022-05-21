@@ -3,7 +3,7 @@ import jwt, { VerifyErrors } from "jsonwebtoken";
 import { CreateUserModel } from "../types/user";
 import { Handler } from "express";
 import { UserRequest } from "../types/express";
-import mql from "../db/mysql";
+import mql from "../db/mysql/mysql";
 
 require("dotenv").config();
 
@@ -40,7 +40,7 @@ export const auth: Handler = (req, res, next) => {
           //유저 인증 no
           return res.status(401).json({
             isAuth: false,
-            message: "유저 인증에 실패하였습니다.",
+            message: "USER AUTH FAILED",
           });
         }
       }
@@ -52,7 +52,7 @@ export const auth: Handler = (req, res, next) => {
     }
     return res.status(401).json({
       isAuth: false,
-      message: "token decode에 실패하였습니다.",
+      message: "USER AUTH FAILED",
     });
   }
 };

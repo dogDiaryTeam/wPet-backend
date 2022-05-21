@@ -1,4 +1,4 @@
-import { dbCheckPetSpecies } from "../db/create_delete_pet.db";
+import { dbCheckPetSpecies } from "../../db/pet.db/create_delete_pet.db";
 
 //null 값 유효성 검사
 export function checkEmptyValue(value: any): boolean {

@@ -1,11 +1,14 @@
-import { PetAllDiaryModel, PetDiaryModel } from "../types/diary";
-import { getDiarys, getOneDiary } from "../controllers/infor_diary.controller";
+import { PetAllDiaryModel, PetDiaryModel } from "../../types/diary";
+import {
+  getDiarys,
+  getOneDiary,
+} from "../../controllers/diary.controllers/infor_diary.controller";
 
-import { DiaryRequest } from "../types/express";
+import { DiaryRequest } from "../../types/express";
 import { Router } from "express";
-import { UserInforDTO } from "../types/user";
-import { auth } from "../middleware/auth";
-import { checkEmptyValue } from "../controllers/validate";
+import { UserInforDTO } from "../../types/user";
+import { auth } from "../../middleware/auth";
+import { checkEmptyValue } from "../../controllers/validations/validate";
 
 const router = Router();
 

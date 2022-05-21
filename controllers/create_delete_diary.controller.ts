@@ -21,6 +21,10 @@ export const createDiary = (
   res: Response<any, Record<string, any>, number>
 ) => {
   // 다이어리 등록
+
+  // 다이어리 사진 은 빈값일 수 있음
+  diary.picture = diary.picture === "" ? null : diary.picture;
+
   let petNum: number = diary.petIDs.length;
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   if (petNum === 0)
@@ -89,21 +93,20 @@ export const createDiary = (
           return res.status(400).json({ success: false, message: error });
         }
         // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-        else if (imageFileUrl) {
-          diary.picture = imageFileUrl;
-          dbWriteDiary(diary, function (success, err, msg) {
-            if (!success && err) {
-              return res.status(400).json({ success: false, message: err });
-            }
-            // 다이어리 삽입 성공, 해시태그 삽입 실패 (백업 성공 or 실패)
-            else if (!success && !err) {
-              return res.status(400).json({ success: false, message: msg });
-            } else {
-              // 다이어리, 해시태그 삽입 성공
-              res.json({ success: true });
-            }
-          });
-        }
+
+        diary.picture = imageFileUrl;
+        dbWriteDiary(diary, function (success, err, msg) {
+          if (!success && err) {
+            return res.status(400).json({ success: false, message: err });
+          }
+          // 다이어리 삽입 성공, 해시태그 삽입 실패 (백업 성공 or 실패)
+          else if (!success && !err) {
+            return res.status(400).json({ success: false, message: msg });
+          } else {
+            // 다이어리, 해시태그 삽입 성공
+            res.json({ success: true });
+          }
+        });
       });
     }
   });
@@ -148,31 +151,26 @@ export const deleteDiary = (
             // 다이어리 없음
             else if (!success && !err) {
               return res.status(404).json({ success: false, message: msg });
-            } else if (diaryPictureData) {
-              // 사진 파일 데이터 가져오기 성공
-
-              // 다이어리 삭제
-              dbDeleteDiary(diaryID, function (success, err) {
-                if (!success) {
-                  return res.status(400).json({ success: false, message: err });
-                }
-
-                // 다이어리, 해시태그 삭제 성공
-                // diary 사진url -> 사진 파일 삭제
-                dbDeletePictureFile(
-                  diaryPictureData,
-                  function (success, error) {
-                    if (!success) {
-                      return res
-                        .status(400)
-                        .json({ success: false, message: error });
-                    }
-                    // 파일 삭제 성공
-                    res.json({ success: true });
-                  }
-                );
-              });
             }
+            // 사진 파일 데이터 가져오기 성공
+            // 다이어리 삭제
+            dbDeleteDiary(diaryID, function (success, err) {
+              if (!success) {
+                return res.status(400).json({ success: false, message: err });
+              }
+
+              // 다이어리, 해시태그 삭제 성공
+              // diary 사진url -> 사진 파일 삭제
+              dbDeletePictureFile(diaryPictureData, function (success, error) {
+                if (!success) {
+                  return res
+                    .status(400)
+                    .json({ success: false, message: error });
+                }
+                // 파일 삭제 성공
+                res.json({ success: true });
+              });
+            });
           }
         );
       }

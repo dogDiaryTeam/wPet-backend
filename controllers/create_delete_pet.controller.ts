@@ -18,7 +18,12 @@ export const createPet = (
   res: Response<any, Record<string, any>, number>
 ) => {
   // 펫 등록
-  // pet 유효성 검사 (petName, birthDate, petSex, petSpecies db..)
+
+  // 프로필 사진 은 빈값일 수 있음
+  pet.petProfilePicture =
+    pet.petProfilePicture === "" ? null : pet.petProfilePicture;
+
+  // 기존에 등록한 반려견 마리 수
   dbSelectPets(userID, function (success, userPets, err) {
     if (!success) {
       return res.status(400).json({ success: false, message: err });
@@ -29,6 +34,7 @@ export const createPet = (
           success: false,
           message: "등록할 수 있는 최대 반려견 수(5마리)를 초과합니다.",
         });
+      // pet 유효성 검사 (petName, birthDate, petSex, petSpecies db..)
       else if (
         !checkName(pet.petName) ||
         !checkDate(pet.birthDate) ||
@@ -99,7 +105,7 @@ export const createPet = (
                       .json({ success: false, message: error });
                   }
                   // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-                  else if (imageFileUrl) {
+                  else {
                     pet.petProfilePicture = imageFileUrl;
                     dbInsertPet(userID, pet, function (success, err) {
                       if (!success) {
@@ -146,17 +152,22 @@ export const deletePet = (
           return res.status(400).json({ success: false, message: err });
         }
         // pet 삭제 성공
-        // pet 사진url -> 사진 파일 삭제
-        dbDeletePictureFile(
-          result.petProfilePicture,
-          function (success, error) {
-            if (!success) {
-              return res.status(400).json({ success: false, message: error });
+        // 사진 데이터 존재
+        else if (result.petProfilePicture) {
+          // pet 사진url -> 사진 파일 삭제
+          dbDeletePictureFile(
+            result.petProfilePicture,
+            function (success, error) {
+              if (!success) {
+                return res.status(400).json({ success: false, message: error });
+              }
+              // 파일 삭제 성공
+              return res.json({ success: true });
             }
-            // 파일 삭제 성공
-            return res.json({ success: true });
-          }
-        );
+          );
+        }
+        // 사진 데이터 없음
+        return res.json({ success: true });
       });
     }
   });

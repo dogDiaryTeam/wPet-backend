@@ -2,7 +2,7 @@ interface CreatePetModel extends mongoose.Document {
   petName: string;
   birthDate: Date;
   petSex: string;
-  petProfilePicture: string;
+  petProfilePicture: string | null;
   petSpecies: Array<string>;
 }
 
@@ -25,7 +25,7 @@ export interface PetInforDTO {
   petName: string;
   birthDate: Date;
   petSex: string;
-  petProfilePicture: string;
+  petProfilePicture: string | null;
   petSpecies: Array<string>;
 }
 
@@ -34,7 +34,7 @@ export interface DBPetInforDTO {
   petName: string;
   birthDate: Date;
   petSex: string;
-  petProfilePicture: string;
+  petProfilePicture: string | null;
   petLevel: number;
   weight: number | null;
   petpecies: string;

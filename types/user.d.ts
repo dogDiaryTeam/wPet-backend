@@ -2,7 +2,7 @@ interface CreateUserModel extends mongoose.Document {
   email: string;
   pw: string;
   nickName: string;
-  profilePicture: string;
+  profilePicture: string | null;
   location: string | null;
 }
 
@@ -43,7 +43,7 @@ export interface UserInforDTO {
   token: string | null;
   joinDate: Date;
   nickName: string;
-  profilePicture: string;
+  profilePicture: string | null;
   location: string | null;
   isAuth: number;
 }
@@ -52,7 +52,7 @@ export interface CreateUserReqDTO {
   email: string;
   pw: string;
   nickName: string;
-  profilePicture: string;
+  profilePicture: string | null;
   location: string | null;
 }
 

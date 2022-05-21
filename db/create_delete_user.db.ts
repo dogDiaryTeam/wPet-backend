@@ -3,38 +3,45 @@ import mql from "./mysql";
 
 //user 생성
 export function dbInsertUser(
-  param: Array<string>,
-  locationParam: string | null,
+  email: string,
+  pw: string,
+  nickName: string,
+  profilePicture: string | null,
+  location: string | null,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string =
     "INSERT INTO usertbl(`email`, `pw`, `nickName`, `profilePicture`, `location`, `joinDate`) VALUES (?,?,?,?,?,NOW())";
   //DB에 임시 데이터 추가 (isAuth=0) (인증전)
-  return mql.query(sql, [...param, locationParam], (err, row) => {
-    if (err) callback(false, err);
-    else {
-      //1시간 뒤 인증이 되지 않았으면 임시 유저 데이터 삭제
-      setTimeout(function () {
-        //인증 확인
-        mql.query(
-          "DELETE FROM usertbl WHERE email=? AND isAuth=0",
-          param[0],
-          (err, row) => {
-            if (err) console.log(err);
-            // 데이터가 삭제된 경우 (아직 미인증 상태인 경우)
-            else if (row.affectedRows > 0) {
-              console.log("삭제");
+  return mql.query(
+    sql,
+    [email, pw, nickName, profilePicture, location],
+    (err, row) => {
+      if (err) callback(false, err);
+      else {
+        //1시간 뒤 인증이 되지 않았으면 임시 유저 데이터 삭제
+        setTimeout(function () {
+          //인증 확인
+          mql.query(
+            "DELETE FROM usertbl WHERE email=? AND isAuth=0",
+            email,
+            (err, row) => {
+              if (err) console.log(err);
+              // 데이터가 삭제된 경우 (아직 미인증 상태인 경우)
+              else if (row.affectedRows > 0) {
+                console.log("삭제");
+              }
+              //이미 인증된 경우
+              else {
+                console.log("인증된 유저입니다.");
+              }
             }
-            //이미 인증된 경우
-            else {
-              console.log("인증된 유저입니다.");
-            }
-          }
-        );
-      }, 360000);
-      callback(true);
+          );
+        }, 360000);
+        callback(true);
+      }
     }
-  });
+  );
 }
 
 //(email/nickName) => user 찾기

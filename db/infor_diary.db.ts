@@ -8,7 +8,7 @@ interface DbSelectPetAllDiarysDTO {
   petID: number;
   diaryDate: Date;
   title: string;
-  picture: string;
+  picture: string | null;
   color: string;
   font: string;
 }
@@ -18,7 +18,7 @@ interface DbSelectDiaryDTO {
   petID: number;
   diaryDate: Date;
   title: string;
-  picture: string;
+  picture: string | null;
   texts: string;
   shareIs: number;
   petState: string;

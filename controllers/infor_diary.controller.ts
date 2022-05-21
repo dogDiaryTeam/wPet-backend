@@ -30,7 +30,7 @@ export const getDiarys = (
       // 정상 출력
       else if (result) {
         // result = array..
-        let diaryPictures: Array<string> = [];
+        let diaryPictures: Array<string | null> = [];
         for (let i = 0; i < result.length; i++) {
           diaryPictures.push(result[i].picture);
         }
@@ -103,10 +103,8 @@ export const getOneDiary = (
                 return res.status(404).json({ success: false, message: msg });
               }
               // 파일에서 이미지 데이터 가져오기 성공
-              else if (petProfilePictureData) {
-                result.picture = petProfilePictureData;
-                res.json({ success: true, result });
-              }
+              result.picture = petProfilePictureData;
+              return res.json({ success: true, result });
             }
           );
         }

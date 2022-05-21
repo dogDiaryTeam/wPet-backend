@@ -35,21 +35,6 @@ const saltRounds = 10;
 //412 : 요청이 부족한 경우 (요청을 처리하는데 필요한 데이터가 충족하는지 확인해야 한다.)
 export const test: Handler = (req, res) => {
   //test
-  // console.log("🚀 ~ param", param);
-  // console.log("🚀 ~ req.body", typeof param);
-  //     if (err) callback(false, err);
-  //     else callback(true);
-  // // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
-  // fs.writeFile("./images/test.txt", JSON.stringify(param), "utf8", (err) => {
-  //   if (err) throw err;
-  //   console.log("The file has been saved!");
-  //   // console.log(JSON.stringify(resultObj))
-  //   fs.readFile("./images/test.txt", (err, data) => {
-  //     if (err) throw err;
-  //     console.log(data.toString());
-  //     return res.json({ success: true });
-  //   });
-  // });
 };
 
 export const creatUser = (
@@ -59,19 +44,23 @@ export const creatUser = (
   //회원가입 할때 필요한 정보들을 client에서 가져오면
   //그것들을 데이터 베이스에 넣어준다.
 
-  const param = [user.email, user.pw, user.nickName, user.profilePicture];
-  // string | null
-  const locationParam: string | null = user.location;
+  // 프로필 사진, 지역 은 빈값일 수 있음
+  user.profilePicture = user.profilePicture === "" ? null : user.profilePicture;
+  user.location = user.location === "" ? null : user.location;
 
   // 중복 에러 메시지
   let isOverlapUserErr: boolean = false;
 
   // 요청 데이터 유효성 검사
-  if (!checkEmail(param[0]) || !checkPw(param[1]) || !checkName(param[2])) {
+  if (
+    !checkEmail(user.email) ||
+    !checkPw(user.pw) ||
+    !checkName(user.nickName)
+  ) {
     let errMsg = "";
-    let emailErr = checkEmail(param[0]) ? "" : "이메일 이상.";
-    let pwErr = checkPw(param[1]) ? "" : "비밀번호 이상.";
-    let nameErr = checkName(param[2]) ? "" : "닉네임 이상.";
+    let emailErr = checkEmail(user.email) ? "" : "이메일 이상.";
+    let pwErr = checkPw(user.pw) ? "" : "비밀번호 이상.";
+    let nameErr = checkName(user.nickName) ? "" : "닉네임 이상.";
     errMsg = errMsg + emailErr + pwErr + nameErr;
     console.log("errMsg:", errMsg);
 
@@ -79,21 +68,21 @@ export const creatUser = (
   }
 
   // (이메일) 유저가 있는지
-  dbFindUser("email", param[0], function (err, isUser, user) {
+  dbFindUser("email", user.email, function (err, isUser, emailUser) {
     if (err) {
       return res
         .status(400)
         .json({ success: false, message: "이메일이 유효하지 않습니다." });
-    } else if (isUser && user[0].isAuth === 0) {
+    } else if (isUser && emailUser.isAuth === 0) {
       return res.status(403).json({
         success: false,
         message: "아직 이메일 인증을 하지 않은 유저입니다.",
       });
-    } else if (isUser && user[0].isAuth === 1) {
+    } else if (isUser && emailUser.isAuth === 1) {
       isOverlapUserErr = true;
     }
     //(닉네임) 유저가 있는지
-    dbFindUser("nickName", param[2], function (err, isUser, user) {
+    dbFindUser("nickName", user.nickName, function (err, isUser, nickNameUser) {
       if (err) {
         return res
           .status(400)
@@ -120,27 +109,38 @@ export const creatUser = (
         });
       }
       // 회원가입 시 비밀번호
-      bcrypt.hash(param[1], saltRounds, (error, hash) => {
-        param[1] = hash;
-        console.log(param);
+      bcrypt.hash(user.pw, saltRounds, (error, hash) => {
+        user.pw = hash;
 
         // DB에 추가 (인증 전)
         // 이미지 파일 컨트롤러
-        imageController(param[3], function (success, imageFileUrl, error) {
-          if (!success) {
-            return res.status(400).json({ success: false, message: error });
+        imageController(
+          user.profilePicture,
+          function (success, imageFileUrl, error) {
+            if (!success) {
+              return res.status(400).json({ success: false, message: error });
+            }
+            // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+            else {
+              user.profilePicture = imageFileUrl;
+              dbInsertUser(
+                user.email,
+                user.pw,
+                user.nickName,
+                user.profilePicture,
+                user.location,
+                function (success, error) {
+                  if (!success) {
+                    return res
+                      .status(400)
+                      .json({ success: false, message: error });
+                  }
+                  return res.json({ success: true });
+                }
+              );
+            }
           }
-          // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-          else if (imageFileUrl) {
-            param[3] = imageFileUrl;
-            dbInsertUser(param, locationParam, function (success, error) {
-              if (!success) {
-                return res.status(400).json({ success: false, message: error });
-              }
-              return res.json({ success: true });
-            });
-          }
-        });
+        );
       });
     });
   });

@@ -1,7 +1,7 @@
 interface CreateDiaryModel extends mongoose.Document {
   petIDs: Array<number>;
   title: string;
-  picture: string;
+  picture: string | null;
   texts: string;
   shareIs: number;
   petState: string;
@@ -23,7 +23,7 @@ interface PetAllDiaryModel extends mongoose.Document {
 export interface DiaryInforDTO {
   petIDs: Array<number>;
   title: string;
-  picture: string;
+  picture: string | null;
   texts: string;
   shareIs: number;
   petState: string;
@@ -32,8 +32,3 @@ export interface DiaryInforDTO {
   font: string;
   hashTags: Array<string>;
 }
-
-// export interface DeleteDiaryDTO {
-//   petID: number;
-//   diaryID: number;
-// }

@@ -124,7 +124,6 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
       checkEmptyValue(pet.petName) ||
       checkEmptyValue(pet.birthDate) ||
       checkEmptyValue(pet.petSex) ||
-      checkEmptyValue(pet.petProfilePicture) ||
       checkEmptyValue(pet.petSpecies)
     ) {
       return res.status(400).json({

@@ -163,8 +163,8 @@ function updateUserProfilePicture(
     // 사용자가 존재하지 않는 경우
     else if (!success && !err) {
       return res.status(404).json({ success: false, message: msg });
-    } else if (result) {
-      // result == 기존 사용자 사진 파일의 url
+    } else {
+      // result == 기존 사용자 사진 파일의 url (OR null)
       // 해당 파일 삭제
       dbDeletePictureFile(result, function (success, error) {
         if (!success) {

@@ -164,9 +164,7 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
   if (
     checkEmptyValue(user.email) ||
     checkEmptyValue(user.pw) ||
-    checkEmptyValue(user.nickName) ||
-    checkEmptyValue(user.profilePicture) ||
-    checkEmptyValue(user.location)
+    checkEmptyValue(user.nickName)
   ) {
     return res.status(400).json({
       success: false,

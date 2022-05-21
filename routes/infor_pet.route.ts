@@ -160,6 +160,7 @@ router.get("/api/pet/getnames", auth, (req, res) => {
 router.post("/api/pet/getinfor", auth, (req: PetRequest<PetIDModel>, res) => {
   // 사용자가 등록한 pet 중
   // 해당 petID pet 정보 return
+
   let user: UserInforDTO | null = req.user;
 
   if (user) {
@@ -204,7 +205,54 @@ router.patch(
           success: false,
           message: "PARAMETER IS EMPTY",
         });
-      }
+      } else if (
+        param.updateElement.petName &&
+        checkEmptyValue(param.updateElement.petName)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (
+        param.updateElement.birthDate &&
+        checkEmptyValue(param.updateElement.birthDate)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (
+        param.updateElement.petSex &&
+        checkEmptyValue(param.updateElement.petSex)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (
+        param.updateElement.weight &&
+        checkEmptyValue(param.updateElement.weight)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (
+        param.updateElement.petProfilePicture &&
+        checkEmptyValue(param.updateElement.petProfilePicture)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (
+        param.updateElement.petSpecies &&
+        checkEmptyValue(param.updateElement.petSpecies)
+      )
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
       updatePetInfor(user.userID, param, res);
     } else {
       // 유저 인증 no

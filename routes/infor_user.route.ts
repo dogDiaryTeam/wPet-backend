@@ -159,10 +159,9 @@ router.get("/api/user/auth", auth, (req, res) => {
           return res.status(404).json({ success: false, message: msg });
         }
         // 파일에서 이미지 데이터 가져오기 성공
-        else if (result && user) {
-          let userImage: string = result;
-
-          res.status(200).json({
+        else if (user) {
+          let userImage: string | null = result;
+          return res.status(200).json({
             success: true,
             email: user.email,
             joinDate: user.joinDate,
@@ -196,12 +195,27 @@ router.patch(
       let userID: number = user.userID;
       //object
       const param: UpdateUserReqDTO = req.body;
+      // test 필요
       if (checkEmptyValue(param)) {
         return res.status(400).json({
           success: false,
           message: "PARAMETER IS EMPTY",
         });
-      }
+      } else if (param.nickName && checkEmptyValue(param.nickName))
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (param.profilePicture && checkEmptyValue(param.profilePicture))
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      else if (param.location && checkEmptyValue(param.location))
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
       updateUser(userID, param, res);
     } else {
       return res.status(401).json({

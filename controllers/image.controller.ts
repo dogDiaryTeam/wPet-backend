@@ -5,63 +5,73 @@ import fs from "fs";
 // 이미지 데이터 -> text 파일로 "images/" 폴더에 저장
 // 저장 경로를 DB에 저장
 export function imageController(
-  imageData: string,
+  imageData: string | null,
   callback: (
     success: boolean,
     imageFileUrl: string | null,
     error?: NodeJS.ErrnoException
   ) => void
 ): any {
-  // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
-  let authString: string = String(Math.random().toString(36).slice(2));
-  let fileName: string = `./images/${authString}.txt`;
+  if (imageData == null) {
+    console.log("이미지데이터 null");
+    callback(true, null);
+  } else {
+    // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
+    let authString: string = String(Math.random().toString(36).slice(2));
+    let fileName: string = `./images/${authString}.txt`;
 
-  // 해당 파일명이 이미 존재하는지 검증
-  let overFile: boolean = fs.existsSync(fileName);
-  console.log(overFile);
-
-  //이미 존재 -> 랜덤 문자열 다시 생성
-  while (overFile) {
-    authString = String(Math.random().toString(36).slice(2));
-    fileName = `./images/${authString}.txt`;
     // 해당 파일명이 이미 존재하는지 검증
-    overFile = fs.existsSync(fileName);
-  }
-  // 존재 X
-  // 파일 생성 후 이미지 데이터 삽입
+    let overFile: boolean = fs.existsSync(fileName);
+    console.log(overFile);
 
-  return fs.writeFile(fileName, imageData, "utf8", (err) => {
-    if (err) callback(false, null, err);
-    else callback(true, fileName);
-  });
+    //이미 존재 -> 랜덤 문자열 다시 생성
+    while (overFile) {
+      authString = String(Math.random().toString(36).slice(2));
+      fileName = `./images/${authString}.txt`;
+      // 해당 파일명이 이미 존재하는지 검증
+      overFile = fs.existsSync(fileName);
+    }
+    // 존재 X
+    // 파일 생성 후 이미지 데이터 삽입
+
+    return fs.writeFile(fileName, imageData, "utf8", (err) => {
+      if (err) callback(false, null, err);
+      else callback(true, fileName);
+    });
+  }
 }
 
 // (기존) 사진파일 삭제하기
 export function dbDeletePictureFile(
-  fileUrl: string,
+  fileUrl: string | null,
   callback: (success: boolean, error?: NodeJS.ErrnoException) => void
 ): any {
-  console.log(fileUrl);
-  // url에 파일이 존재하는지 확인
-  let overFile: boolean = fs.existsSync(fileUrl);
-  console.log(overFile);
-
-  if (overFile) {
-    // url에 위치한 파일 삭제하기
-    console.log("파일 삭제");
-    fs.unlink(fileUrl, (err) => {
-      if (err) callback(false, err);
-      else callback(true);
-    });
-  } else {
-    console.log("파일 삭제 안함");
+  if (fileUrl == null) {
+    console.log("이미지데이터 null");
     callback(true);
+  } else {
+    console.log(fileUrl);
+    // url에 파일이 존재하는지 확인
+    let overFile: boolean = fs.existsSync(fileUrl);
+    console.log(overFile);
+
+    if (overFile) {
+      // url에 위치한 파일 삭제하기
+      console.log("파일 삭제");
+      fs.unlink(fileUrl, (err) => {
+        if (err) callback(false, err);
+        else callback(true);
+      });
+    } else {
+      console.log("파일 삭제 안함");
+      callback(true);
+    }
   }
 }
 
 // 사진파일 가져오기
 export function dbSelectPictureFile(
-  fileUrl: string,
+  fileUrl: string | null,
   callback: (
     success: boolean,
     result: string | null,
@@ -69,36 +79,40 @@ export function dbSelectPictureFile(
     message?: string
   ) => void
 ): any {
-  // url에 파일이 존재하는지 확인
-  let overFile: boolean = fs.existsSync(fileUrl);
-  console.log(overFile);
-
-  if (overFile) {
-    // url에 위치한 파일 내용 가져오기
-    fs.readFile(fileUrl, (err, data) => {
-      if (err) callback(false, null, err);
-      else callback(true, data.toString(), null);
-    });
+  if (fileUrl == null) {
+    console.log("이미지데이터 null");
+    callback(true, null, null);
   } else {
-    callback(false, null, null, "파일이 존재하지 않음.");
+    // url에 파일이 존재하는지 확인
+    let overFile: boolean = fs.existsSync(fileUrl);
+    console.log(overFile);
+
+    if (overFile) {
+      // url에 위치한 파일 내용 가져오기
+      fs.readFile(fileUrl, (err, data) => {
+        if (err) callback(false, null, err);
+        else callback(true, data.toString(), null);
+      });
+    } else {
+      callback(false, null, null, "파일이 존재하지 않음.");
+    }
   }
 }
 
 // 사진파일들 가져오기
 export function dbSelectPictureFiles(
-  fileUrls: Array<string>,
+  fileUrls: Array<string | null>,
   callback: (result: Array<string>) => void
 ): any {
   let fileLen: number = fileUrls.length;
   let newFiles: Array<string> = [];
-  let file: string = "";
+  let file: string | null;
 
   let data;
   for (let i = 0; i < fileLen; i++) {
     file = fileUrls[i];
     // url에 파일이 존재하는지 확인
-
-    if (fs.existsSync(file)) {
+    if (file && fs.existsSync(file)) {
       // url에 위치한 파일 내용 가져오기
       data = fs.readFileSync(file);
       newFiles.push(data.toString());

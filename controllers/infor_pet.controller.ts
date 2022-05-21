@@ -71,7 +71,7 @@ export const getPetInfor = (
             return res.status(404).json({ success: false, message: msg });
           }
           // 파일에서 이미지 데이터 가져오기 성공
-          else if (petProfilePictureData) {
+          else {
             result.petProfilePicture = petProfilePictureData;
             res.json({ success: true, result });
           }
@@ -302,8 +302,8 @@ function updatePetProfilePicture(
     // pet 이 존재하지 않는 경우
     else if (!success && !err) {
       return res.status(404).json({ success: false, message: msg });
-    } else if (result) {
-      // result == 기존 반려견 사진 파일의 url
+    } else {
+      // result == 기존 반려견 사진 파일의 url (OR NULL)
       // 해당 파일 삭제
       dbDeletePictureFile(result, function (success, error) {
         if (!success) {

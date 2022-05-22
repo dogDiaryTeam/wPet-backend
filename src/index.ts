@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import creatDeletePetRoutes from "../routes/pet.routes/create_delete_pet.route";
 import createDeleteDiaryRoutes from "../routes/diary.routes/create_delete_diary.route";
+import createDeleteTodolistRoutes from "../routes/todolist.routes/create_delete_todolist.route";
 import createDeleteUserRoutes from "../routes/user.routes/create_delete_user.route";
 import inforDiaryRoutes from "../routes/diary.routes/infor_diary.route";
 import inforPetRoutes from "../routes/pet.routes/infor_pet.route";
@@ -37,6 +38,7 @@ app.use(creatDeletePetRoutes);
 app.use(inforPetRoutes);
 app.use(createDeleteDiaryRoutes);
 app.use(inforDiaryRoutes);
+app.use(createDeleteTodolistRoutes);
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

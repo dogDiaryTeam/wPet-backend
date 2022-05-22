@@ -135,6 +135,7 @@ export function dbCheckPetExist(
     else if (row.length > 1) callback(false, null, "db error");
     // 존재하는 경우
     else if (row.length === 1) {
+      // test 필요
       row[0].petSpecies = row[0].petSpecies.split(",");
       callback(true, row[0], null);
     }

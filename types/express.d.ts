@@ -58,3 +58,7 @@ interface PetRequest<T> extends Request {
 interface DiaryRequest<T> extends Request {
   body: T;
 }
+
+interface TodolistRequest<T> extends Request {
+  body: T;
+}

@@ -116,7 +116,7 @@ export function dbInsertUserEmailAuth(
                     }
                   }
                 );
-              }, 120000);
+              }, 190000);
               callback(true);
             }
           }
@@ -144,7 +144,7 @@ export function dbInsertUserEmailAuth(
                     }
                   }
                 );
-              }, 120000);
+              }, 190000);
               callback(true);
             }
           }

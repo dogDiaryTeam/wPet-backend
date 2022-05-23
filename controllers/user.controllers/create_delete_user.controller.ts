@@ -66,7 +66,7 @@ export const creatUser = (
 
     return res.status(400).json({ success: false, message: errMsg });
   }
-
+  // console.log(user);
   // (이메일) 유저가 있는지
   dbFindUser("email", user.email, function (err, isUser, emailUser) {
     if (err) {
@@ -82,76 +82,69 @@ export const creatUser = (
       } else if (emailUser.isAuth === 1) {
         isOverlapUserErr = true;
       }
-
-      //(닉네임) 유저가 있는지
-      dbFindUser(
-        "nickName",
-        user.nickName,
-        function (err, isUser, nickNameUser) {
-          if (err) {
-            return res
-              .status(400)
-              .json({ success: false, message: "닉네임이 유효하지 않습니다." });
-          } else if (isUser) {
-            // 이메일 + 닉네임 중복
-            if (isOverlapUserErr) {
-              return res.status(409).json({
-                success: false,
-                message: "이메일중복 + 닉네임중복",
-              });
-            }
-            // 닉네임만 중복
-            return res.status(409).json({
-              success: false,
-              message: "닉네임중복",
-            });
-          }
-          // 이메일만 중복
-          else if (isOverlapUserErr) {
-            return res.status(409).json({
-              success: false,
-              message: "이메일중복",
-            });
-          }
-          // 회원가입 시 비밀번호
-          bcrypt.hash(user.pw, saltRounds, (error, hash) => {
-            user.pw = hash;
-
-            // DB에 추가 (인증 전)
-            // 이미지 파일 컨트롤러
-            imageController(
-              user.profilePicture,
-              function (success, imageFileUrl, error) {
-                if (!success) {
-                  return res
-                    .status(400)
-                    .json({ success: false, message: error });
-                }
-                // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-                else {
-                  user.profilePicture = imageFileUrl;
-                  dbInsertUser(
-                    user.email,
-                    user.pw,
-                    user.nickName,
-                    user.profilePicture,
-                    user.location,
-                    function (success, error) {
-                      if (!success) {
-                        return res
-                          .status(400)
-                          .json({ success: false, message: error });
-                      }
-                      return res.json({ success: true });
-                    }
-                  );
-                }
-              }
-            );
+    }
+    //(닉네임) 유저가 있는지
+    dbFindUser("nickName", user.nickName, function (err, isUser, nickNameUser) {
+      if (err) {
+        return res
+          .status(400)
+          .json({ success: false, message: "닉네임이 유효하지 않습니다." });
+      } else if (isUser) {
+        // 이메일 + 닉네임 중복
+        if (isOverlapUserErr) {
+          return res.status(409).json({
+            success: false,
+            message: "이메일중복 + 닉네임중복",
           });
         }
-      );
-    }
+        // 닉네임만 중복
+        return res.status(409).json({
+          success: false,
+          message: "닉네임중복",
+        });
+      }
+      // 이메일만 중복
+      else if (isOverlapUserErr) {
+        return res.status(409).json({
+          success: false,
+          message: "이메일중복",
+        });
+      }
+      // 회원가입 시 비밀번호
+      bcrypt.hash(user.pw, saltRounds, (error, hash) => {
+        user.pw = hash;
+
+        // DB에 추가 (인증 전)
+        // 이미지 파일 컨트롤러
+        imageController(
+          user.profilePicture,
+          function (success, imageFileUrl, error) {
+            if (!success) {
+              return res.status(400).json({ success: false, message: error });
+            }
+            // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+            else {
+              user.profilePicture = imageFileUrl;
+              dbInsertUser(
+                user.email,
+                user.pw,
+                user.nickName,
+                user.profilePicture,
+                user.location,
+                function (success, error) {
+                  if (!success) {
+                    return res
+                      .status(400)
+                      .json({ success: false, message: error });
+                  }
+                  return res.json({ success: true });
+                }
+              );
+            }
+          }
+        );
+      });
+    });
   });
 };
 

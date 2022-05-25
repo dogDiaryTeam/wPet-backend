@@ -12,6 +12,7 @@ interface LoginUserModel extends mongoose.Document {
 }
 
 interface UpdateUserModel extends mongoose.Document {
+  email?: string;
   nickName?: string;
   profilePicture?: string;
   location?: string;
@@ -35,6 +36,10 @@ interface UpdatePwModel extends mongoose.Document {
   newPw: string;
 }
 
+interface UpdateEmailModel extends mongoose.Document {
+  newEmail: string;
+}
+
 export interface UserInforDTO {
   userID: number;
   email: string;
@@ -56,6 +61,7 @@ export interface CreateUserReqDTO {
 }
 
 export interface UpdateUserReqDTO {
+  email?: string;
   nickName?: string;
   profilePicture?: string;
   location?: string;

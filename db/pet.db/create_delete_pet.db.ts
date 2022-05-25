@@ -157,18 +157,12 @@ export function dbDeletePet(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string =
-    "DELETE FROM pettbl WHERE ownerID=? AND petID=? AND petName=? AND birthDate=? AND petSex=? AND petProfilePicture=?";
+    "DELETE FROM pettbl WHERE ownerID=? AND petID=? AND petName=? AND birthDate=? AND petSex=?";
   return mql.query(
     sql,
-    [
-      ownerID,
-      pet.petID,
-      pet.petName,
-      pet.birthDate,
-      pet.petSex,
-      pet.petProfilePicture,
-    ],
+    [ownerID, pet.petID, pet.petName, pet.birthDate, pet.petSex],
     (err, row) => {
+      console.log(pet);
       if (err) callback(false, err);
       // 삭제 성공
       else callback(true);

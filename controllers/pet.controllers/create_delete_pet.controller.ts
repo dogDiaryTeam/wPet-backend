@@ -175,7 +175,7 @@ export const deletePet = (
           );
         }
         // 사진 데이터 없음
-        return res.json({ success: true });
+        else return res.json({ success: true });
       });
     }
   });

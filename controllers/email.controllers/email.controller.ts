@@ -15,7 +15,7 @@ export const mailSendAuthEmail = (
 
   let emailTemplete;
   ejs.renderFile(
-    path.join(__dirname, "..", "template/sendAuthMail.ejs"),
+    path.join(__dirname, "..", "/../template/sendAuthMail.ejs"),
     { authCode: authString },
     async function (err, data) {
       if (err) {
@@ -72,7 +72,7 @@ export const mailSendTempPw = (
 
   let emailTemplete;
   ejs.renderFile(
-    path.join(__dirname, "..", "template/sendTempPw.ejs"),
+    path.join(__dirname, "..", "/../template/sendTempPw.ejs"),
     { tempPw: tempPw },
     async function (err, data) {
       if (err) {

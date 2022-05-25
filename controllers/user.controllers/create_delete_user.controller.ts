@@ -153,8 +153,9 @@ export const sendAuthEmail = (
   res: Response<any, Record<string, any>, number>
 ) => {
   //이메일 주소로 인증
+  //
   if (checkEmail(email)) {
-    let authString: string = String(Math.random().toString(36).slice(2));
+    let authString: string = String(Math.random().toString(36).slice(2, 10));
     dbInsertUserEmailAuth(email, authString, function (success, error) {
       if (!success) {
         console.log(error);

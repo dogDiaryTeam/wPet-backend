@@ -22,7 +22,8 @@ export function checkName(name: string): boolean {
 
 //pw 유효성 검사 (8-13자)
 export function checkPw(pw: string): boolean {
-  var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{8,13}$/;
+  var regExp =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,13}$/;
   return regExp.test(pw);
 }
 

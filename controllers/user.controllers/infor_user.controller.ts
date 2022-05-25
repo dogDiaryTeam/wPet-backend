@@ -1,5 +1,10 @@
 import { UpdateUserReqDTO, UserInforDTO } from "../../types/user";
-import { checkLocation, checkName, checkPw } from "../validations/validate";
+import {
+  checkEmail,
+  checkLocation,
+  checkName,
+  checkPw,
+} from "../validations/validate";
 import {
   dbAuthUserOriginPw,
   dbSelectUserProfilePictureUrl,
@@ -61,6 +66,36 @@ export const updateUserPw = (
         return res.json({ success: true });
       });
     });
+  });
+};
+
+export const updateUserEmail = (
+  originEmail: string,
+  newEmail: string,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // 이메일 변경 (로그인 된 상태)
+
+  // 새 이메일 유효성 검증
+  if (!checkEmail(newEmail))
+    return res
+      .status(400)
+      .json({ success: false, message: "새 이메일 형식 이상." });
+  else if (originEmail === newEmail)
+    return res
+      .status(409)
+      .json({ success: false, message: "기존 이메일과 동일합니다." });
+
+  // (이메일) 유저가 있는지
+  dbFindUser("email", newEmail, function (err, isUser, emailUser) {
+    if (err)
+      return res
+        .status(400)
+        .json({ success: false, message: "이메일이 유효하지 않습니다." });
+    else if (isUser)
+      return res.status(409).json({ success: false, message: "이메일 중복." });
+    // 이메일 중복 안되는 경우 (정상)
+    // 이메일 업데이트를 위한 이메일 인증 메일 발송
   });
 };
 

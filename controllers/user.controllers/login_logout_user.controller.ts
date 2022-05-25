@@ -115,7 +115,9 @@ export const loginUser = (
               }
               // 쿠키 유효기간 : 일주일
               return res
-                .cookie("x_auth", userToken, { maxAge: 7 * 24 * 60 * 60 })
+                .cookie("x_auth", userToken, {
+                  maxAge: 14 * 24 * 60 * 60 * 1000,
+                })
                 .status(200)
                 .json({
                   success: true,

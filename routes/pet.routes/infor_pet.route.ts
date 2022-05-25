@@ -40,7 +40,7 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/pet/getinfor:
+ *   /api/pet/getinfo:
  *     post:
  *        tags:
  *        - pets
@@ -175,7 +175,7 @@ router.get("/api/pet/getnames", auth, (req, res) => {
   }
 });
 
-router.post("/api/pet/getinfor", auth, (req: PetRequest<PetIDModel>, res) => {
+router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
   // 사용자가 등록한 pet 중
   // 해당 petID pet 정보 return
 

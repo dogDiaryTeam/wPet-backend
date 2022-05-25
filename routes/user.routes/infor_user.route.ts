@@ -1,4 +1,5 @@
 import {
+  UpdateEmailModel,
   UpdatePwModel,
   UpdateUserModel,
   UpdateUserReqDTO,
@@ -6,6 +7,7 @@ import {
 } from "../../types/user";
 import {
   updateUser,
+  updateUserEmail,
   updateUserPw,
 } from "../../controllers/user.controllers/infor_user.controller";
 
@@ -249,6 +251,33 @@ router.post(
         });
       }
       updateUserPw(originPw, newPw, user, res);
+    } else {
+      return res.status(401).json({
+        isAuth: false,
+        message: "USER AUTH FAILED",
+      });
+    }
+  }
+);
+
+router.post(
+  "/api/user/updateemail",
+  auth,
+  (req: UserRequest<UpdateEmailModel>, res) => {
+    //이메일 변경 (로그인 된 상태)
+    // 새 이메일 + auth
+    let user: UserInforDTO | null = req.user;
+
+    if (user) {
+      const newEmail: string = req.body.newEmail;
+      console.log("🚀 ~ newEmail", newEmail);
+      if (checkEmptyValue(newEmail)) {
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      }
+      updateUserEmail(user.email, newEmail, res);
     } else {
       return res.status(401).json({
         isAuth: false,

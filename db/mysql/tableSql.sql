@@ -6,7 +6,7 @@
 --  token TEXT,
 --  joinDate DATE NOT NULL,
 --  nickName VARCHAR(20) NOT NULL UNIQUE,
---  profilePicture TEXT NOT NULL,
+--  profilePicture TEXT,
 --  location VARCHAR(255),
 --  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
 -- )
@@ -16,7 +16,7 @@
 --  ownerID INT UNSIGNED NOT NULL,
 --  petName VARCHAR(20) NOT NULL,
 --  birthDate DATE NOT NULL,
---  petProfilePicture TEXT NOT NULL,
+--  petProfilePicture TEXT,
 --  petLevel TINYINT UNSIGNED NOT NULL DEFAULT 1,
 --  petSex VARCHAR(2) NOT NULL,
 --  weight float(5,2),
@@ -96,7 +96,7 @@
 --  petID INT UNSIGNED NOT NULL,
 --  diaryDate DATE NOT NULL,
 --  title VARCHAR(50) NOT NULL DEFAULT "무제",
---  picture TEXT NOT NULL,
+--  picture TEXT,
 --  texts TEXT NOT NULL,
 --  shareIs TINYINT(1) NOT NULL DEFAULT 0,
 --  petState VARCHAR(10) NOT NULL,
@@ -202,6 +202,12 @@
 --  FOREIGN KEY (todoListKeywordID) REFERENCES todoListKeywordTBL(todoListKeywordID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE usermail_authstringTBL
+-- (
+--  userEmail varchar(255) NOT NULL UNIQUE,
+--  authString VARCHAR(15) NOT NULL,
+--  FOREIGN KEY (userEmail) REFERENCES userTBL(email) ON UPDATE CASCADE ON DELETE CASCADE
+-- );
+-- CREATE TABLE usermailupdate_authstringTBL
 -- (
 --  userEmail varchar(255) NOT NULL UNIQUE,
 --  authString VARCHAR(15) NOT NULL,

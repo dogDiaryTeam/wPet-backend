@@ -53,7 +53,7 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/diary/getinfor:
+ *   /api/diary/getinfo:
  *     post:
  *        tags:
  *        - diarys
@@ -122,7 +122,7 @@ router.post(
 );
 
 router.post(
-  "/api/diary/getinfor",
+  "/api/diary/getinfo",
   auth,
   (req: DiaryRequest<PetDiaryModel>, res) => {
     // 반려견의 다이어리가 맞다면

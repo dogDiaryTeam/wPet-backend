@@ -30,27 +30,18 @@ const router = Router();
  *                type: object
  *                required:
  *                  - email
- *                  - nickName
  *                properties:
  *                  email:
  *                    type: string
  *                    description: 사용자 이메일 주소
  *                    example: "test1@naver.com"
- *                  nickName:
- *                    type: string
- *                    description: 사용자 닉네임
- *                    example: "집사"
  *        responses:
  *          "200":
  *            description: "임시 비밀번호를 담은 이메일 전송 성공"
  *          "400":
  *            description: "요청 데이터가 유효하지 않음."
- *          "401":
- *            description: "닉네임이 틀렸습니다."
  *          "404":
  *            description: "해당 이메일의 유저가 존재하지 않음."
- *          "500":
- *            description: "서버 내의 문제 발생."
  *        security:
  *          - petstore_auth:
  *              - "write:pets"

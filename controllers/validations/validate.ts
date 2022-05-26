@@ -79,7 +79,7 @@ export function checkDate(date: Date): boolean {
 
 //sex 유효성 검사
 export function checkSex(sex: string): boolean {
-  if (sex === "여자" || sex === "남자") {
+  if (sex === "여" || sex === "남") {
     return true;
   }
   return false;

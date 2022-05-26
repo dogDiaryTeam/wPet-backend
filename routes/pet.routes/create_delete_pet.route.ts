@@ -99,7 +99,7 @@ const router = Router();
  *       petSex:
  *         type: string
  *         description: 반려견 성별
- *         example: "여자"
+ *         example: "여"
  *       petProfilePicture:
  *         type: string
  *         description: 반려견 사진

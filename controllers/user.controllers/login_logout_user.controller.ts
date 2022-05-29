@@ -43,7 +43,7 @@ export const findUserPw = (
 
     //유저 존재
     //임시비밀번호 생성 후 db에 update + 메일 전송
-    let tempPw: string = String(Math.random().toString(36).slice(2));
+    let tempPw: string = String(Math.random().toString(36).slice(2)) + "!";
     // 암호화
     bcrypt.hash(tempPw, saltRounds, (error, hash) => {
       let hashTempPw = hash;

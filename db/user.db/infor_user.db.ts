@@ -13,19 +13,10 @@ export function dbAuthUserOriginPw(
     message?: string
   ) => void
 ): any {
-  let sql: string =
-    "SELECT pw FROM usertbl WHERE userID=? AND email=? AND joinDate=? AND nickName=? AND profilePicture=? AND location=? AND isAuth=?";
+  let sql: string = `SELECT * FROM usertbl WHERE userID=? AND email=? AND joinDate=? AND nickName=? AND isAuth=?`;
   return mql.query(
     sql,
-    [
-      user.userID,
-      user.email,
-      user.joinDate,
-      user.nickName,
-      user.profilePicture,
-      user.location,
-      user.isAuth,
-    ],
+    [user.userID, user.email, user.joinDate, user.nickName, user.isAuth],
     (err, row) => {
       if (err) callback(false, err);
       //임시 비밀번호 업데이트 성공
@@ -53,19 +44,10 @@ export function dbUpdateUserNewPw(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string =
-    "UPDATE usertbl SET pw=? WHERE userID=? AND email=? AND joinDate=? AND nickName=? AND profilePicture=? AND location=? AND isAuth=?";
+    "UPDATE usertbl SET pw=? WHERE userID=? AND email=? AND joinDate=? AND nickName=? AND isAuth=?";
   return mql.query(
     sql,
-    [
-      newPw,
-      user.userID,
-      user.email,
-      user.joinDate,
-      user.nickName,
-      user.profilePicture,
-      user.location,
-      user.isAuth,
-    ],
+    [newPw, user.userID, user.email, user.joinDate, user.nickName, user.isAuth],
     (err, row) => {
       if (err) callback(false, err);
       //임시 비밀번호 업데이트 성공

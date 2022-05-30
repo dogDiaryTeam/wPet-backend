@@ -13,7 +13,6 @@ export function imageController(
   ) => void
 ): any {
   if (imageData == null) {
-    console.log("이미지데이터 null");
     callback(true, null);
   } else {
     // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
@@ -22,7 +21,6 @@ export function imageController(
 
     // 해당 파일명이 이미 존재하는지 검증
     let overFile: boolean = fs.existsSync(fileName);
-    console.log(overFile);
 
     //이미 존재 -> 랜덤 문자열 다시 생성
     while (overFile) {
@@ -47,13 +45,10 @@ export function dbDeletePictureFile(
   callback: (success: boolean, error?: NodeJS.ErrnoException) => void
 ): any {
   if (fileUrl == null) {
-    console.log("이미지데이터 null");
     callback(true);
   } else {
-    console.log(fileUrl);
     // url에 파일이 존재하는지 확인
     let overFile: boolean = fs.existsSync(fileUrl);
-    console.log(overFile);
 
     if (overFile) {
       // url에 위치한 파일 삭제하기
@@ -80,12 +75,10 @@ export function dbSelectPictureFile(
   ) => void
 ): any {
   if (fileUrl == null) {
-    console.log("이미지데이터 null");
     callback(true, null, null);
   } else {
     // url에 파일이 존재하는지 확인
     let overFile: boolean = fs.existsSync(fileUrl);
-    console.log(overFile);
 
     if (overFile) {
       // url에 위치한 파일 내용 가져오기

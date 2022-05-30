@@ -19,8 +19,6 @@ export const mailSendAuthEmail = (
     { authCode: authString },
     async function (err, data) {
       if (err) {
-        console.log("1");
-        console.log(err);
         return res.status(500).json({ success: false, message: err });
       }
 
@@ -45,11 +43,8 @@ export const mailSendAuthEmail = (
         },
         (error, info) => {
           if (error) {
-            console.log("2");
-            console.log(error);
             return res.status(500).json({ success: false, message: error });
           }
-          console.log("Finish sending email : " + info.response);
 
           // res.send(authNum);
           //? 전송을 끝내는 메소드
@@ -77,8 +72,6 @@ export const mailSendAuthUpdateEmail = (
     { authCode: authString },
     async function (err, data) {
       if (err) {
-        console.log("1");
-        console.log(err);
         return res.status(500).json({ success: false, message: err });
       }
 
@@ -104,11 +97,8 @@ export const mailSendAuthUpdateEmail = (
         },
         (error, info) => {
           if (error) {
-            console.log("2");
-            console.log(error);
             return res.status(500).json({ success: false, message: error });
           }
-          console.log("Finish sending email : " + info.response);
 
           // res.send(authNum);
           //? 전송을 끝내는 메소드
@@ -161,7 +151,6 @@ export const mailSendTempPw = (
           if (error) {
             return res.status(500).json({ success: false, message: error });
           }
-          console.log("Finish sending email : " + info.response);
 
           // res.send(authNum);
           //? 전송을 끝내는 메소드

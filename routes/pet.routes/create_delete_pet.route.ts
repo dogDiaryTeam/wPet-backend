@@ -118,8 +118,7 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
   if (user) {
     // 유저 인증 완료
     const pet: PetInforDTO = req.body;
-    console.log("🚀 ~ pet", pet);
-    console.log("🚀 ~ req.body", req.body);
+
     if (
       checkEmptyValue(pet.petName) ||
       checkEmptyValue(pet.birthDate) ||
@@ -148,7 +147,6 @@ router.post("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
   if (user) {
     // 유저 인증 완료
     const petID: number = req.body.petID;
-    console.log("🚀 ~ pet", petID);
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
         success: false,

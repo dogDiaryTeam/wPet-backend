@@ -153,8 +153,6 @@ router.post(
     if (user) {
       // 유저 인증 완료
       const diary: DiaryInforDTO = req.body;
-      console.log("🚀 ~ diary", diary);
-      console.log("🚀 ~ req.body", req.body);
 
       if (
         checkEmptyValue(diary.petIDs) ||
@@ -195,7 +193,6 @@ router.post(
       // 유저 인증 완료
       const petID: number = req.body.petID;
       const diaryID: number = req.body.diaryID;
-      console.log("🚀 ~ diaryID", diaryID);
 
       if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
         return res.status(400).json({

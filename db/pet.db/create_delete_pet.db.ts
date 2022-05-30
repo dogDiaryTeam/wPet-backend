@@ -101,7 +101,7 @@ export function dbInsertPet(
         } else if (petSpeciesLen === 3) {
           petSpeciesSql += " OR petSpeciesName=? OR petSpeciesName=?";
         }
-        console.log(petSpeciesSql);
+
         mql.query(petSpeciesSql, pet.petSpecies, (err, row) => {
           if (err) callback(false, err);
           // insert 성공
@@ -162,7 +162,6 @@ export function dbDeletePet(
     sql,
     [ownerID, pet.petID, pet.petName, pet.birthDate, pet.petSex],
     (err, row) => {
-      console.log(pet);
       if (err) callback(false, err);
       // 삭제 성공
       else callback(true);

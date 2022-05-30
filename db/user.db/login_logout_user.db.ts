@@ -28,7 +28,6 @@ export function dbUpdateUserToken(
   return mql.query(sql, [token, email, pw], (err, row) => {
     if (err) callback(false, err);
     else {
-      console.log("token created");
       callback(true);
     }
   });

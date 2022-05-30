@@ -78,7 +78,7 @@ export function dbWriteDiary(
     else {
       // 모든 pet diary에 저장 성공
       // 삽입된 결과 id (시작) <- 불안 (수정해야할 필요 ㅇㅇ)
-      console.log(row.insertId);
+
       let insertID: number = row.insertId;
       // hashTag 저장하기
       let hashTags: Array<string> = diaryInfor.hashTags;
@@ -97,7 +97,7 @@ export function dbWriteDiary(
           hashTagSql += `,("${insertID + k + 1}", "${hashTags[l + 1]}")`;
         }
       }
-      console.log(hashTagSql);
+
       mql.query(hashTagSql, (err, row) => {
         if (err) {
           // 다이어리 삽입 복원
@@ -105,7 +105,7 @@ export function dbWriteDiary(
           for (let m = 0; m < petNum - 1; m++) {
             coverSql += `OR diaryID="${insertID + m + 1}"`;
           }
-          console.log(coverSql);
+
           mql.query(coverSql, (err, row) => {
             if (err)
               callback(false, null, "해시태그 삽입 실패, 다이어리 백업 실패");

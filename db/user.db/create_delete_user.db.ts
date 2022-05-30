@@ -150,7 +150,13 @@ export function dbSuccessUserEmailAuth(
     if (err) callback(false, err);
     //인증 업데이트 성공
     else {
-      callback(true);
+      // 인증번호 삭제
+      let deleteSql: string = `DELETE FROM usermail_authstringtbl WHERE userEmail=?`;
+      mql.query(deleteSql, email, (err, row) => {
+        if (err) callback(false, err);
+        //인증번호 삭제 성공
+        else callback(true);
+      });
     }
   });
 }

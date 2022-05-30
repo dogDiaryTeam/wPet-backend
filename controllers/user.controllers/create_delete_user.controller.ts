@@ -65,11 +65,10 @@ export const creatUser = (
     let pwErr = checkPw(user.pw) ? "" : "비밀번호 이상.";
     let nameErr = checkName(user.nickName) ? "" : "닉네임 이상.";
     errMsg = errMsg + emailErr + pwErr + nameErr;
-    console.log("errMsg:", errMsg);
 
     return res.status(400).json({ success: false, message: errMsg });
   }
-  // console.log(user);
+
   // (이메일) 유저가 있는지
   dbFindDuplicateEmail(user.email, function (err, isUser, isAuth) {
     if (err) {
@@ -166,7 +165,6 @@ export const sendAuthEmail = (
         return res.status(400).json({ success: false, message: error });
       } else {
         //인증번호 부여 성공
-        console.log("db에 authstring 넣기 성공");
         //인증번호를 담은 메일 전송
         mailSendAuthEmail(email, authString, res);
       }

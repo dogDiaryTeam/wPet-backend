@@ -122,7 +122,7 @@ export const updatePetInfor = (
         //petName 수정
         else if ("petName" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petName"];
-          console.log("petName 있음");
+
           if (patchValue === result.petName)
             return res.status(409).json({
               success: false,
@@ -135,7 +135,7 @@ export const updatePetInfor = (
         else if ("birthDate" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["birthDate"];
           //birthDate 있다면
-          console.log("birthDate 있음");
+
           //birthDate 유효
           if (patchValue === result.birthDate)
             return res.status(409).json({
@@ -148,7 +148,7 @@ export const updatePetInfor = (
         //petSex 수정
         else if ("petSex" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petSex"];
-          console.log("petSex 있음");
+
           //petSex 유효
           if (patchValue === result.petSex)
             return res.status(409).json({
@@ -160,7 +160,7 @@ export const updatePetInfor = (
         //weight 수정
         else if ("weight" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["weight"];
-          console.log("weight 있음");
+
           //weight 유효
           if (patchValue === result.weight)
             return res.status(409).json({
@@ -175,7 +175,7 @@ export const updatePetInfor = (
           patchValue = updateInfor.updateElement["petProfilePicture"];
           // 프로필 사진 은 빈값일 수 있음
           patchValue = patchValue === "" ? null : patchValue;
-          console.log("petProfilePicture 있음");
+
           //petProfilePicture 유효
           if (patchValue === result.petProfilePicture)
             return res.status(409).json({
@@ -188,7 +188,7 @@ export const updatePetInfor = (
         //petSpecies 수정
         else if ("petSpecies" in updateInfor.updateElement) {
           patchValue = updateInfor.updateElement["petSpecies"];
-          console.log("petSpecies 있음");
+
           //petSpecies 유효
           if (patchValue === result.petSpecies)
             return res.status(409).json({

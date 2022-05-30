@@ -16,7 +16,7 @@ export function dbFindUser(
 ): any {
   let sql: string = `SELECT userID, email, pw, joinDate, nickName, profilePicture, location, isAuth 
                       FROM usertbl WHERE ${element} = ?`;
-  console.log(elementName);
+
   return mql.query(sql, elementName, (err, row) => {
     if (err) callback(err);
     //유저 존재
@@ -25,7 +25,6 @@ export function dbFindUser(
     }
     //유저 없음
     else {
-      console.log(row);
       callback(null, false);
     }
   });
@@ -79,7 +78,6 @@ export function dbAuthUserOriginPw(
         if (result) {
           //성공
           //비밀번호 일치 -> 콜백
-          console.log("비밀번호 일치");
           callback(true, null);
         } else {
           //비밀번호 불일치
@@ -213,7 +211,7 @@ export function dbUpdateUserEmail(
     // 업데이트 성공
     else {
       let deleteSql: string = `DELETE FROM usermailupdate_authstringtbl WHERE userID=? AND updateEmail=?`;
-      mql.query(deleteSql, newEmail, (err, row) => {
+      mql.query(deleteSql, [userID, newEmail], (err, row) => {
         if (err) callback(false, err);
         // 업데이트 성공
         else callback(true);

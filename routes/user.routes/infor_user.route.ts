@@ -119,6 +119,79 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
+ *   /api/user/sendmail/email/update:
+ *     post:
+ *        tags:
+ *        - users
+ *        description: "(이메일 수정) 수정할 이메일로 인증번호 발송"
+ *        produces:
+ *        - applicaion/json
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - newEmail
+ *                properties:
+ *                  newEmail:
+ *                    type: string
+ *                    description: 수정할 사용자 이메일
+ *                    example: "updatetest@naver.com"
+ *        responses:
+ *          "200":
+ *            description: "사용자 이메일 수정 성공"
+ *          "400":
+ *            description: "요청 데이터가 유효하지 않음."
+ *          "401":
+ *            description: "사용자 인증 실패."
+ *          "409":
+ *            description: "수정할 이메일과 기존 이메일이 동일하거나 다른 회원과 이메일 중복"
+ *          "500":
+ *            description: "메일 발송 시 서버 내의 문제 발생."
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /api/user/update/email:
+ *     post:
+ *        tags:
+ *        - users
+ *        description: "(이메일 수정) 인증번호가 동일하면 사용자의 이메일 수정"
+ *        produces:
+ *        - applicaion/json
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - newEmail
+ *                  - authString
+ *                properties:
+ *                  newEmail:
+ *                    type: string
+ *                    description: 수정할 사용자 이메일
+ *                    example: "updatetest@naver.com"
+ *                  authString:
+ *                    type: string
+ *                    description: 사용자가 입력한 인증번호 (8자리)
+ *                    example: "sbsrb1u0"
+ *        responses:
+ *          "200":
+ *            description: "사용자 이메일 수정 성공"
+ *          "400":
+ *            description: "요청 형식이 유효하지 않음."
+ *          "401":
+ *            description: "인증번호가 일치하지 않음."
+ *          "404":
+ *            description: "부여된 인증번호가 없음."
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
  * definitions:
  *   UserInfor:
  *     type: object
@@ -197,8 +270,6 @@ router.patch(
     let user: UserInforDTO | null = req.user;
 
     if (user) {
-      console.log("PATCH");
-      console.log("🚀 ~ req.body", req.body);
       let userID: number = user.userID;
       let userNickName: string = user.nickName;
       let userProfilePicture: string | null = user.profilePicture;
@@ -245,7 +316,6 @@ router.post(
     if (user) {
       const originPw: string = req.body.originPw;
       const newPw: string = req.body.newPw;
-      console.log("🚀 ~ pw", originPw, newPw);
       if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
         return res.status(400).json({
           success: false,
@@ -272,7 +342,7 @@ router.post(
 
     if (user) {
       const newEmail: string = req.body.newEmail;
-      console.log("🚀 ~ newEmail", newEmail);
+
       if (checkEmptyValue(newEmail)) {
         return res.status(400).json({
           success: false,
@@ -300,7 +370,7 @@ router.post(
     if (user) {
       const newEmail: string = req.body.newEmail;
       const authString: string = req.body.authString;
-      console.log("🚀 ~ newEmail", newEmail);
+
       if (checkEmptyValue(newEmail) || checkEmptyValue(authString)) {
         return res.status(400).json({
           success: false,

@@ -42,7 +42,6 @@ export const updateUserPw = (
     let originPwErr = checkPw(originPw) ? "" : "기존 비밀번호 형식 이상.";
     let newPwErr = checkPw(newPw) ? "" : "새 비밀번호 형식 이상.";
     errMsg = errMsg + originPwErr + newPwErr;
-    console.log("errMsg:", errMsg);
 
     return res.status(400).json({ success: false, message: errMsg });
   } else if (originPw === newPw)
@@ -61,7 +60,6 @@ export const updateUserPw = (
     // 암호화
     bcrypt.hash(newPw, saltRounds, (error, hash) => {
       newPw = hash;
-      console.log(newPw);
 
       // DB에 update
       dbUpdateUserNewPw(newPw, userID, function (success, error) {
@@ -113,7 +111,6 @@ export const sendAuthUserUpdateEmail = (
         if (!success)
           return res.status(400).json({ success: false, message: err });
         //인증번호 부여 성공
-        console.log("db에 authstring 넣기 성공");
         //인증번호를 담은 메일 전송
         mailSendAuthUpdateEmail(newEmail, authString, res);
       }
@@ -149,9 +146,16 @@ export const compareAuthUserUpdateEmail = (
         if (dbAuthString === authString) {
           // 이메일 업데이트
           dbUpdateUserEmail(userID, newEmail, function (success, error) {
-            if (!success) {
+            if (!success)
               return res.status(400).json({ success: false, message: error });
-            } else return res.json({ success: true });
+            else return res.json({ success: true });
+          });
+        }
+        //인증번호 동일 x
+        else {
+          return res.status(401).json({
+            success: false,
+            message: "인증번호가 일치하지 않습니다.",
           });
         }
       }
@@ -183,7 +187,7 @@ export const updateUser = (
   //nickName 수정
   if ("nickName" in param) {
     patchValue = param["nickName"];
-    console.log("닉네임 있음");
+
     if (patchValue === userNickName)
       return res.status(409).json({
         success: false,
@@ -197,7 +201,7 @@ export const updateUser = (
     // 프로필 사진 은 빈값일 수 있음
     patchValue = patchValue === "" ? null : patchValue;
     //profilePicture 있다면
-    console.log("프로필 있음");
+
     if (patchValue === userProfilePicture)
       return res.status(409).json({
         success: false,
@@ -211,7 +215,7 @@ export const updateUser = (
     patchValue = param["location"];
     // 지역 은 빈값일 수 있음
     patchValue = patchValue === "" ? null : patchValue;
-    console.log("지역명 있음");
+
     //지역명 유효
     if (patchValue === userLocation)
       return res.status(409).json({

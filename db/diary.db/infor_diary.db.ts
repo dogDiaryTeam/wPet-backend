@@ -41,7 +41,7 @@ export function dbSelectPetAllDiarys(
   let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate, diarytbl.title, 
                     diarytbl.picture, diarytbl.color, diarytbl.font FROM diarytbl 
                     WHERE diarytbl.petID=?`;
-  console.log(sql);
+
   return mql.query(sql, petID, (err, row) => {
     if (err) callback(false, null, err);
     // 정상 출력
@@ -68,7 +68,7 @@ export function dbSelectDiary(
                     WHERE diarytbl.petID=? AND diarytbl.diaryID=? AND diarytbl.diaryID=diary_hashtagtbl.diaryID GROUP BY diarytbl.diaryID, 
                     diarytbl.petID, diarytbl.diaryDate, diarytbl.title, diarytbl.picture, diarytbl.texts, diarytbl.shareIs, 
                     diarytbl.petState, diarytbl.weather, diarytbl.albumPick, diarytbl.color, diarytbl.font`;
-  console.log(sql);
+
   return mql.query(sql, [petID, diaryID], (err, row) => {
     if (err) callback(false, null, err);
     // 정상 출력

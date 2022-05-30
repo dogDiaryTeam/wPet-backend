@@ -46,7 +46,6 @@ export const findUserPw = (
       // 암호화
       bcrypt.hash(tempPw, saltRounds, (error, hash) => {
         let hashTempPw = hash;
-        console.log(hashTempPw);
 
         // db에 update
         dbUpdateUserTempPw(user.userID, hashTempPw, function (success, err) {
@@ -102,8 +101,7 @@ export const loginUser = (
         if (result) {
           //성공
           //비밀번호 일치 -> token 생성
-          console.log(process.env.TOKEN);
-          console.log("login");
+
           let userToken = jwt.sign(String(user.userID), process.env.TOKEN);
 
           dbUpdateUserToken(

@@ -184,7 +184,7 @@ router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
   if (user) {
     // 유저 인증 완료
     const petID: number = req.body.petID;
-    console.log("🚀 ~ pet", petID);
+
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
         success: false,
@@ -214,7 +214,7 @@ router.patch(
       // 유저 인증 완료
       //object
       const param: UpdatePetInforDTO = req.body;
-      console.log("🚀 ~ pet", param);
+
       if (
         checkEmptyValue(param.petID) ||
         checkEmptyValue(param.updateElement)

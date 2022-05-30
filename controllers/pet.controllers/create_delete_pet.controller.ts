@@ -72,7 +72,7 @@ export const createPet = (
               } else if (!success && !err) {
                 errMsg += `${msg}`;
               }
-              console.log("errMsg:", errMsg);
+
               return res.status(400).json({ success: false, message: errMsg });
             }
           );
@@ -153,7 +153,6 @@ export const deletePet = (
     // pet이 존재하는 경우
     // 그 pet 삭제
     else if (result) {
-      console.log(result);
       dbDeletePet(userID, result, function (success, err) {
         // pet 삭제 실패
         if (!success) {

@@ -79,7 +79,7 @@ const router = Router();
  *          "400":
  *            description: "이메일 형식이 유효하지 않습니다."
  *          "500":
- *            description: "서버 내의 문제 발생."
+ *            description: "메일 발송 시 서버 내의 문제 발생."
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -107,8 +107,8 @@ const router = Router();
  *                    example: "test1@naver.com"
  *                  authString:
  *                    type: string
- *                    description: 사용자가 입력한 인증번호
- *                    example: "zz9llj3auf"
+ *                    description: 사용자가 입력한 인증번호 (8자리)
+ *                    example: "sbsrb1u0"
  *        responses:
  *          "200":
  *            description: "인증 성공"
@@ -179,7 +179,6 @@ router.post(
     // client에게서 받은 email로
     // 인증번호 담은 인증메일 전송
     const email: string = req.body.email;
-    console.log("🚀 ~ email", email);
     if (checkEmptyValue(email)) {
       return res.status(400).json({
         success: false,
@@ -199,7 +198,6 @@ router.post(
     // 동일하면 인증 완료
     const email: string = req.body.email;
     const authString: string = req.body.authString;
-    console.log("🚀 ~ email", email);
     if (checkEmptyValue(email) || checkEmptyValue(authString)) {
       return res.status(400).json({
         success: false,

@@ -16,10 +16,8 @@ export const auth: Handler = (req, res, next) => {
 
   try {
     decoded = jwt.verify(token, process.env.TOKEN);
-    //user id로 user 찾기
-    console.log(decoded);
-    console.log(token);
 
+    //user id로 user 찾기
     mql.query(
       "SELECT * FROM usertbl WHERE userID=? AND token=?",
       [decoded, token],
@@ -31,9 +29,7 @@ export const auth: Handler = (req, res, next) => {
           });
         if (row.length > 0) {
           //유저 인증 ok
-          console.log("auth token=", token);
           req.token = token;
-          console.log("auth userInfo=", row[0]);
           req.user = row[0]; //
           next();
         } else {

@@ -64,7 +64,7 @@ export function dbUpdatePetSpecies(
       for (let i = 0; i < row.length; i++) {
         prePetSpecies.push(row[i].prePetSpecies);
       }
-      console.log(prePetSpecies);
+
       // 해당 반려견에 등록된 종들 모두 삭제
       let deleteSql: string = `DELETE FROM pet_petspeciestbl WHERE petID=?`;
       mql.query(deleteSql, petID, (err, row) => {

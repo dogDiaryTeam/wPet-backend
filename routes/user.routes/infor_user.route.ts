@@ -1,13 +1,15 @@
 import {
-  UpdateEmailModel,
+  CompareAuthUpdateEmailModel,
+  SendAuthUpdateEmailModel,
   UpdatePwModel,
   UpdateUserModel,
   UpdateUserReqDTO,
   UserInforDTO,
 } from "../../types/user";
 import {
+  compareAuthUserUpdateEmail,
+  sendAuthUserUpdateEmail,
   updateUser,
-  updateUserEmail,
   updateUserPw,
 } from "../../controllers/user.controllers/infor_user.controller";
 
@@ -81,7 +83,7 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/updatepw:
+ *   /api/user/update/pw:
  *     post:
  *        tags:
  *        - users
@@ -233,7 +235,7 @@ router.patch(
 );
 
 router.post(
-  "/api/user/updatepw",
+  "/api/user/update/pw",
   auth,
   (req: UserRequest<UpdatePwModel>, res) => {
     //비밀번호 변경 (로그인 된 상태)
@@ -250,7 +252,7 @@ router.post(
           message: "PARAMETER IS EMPTY",
         });
       }
-      updateUserPw(originPw, newPw, user, res);
+      updateUserPw(originPw, newPw, user.userID, res);
     } else {
       return res.status(401).json({
         isAuth: false,
@@ -261,9 +263,9 @@ router.post(
 );
 
 router.post(
-  "/api/user/updateemail",
+  "/api/user/sendmail/email/update",
   auth,
-  (req: UserRequest<UpdateEmailModel>, res) => {
+  (req: UserRequest<SendAuthUpdateEmailModel>, res) => {
     //이메일 변경 (로그인 된 상태)
     // 새 이메일 + auth
     let user: UserInforDTO | null = req.user;
@@ -277,7 +279,35 @@ router.post(
           message: "PARAMETER IS EMPTY",
         });
       }
-      updateUserEmail(user.email, newEmail, res);
+      sendAuthUserUpdateEmail(user.userID, user.email, newEmail, res);
+    } else {
+      return res.status(401).json({
+        isAuth: false,
+        message: "USER AUTH FAILED",
+      });
+    }
+  }
+);
+
+router.post(
+  "/api/user/update/email",
+  auth,
+  (req: UserRequest<CompareAuthUpdateEmailModel>, res) => {
+    //이메일 변경 (로그인 된 상태)
+    // 새 이메일 + auth
+    let user: UserInforDTO | null = req.user;
+
+    if (user) {
+      const newEmail: string = req.body.newEmail;
+      const authString: string = req.body.authString;
+      console.log("🚀 ~ newEmail", newEmail);
+      if (checkEmptyValue(newEmail) || checkEmptyValue(authString)) {
+        return res.status(400).json({
+          success: false,
+          message: "PARAMETER IS EMPTY",
+        });
+      }
+      compareAuthUserUpdateEmail(user.userID, newEmail, authString, res);
     } else {
       return res.status(401).json({
         isAuth: false,

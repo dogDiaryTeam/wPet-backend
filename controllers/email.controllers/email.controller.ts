@@ -63,6 +63,65 @@ export const mailSendAuthEmail = (
   );
 };
 
+export const mailSendAuthUpdateEmail = (
+  email: string,
+  authString: string,
+  res: Response<any, Record<string, any>, number>
+) => {
+  //이메일 주소로 인증메일을 보내고
+  //인증 번호
+
+  let emailTemplete;
+  ejs.renderFile(
+    path.join(__dirname, "..", "/../template/sendAuthUpdateMail.ejs"),
+    { authCode: authString },
+    async function (err, data) {
+      if (err) {
+        console.log("1");
+        console.log(err);
+        return res.status(500).json({ success: false, message: err });
+      }
+
+      emailTemplete = data;
+
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.NODEMAILER_USER,
+          pass: process.env.NODEMAILER_PASS,
+        },
+      });
+      await transporter.sendMail(
+        {
+          from: process.env.NODEMAILER_USER,
+          to: email,
+          subject:
+            "[WPET] 회원님의 새로운 이메일을 위한 인증번호를 입력해주세요.",
+          html: emailTemplete,
+        },
+        (error, info) => {
+          if (error) {
+            console.log("2");
+            console.log(error);
+            return res.status(500).json({ success: false, message: error });
+          }
+          console.log("Finish sending email : " + info.response);
+
+          // res.send(authNum);
+          //? 전송을 끝내는 메소드
+          transporter.close();
+          return res.json({
+            success: true,
+          });
+        }
+      );
+    }
+  );
+};
+
 export const mailSendTempPw = (
   email: string,
   tempPw: string,

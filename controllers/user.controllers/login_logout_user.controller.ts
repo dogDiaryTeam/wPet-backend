@@ -8,7 +8,7 @@ import {
 import { Response } from "express-serve-static-core";
 import { UserInforDTO } from "../../types/user";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../../db/user.db/create_delete_user.db";
+import { dbFindUser } from "../../db/user.db/infor_user.db";
 import jwt from "jsonwebtoken";
 import { mailSendTempPw } from "../email.controllers/email.controller";
 
@@ -18,17 +18,17 @@ export const findUserPw = (
   email: string,
   res: Response<any, Record<string, any>, number>
 ) => {
-  //비밀번호 찾기 시 인증
-  //client에게서 받은 이메일로
-  //임시 비밀번호를 제공 후, 비밀번호 update
+  // 비밀번호 찾기 시 인증
+  // client에게서 받은 이메일로
+  // 임시 비밀번호를 제공 후, 비밀번호 update
 
-  //이메일 유효한지
+  // 이메일 유효한지
   if (!checkEmail(email))
     return res
       .status(400)
       .json({ success: false, message: "이메일 형식 이상" });
 
-  //(이메일) 유저가 있는지
+  // (이메일) 유저가 있는지
   dbFindUser("email", email, function (err, isUser, user) {
     if (err) {
       return res
@@ -39,31 +39,32 @@ export const findUserPw = (
         success: false,
         message: "해당 이메일의 유저가 존재하지 않습니다.",
       });
-    }
+    } else if (user) {
+      // 유저 존재
+      // 임시비밀번호 생성 후 db에 update + 메일 전송
+      let tempPw: string = String(Math.random().toString(36).slice(2)) + "!";
+      // 암호화
+      bcrypt.hash(tempPw, saltRounds, (error, hash) => {
+        let hashTempPw = hash;
+        console.log(hashTempPw);
 
-    //유저 존재
-    //임시비밀번호 생성 후 db에 update + 메일 전송
-    let tempPw: string = String(Math.random().toString(36).slice(2)) + "!";
-    // 암호화
-    bcrypt.hash(tempPw, saltRounds, (error, hash) => {
-      let hashTempPw = hash;
-      console.log(hashTempPw);
-
-      //db에 update
-      dbUpdateUserTempPw(email, hashTempPw, function (success, err) {
-        if (!success) {
-          return res.status(400).json({ success: false, message: err });
-        }
-        //db에 update 성공
-        //메일 전송
-        mailSendTempPw(email, tempPw, res);
+        // db에 update
+        dbUpdateUserTempPw(user.userID, hashTempPw, function (success, err) {
+          if (!success) {
+            return res.status(400).json({ success: false, message: err });
+          }
+          // db에 update 성공
+          // 메일 전송
+          else mailSendTempPw(email, tempPw, res);
+        });
       });
-    });
+    }
   });
 };
 
 export const loginUser = (
-  param: Array<string>,
+  email: string,
+  pw: string,
   res: Response<any, Record<string, any>, number>
 ) => {
   //로그인 정보(email:uq, pw:uq)들을 client에서 가져오면
@@ -71,13 +72,13 @@ export const loginUser = (
   //존재하는 유저라면 success=true
 
   //이메일 유효한지
-  if (!checkEmail(param[0])) {
+  if (!checkEmail(email)) {
     return res
       .status(400)
       .json({ success: false, message: "이메일이 형식이 유효하지 않습니다." });
   }
   //(이메일) 유저가 있는지
-  dbFindUser("email", param[0], function (err, isUser, user) {
+  dbFindUser("email", email, function (err, isUser, user) {
     if (err) {
       return res
         .status(400)
@@ -97,7 +98,7 @@ export const loginUser = (
       }
 
       //user 존재 -> 비밀번호 확인
-      bcrypt.compare(param[1], user.pw, (error, result) => {
+      bcrypt.compare(pw, user.pw, (error, result) => {
         if (result) {
           //성공
           //비밀번호 일치 -> token 생성
@@ -107,7 +108,7 @@ export const loginUser = (
 
           dbUpdateUserToken(
             userToken,
-            param[0],
+            email,
             user.pw,
             function (success, error) {
               if (!success) {
@@ -121,7 +122,7 @@ export const loginUser = (
                 .status(200)
                 .json({
                   success: true,
-                  email: param[0],
+                  email: email,
                   token: userToken,
                 });
             }
@@ -138,13 +139,13 @@ export const loginUser = (
 };
 
 export const logoutUser = (
-  user: UserInforDTO,
+  userID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
   //middleware를 통해 얻은 유저 정보를 이용해
   //해당 유저를 로그아웃해준다. (token 제거)
 
-  dbDeleteUserToken(user.userID, function (success, error) {
+  dbDeleteUserToken(userID, function (success, error) {
     if (!success) {
       return res.status(400).json({ success: false, message: error });
     }

@@ -7,8 +7,13 @@ import {
 } from "../validations/validate";
 import {
   dbAuthUserOriginPw,
+  dbCompareUpdateUserEmailAuth,
+  dbFindDuplicateEmail,
+  dbFindUser,
+  dbInsertUpdateUserEmailAuth,
   dbSelectUserProfilePictureUrl,
   dbUpdateUserElement,
+  dbUpdateUserEmail,
   dbUpdateUserNewPw,
 } from "../../db/user.db/infor_user.db";
 import {
@@ -18,20 +23,20 @@ import {
 
 import { Response } from "express-serve-static-core";
 import bcrypt from "bcrypt";
-import { dbFindUser } from "../../db/user.db/create_delete_user.db";
+import { mailSendAuthUpdateEmail } from "../email.controllers/email.controller";
 
 const saltRounds = 10;
 
 export const updateUserPw = (
   originPw: string,
   newPw: string,
-  user: UserInforDTO,
+  userID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
-  //비밀번호 변경 (로그인 된 상태)
-  //현재 비밀번호 + auth + 새 비밀번호
+  // 비밀번호 변경 (로그인 된 상태)
+  // 현재 비밀번호 + auth + 새 비밀번호
 
-  //비밀번호 유효성 검증
+  // 비밀번호 유효성 검증
   if (!checkPw(originPw) || !checkPw(newPw)) {
     let errMsg = "";
     let originPwErr = checkPw(originPw) ? "" : "기존 비밀번호 형식 이상.";
@@ -44,8 +49,8 @@ export const updateUserPw = (
     return res
       .status(409)
       .json({ success: false, message: "기존 비밀번호와 동일합니다." });
-  //auth 정보와 비밀번호 정보 비교
-  dbAuthUserOriginPw(originPw, user, function (success, err, msg) {
+  // auth 정보와 비밀번호 정보 비교
+  dbAuthUserOriginPw(originPw, userID, function (success, err, msg) {
     if (!success && err) {
       return res.status(400).json({ success: false, message: err });
     } else if (!success && msg) {
@@ -59,7 +64,7 @@ export const updateUserPw = (
       console.log(newPw);
 
       // DB에 update
-      dbUpdateUserNewPw(newPw, user, function (success, error) {
+      dbUpdateUserNewPw(newPw, userID, function (success, error) {
         if (!success) {
           return res.status(400).json({ success: false, message: error });
         }
@@ -69,12 +74,14 @@ export const updateUserPw = (
   });
 };
 
-export const updateUserEmail = (
+export const sendAuthUserUpdateEmail = (
+  userID: number,
   originEmail: string,
   newEmail: string,
   res: Response<any, Record<string, any>, number>
 ) => {
   // 이메일 변경 (로그인 된 상태)
+  // 이메일 인증 번호 전송
 
   // 새 이메일 유효성 검증
   if (!checkEmail(newEmail))
@@ -87,16 +94,69 @@ export const updateUserEmail = (
       .json({ success: false, message: "기존 이메일과 동일합니다." });
 
   // (이메일) 유저가 있는지
-  dbFindUser("email", newEmail, function (err, isUser, emailUser) {
+  dbFindDuplicateEmail(newEmail, function (err, isUser, isAuth) {
     if (err)
       return res
         .status(400)
         .json({ success: false, message: "이메일이 유효하지 않습니다." });
     else if (isUser)
       return res.status(409).json({ success: false, message: "이메일 중복." });
-    // 이메일 중복 안되는 경우 (정상)
+
+    // 이메일 중복 안되는 경우 == 변경 가능
     // 이메일 업데이트를 위한 이메일 인증 메일 발송
+    let authString: string = String(Math.random().toString(36).slice(2, 10));
+    dbInsertUpdateUserEmailAuth(
+      userID,
+      newEmail,
+      authString,
+      function (success, err) {
+        if (!success)
+          return res.status(400).json({ success: false, message: err });
+        //인증번호 부여 성공
+        console.log("db에 authstring 넣기 성공");
+        //인증번호를 담은 메일 전송
+        mailSendAuthUpdateEmail(newEmail, authString, res);
+      }
+    );
   });
+};
+
+export const compareAuthUserUpdateEmail = (
+  userID: number,
+  newEmail: string,
+  authString: string,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // 이메일 변경 (로그인 된 상태)
+  // 인증 번호 동일 => 이메일 변경
+
+  // 이메일 인증번호 검증
+  dbCompareUpdateUserEmailAuth(
+    userID,
+    newEmail,
+    authString,
+    function (success, error, dbAuthString) {
+      if (!success) {
+        return res.status(400).json({ success: false, message: error });
+      }
+      //부여된 인증번호가 없는 경우
+      else if (!dbAuthString) {
+        return res
+          .status(404)
+          .json({ success: false, message: "부여된 인증번호가 없습니다." });
+      } else {
+        //인증번호 동일
+        if (dbAuthString === authString) {
+          // 이메일 업데이트
+          dbUpdateUserEmail(userID, newEmail, function (success, error) {
+            if (!success) {
+              return res.status(400).json({ success: false, message: error });
+            } else return res.json({ success: true });
+          });
+        }
+      }
+    }
+  );
 };
 
 //PATCH

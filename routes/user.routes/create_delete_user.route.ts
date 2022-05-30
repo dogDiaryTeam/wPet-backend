@@ -53,7 +53,7 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/sendauthemail:
+ *   /api/user/sendmail/email/auth:
  *     post:
  *        tags:
  *        - users
@@ -84,7 +84,7 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/compareauthemail:
+ *   /api/user/auth/email:
  *     post:
  *        tags:
  *        - users
@@ -173,7 +173,7 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
 });
 
 router.post(
-  "/api/user/sendauthemail",
+  "/api/user/sendmail/email/auth",
   (req: UserRequest<SendAuthEmailModel>, res) => {
     // 회원가입 시 인증
     // client에게서 받은 email로
@@ -191,7 +191,7 @@ router.post(
 );
 
 router.post(
-  "/api/user/compareauthemail",
+  "/api/user/auth/email",
   (req: UserRequest<CompareAuthEmailModel>, res) => {
     // 회원가입 시 인증
     // client에게서 받은 인증번호와

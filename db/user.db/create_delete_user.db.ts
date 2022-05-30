@@ -1,17 +1,6 @@
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
 
-interface DbFindUserDTO {
-  userID: number;
-  email: string;
-  pw: string;
-  joinDate: Date;
-  nickName: string;
-  profilePicture: string | null;
-  location: string | null;
-  isAuth: number;
-}
-
 //user 생성
 export function dbInsertUser(
   email: string,
@@ -55,33 +44,6 @@ export function dbInsertUser(
   );
 }
 
-//(email/nickName) => user 찾기
-export function dbFindUser(
-  element: string,
-  elementName: string,
-  callback: (
-    error: MysqlError | null,
-    isUser?: boolean,
-    user?: DbFindUserDTO
-  ) => void
-): any {
-  let sql: string = `SELECT userID, email, pw, joinDate, nickName, profilePicture, location, isAuth 
-                      FROM usertbl WHERE ${element} = ?`;
-  console.log(elementName);
-  return mql.query(sql, elementName, (err, row) => {
-    if (err) callback(err);
-    //유저 존재
-    else if (row.length > 0) {
-      callback(null, true, row[0]);
-    }
-    //유저 없음
-    else {
-      console.log(row);
-      callback(null, false);
-    }
-  });
-}
-
 //유저 이메일 인증번호 db에 저장
 export function dbInsertUserEmailAuth(
   email: string,
@@ -102,7 +64,7 @@ export function dbInsertUserEmailAuth(
           (err, row) => {
             if (err) callback(false, err);
             else {
-              //2분 뒤 인증이 되지 않았으면 인증번호 삭제
+              //3분 뒤 인증이 되지 않았으면 인증번호 삭제
               setTimeout(function () {
                 //삭제
                 mql.query(
@@ -130,7 +92,7 @@ export function dbInsertUserEmailAuth(
           (err, row) => {
             if (err) callback(false, err);
             else {
-              //2분 뒤 인증이 되지 않았으면 인증번호 삭제
+              //3분 뒤 인증이 되지 않았으면 인증번호 삭제
               setTimeout(function () {
                 //삭제
                 mql.query(

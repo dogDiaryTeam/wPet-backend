@@ -15,7 +15,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/user/findpw:
+ *   /api/user/find/pw:
  *     post:
  *        tags:
  *        - users
@@ -106,7 +106,7 @@ const router = Router();
  *              - "read:pets"
  */
 
-router.post("/api/user/findpw", (req: UserRequest<FindPwModel>, res) => {
+router.post("/api/user/find/pw", (req: UserRequest<FindPwModel>, res) => {
   //비밀번호 찾기 시 인증
   //client에게서 받은 이메일로
   //임시 비밀번호를 제공 후, 비밀번호 update
@@ -124,15 +124,15 @@ router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
   //로그인 정보(email:uq, pw:uq)들을 client에서 가져오면
   //데이터베이스의 정보(email, pw)들과 비교해서
   //존재하는 유저라면 success=true
-  const param: Array<string> = [req.body.email, req.body.pw];
-  console.log("🚀 ~ param", param);
-  if (checkEmptyValue(param[0]) || checkEmptyValue(param[1])) {
+  const email: string = req.body.email;
+  const pw: string = req.body.pw;
+  if (checkEmptyValue(email) || checkEmptyValue(pw)) {
     return res.status(400).json({
       success: false,
       message: "PARAMETER IS EMPTY",
     });
   }
-  loginUser(param, res);
+  loginUser(email, pw, res);
 });
 
 //logout (login된 상태이기 때문에 auth를 넣어준다.)
@@ -143,7 +143,7 @@ router.get("/api/user/logout", auth, (req, res) => {
   if (user) {
     console.log("logout");
 
-    logoutUser(user, res);
+    logoutUser(user.userID, res);
   } else {
     return res.status(401).json({
       isAuth: false,

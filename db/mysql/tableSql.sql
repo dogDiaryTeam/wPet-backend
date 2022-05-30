@@ -209,7 +209,8 @@
 -- );
 -- CREATE TABLE usermailupdate_authstringTBL
 -- (
---  userEmail varchar(255) NOT NULL UNIQUE,
+--  userID INT UNSIGNED NOT NULL UNIQUE,
 --  authString VARCHAR(15) NOT NULL,
---  FOREIGN KEY (userEmail) REFERENCES userTBL(email) ON UPDATE CASCADE ON DELETE CASCADE
+--  updateEmail VARCHAR(255) NOT NULL UNIQUE,
+--  FOREIGN KEY (userID) REFERENCES userTBL(userID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );

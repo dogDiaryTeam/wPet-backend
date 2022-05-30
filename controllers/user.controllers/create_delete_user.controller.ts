@@ -7,7 +7,10 @@ import {
   checkSex,
 } from "../validations/validate";
 import {
+  dbFindDuplicateEmail,
   dbFindUser,
+} from "../../db/user.db/infor_user.db";
+import {
   dbInsertUser,
   dbInsertUserEmailAuth,
   dbSelectUserEmailAuth,
@@ -68,21 +71,23 @@ export const creatUser = (
   }
   // console.log(user);
   // (이메일) 유저가 있는지
-  dbFindUser("email", user.email, function (err, isUser, emailUser) {
+  dbFindDuplicateEmail(user.email, function (err, isUser, isAuth) {
     if (err) {
       return res
         .status(400)
         .json({ success: false, message: "이메일이 유효하지 않습니다." });
-    } else if (isUser && emailUser) {
-      if (emailUser.isAuth === 0) {
+    } else if (isUser) {
+      if (isAuth && isAuth === 0)
         return res.status(403).json({
           success: false,
           message: "아직 이메일 인증을 하지 않은 유저입니다.",
         });
-      } else if (emailUser.isAuth === 1) {
-        isOverlapUserErr = true;
-      }
+      // 이메일 중복
+      else if (isAuth && isAuth === 1) isOverlapUserErr = true;
+      else if (!isAuth) isOverlapUserErr = true;
     }
+    // isOverlapUserErr = true => 이메일 중복
+    // isOverlapUserErr = false => 이메일 중복 x
     //(닉네임) 유저가 있는지
     dbFindUser("nickName", user.nickName, function (err, isUser, nickNameUser) {
       if (err) {
@@ -158,7 +163,7 @@ export const sendAuthEmail = (
     let authString: string = String(Math.random().toString(36).slice(2, 10));
     dbInsertUserEmailAuth(email, authString, function (success, error) {
       if (!success) {
-        console.log(error);
+        return res.status(400).json({ success: false, message: error });
       } else {
         //인증번호 부여 성공
         console.log("db에 authstring 넣기 성공");
@@ -187,7 +192,7 @@ export const compareAuthEmail = (
         return res.status(400).json({ success: false, message: error });
       }
       //부여된 인증번호가 없는 경우
-      else if (!authString) {
+      else if (!dbAuthString) {
         return res
           .status(404)
           .json({ success: false, message: "부여된 인증번호가 없습니다." });

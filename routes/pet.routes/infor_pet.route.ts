@@ -169,8 +169,8 @@ router.get("/api/pet/getnames", auth, (req, res) => {
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });
@@ -187,16 +187,16 @@ router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
 
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     getPetInfor(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });
@@ -220,55 +220,55 @@ router.patch(
         checkEmptyValue(param.updateElement)
       ) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       } else if (
         param.updateElement.petName &&
         checkEmptyValue(param.updateElement.petName)
       )
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
         param.updateElement.birthDate &&
         checkEmptyValue(param.updateElement.birthDate)
       )
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
         param.updateElement.petSex &&
         checkEmptyValue(param.updateElement.petSex)
       )
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
         param.updateElement.weight &&
         checkEmptyValue(param.updateElement.weight)
       )
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
         param.updateElement.petSpecies &&
         checkEmptyValue(param.updateElement.petSpecies)
       )
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       updatePetInfor(user.userID, param, res);
     } else {
       // 유저 인증 no
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
@@ -284,8 +284,8 @@ router.get("/api/pet/species", auth, (req, res) => {
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });

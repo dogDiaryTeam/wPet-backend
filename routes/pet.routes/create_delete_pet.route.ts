@@ -126,21 +126,21 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
       checkEmptyValue(pet.petSpecies)
     ) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     createPet(user.userID, pet, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });
 
-router.post("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
+router.delete("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
   // petName에 해당하는 펫을 삭제
   let user: UserInforDTO | null = req.user;
 
@@ -149,16 +149,16 @@ router.post("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
     const petID: number = req.body.petID;
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     deletePet(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });

@@ -89,9 +89,11 @@ export function dbUpdatePetSpecies(
               backUpSql += " OR petSpeciesName=? OR petSpeciesName=?";
             }
             mql.query(backUpSql, prePetSpecies, (err, row) => {
-              if (err) callback(false, null, "종 수정 실패, 백업 실패");
+              if (err)
+                callback(false, null, "UPDATE BREEDS FAILED, BACKUP FAILED");
               // 백업 성공
-              else callback(false, null, "종 수정 실패, 백업 성공");
+              else
+                callback(false, null, "UPDATE BREEDS FAILED, BACKUP SUCCEED");
             });
           }
           // update 성공
@@ -117,7 +119,7 @@ export function dbSelectPetProfilePictureUrl(
   return mql.query(sql, petID, (err, row) => {
     if (err) callback(false, null, err);
     else if (row.length > 0) callback(true, row[0], null);
-    else callback(false, null, null, "반려견이 존재하지 않습니다.");
+    else callback(false, null, null, "PET NOT FOUND");
   });
 }
 

@@ -17,6 +17,7 @@ import {
   imageController,
 } from "../image.controllers/image.controller";
 
+import { MysqlError } from "mysql";
 import { Response } from "express-serve-static-core";
 import { dbSelectPets } from "../../db/pet.db/infor_pet.db";
 
@@ -34,13 +35,13 @@ export const createPet = (
   // 기존에 등록한 반려견 마리 수
   dbSelectPets(userID, function (success, userPets, err) {
     if (!success) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (userPets) {
       // 한 사용자가 등록할 수 있는 최대 반려견 수 = 5
       if (userPets.length > 4)
-        return res.status(403).json({
-          success: false,
-          message: "등록할 수 있는 최대 반려견 수(5마리)를 초과합니다.",
+        return res.status(400).json({
+          code: "EXCEED MAX ERROR",
+          errorMessage: "EXCEED MAX NUMBER OF PETS CAN BE REGISTERED (5)",
         });
       // pet 유효성 검사 (petName, birthDate, petSex, petSpecies db..)
       else if (
@@ -49,31 +50,35 @@ export const createPet = (
         !checkSex(pet.petSex) ||
         !checkPetSpecies(pet.petSpecies)
       ) {
-        let errMsg = "";
-        let petNameErr = checkName(pet.petName) ? "" : "반려견 이름 이상.";
-        let petBirthDateErr = checkDate(pet.birthDate)
-          ? ""
-          : "반려견 생년월일 이상.";
-        let petSexErr = checkSex(pet.petSex) ? "" : "반려견 성별 이상.";
-        let petSpeciesErr = checkPetSpecies(pet.petSpecies)
-          ? ""
-          : "반려견 종 개수 이상.";
-        errMsg =
-          errMsg + petNameErr + petBirthDateErr + petSexErr + petSpeciesErr;
+        let errArr: Array<string | MysqlError> = [];
+        if (!checkName(pet.petName)) errArr.push("NAME");
+        if (!checkDate(pet.birthDate)) errArr.push("BIRTHDATE");
+        if (!checkSex(pet.petSex)) errArr.push("GENDER");
 
-        if (petSpeciesErr === "") {
+        if (!checkPetSpecies(pet.petSpecies))
+          errArr.push("NUMBER OF BREEDS (1-3)");
+        else {
           // pet species -> db에 저장되어 있는 pet 종에 속하는지 확인
           dbCheckPetSpecies(
             pet.petSpecies,
             pet.petSpecies.length,
             function (success, err, msg) {
               if (!success && err) {
-                errMsg += err;
-              } else if (!success && !err) {
-                errMsg += `${msg}`;
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: err });
+              } else if (!success && !err && msg) {
+                errArr.push(msg);
+                return res.status(400).json({
+                  code: "INVALID FORMAT ERROR",
+                  errorMessage: `INVALID FORMAT : [${errArr}]`,
+                });
+              } else {
+                return res.status(400).json({
+                  code: "INVALID FORMAT ERROR",
+                  errorMessage: `INVALID FORMAT : [${errArr}]`,
+                });
               }
-
-              return res.status(400).json({ success: false, message: errMsg });
             }
           );
         }
@@ -84,21 +89,29 @@ export const createPet = (
           pet.petSpecies.length,
           function (success, err, msg) {
             if (!success && err) {
-              return res.status(400).json({ success: false, message: err });
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: err });
             }
             // pet 종이 db에 존재하지 않는 경우
             else if (!success && !err) {
-              return res.status(404).json({ success: false, message: msg });
+              return res
+                .status(400)
+                .json({ code: "INVALID FORMAT ERROR", errorMessage: msg });
             }
             // pet 종이 db에 존재하는 경우
             // userID, petname -> 그 user의 petName 중복 안되는지 확인
             dbCheckPetName(userID, pet.petName, function (success, err, msg) {
               if (!success && err) {
-                return res.status(400).json({ success: false, message: err });
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: err });
               }
               // petName 이 중복되는 경우
               else if (!success && !err) {
-                return res.status(409).json({ success: false, message: msg });
+                return res
+                  .status(409)
+                  .json({ code: "CONFLICT ERROR", errorMessage: msg });
               }
               // petName 중복 안되는 경우
               // pet insert
@@ -108,9 +121,10 @@ export const createPet = (
                 pet.petProfilePicture,
                 function (success, imageFileUrl, error) {
                   if (!success) {
-                    return res
-                      .status(400)
-                      .json({ success: false, message: error });
+                    return res.status(404).json({
+                      code: "WRITE IMAGE FILE ERROR",
+                      errorMessage: error,
+                    });
                   }
                   // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
                   else {
@@ -118,8 +132,8 @@ export const createPet = (
                     dbInsertPet(userID, pet, function (success, err) {
                       if (!success) {
                         return res
-                          .status(400)
-                          .json({ success: false, message: err });
+                          .status(404)
+                          .json({ code: "SQL ERROR", errorMessage: err });
                       }
                       // insert 성공
                       return res.json({ success: true });
@@ -144,11 +158,11 @@ export const deletePet = (
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자에게 해당 이름의 pet이 존재하지 않는 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // pet이 존재하는 경우
     // 그 pet 삭제
@@ -156,7 +170,7 @@ export const deletePet = (
       dbDeletePet(userID, result, function (success, err) {
         // pet 삭제 실패
         if (!success) {
-          return res.status(400).json({ success: false, message: err });
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         }
         // pet 삭제 성공
         // 사진 데이터 존재
@@ -166,7 +180,12 @@ export const deletePet = (
             result.petProfilePicture,
             function (success, error) {
               if (!success) {
-                return res.status(400).json({ success: false, message: error });
+                return res
+                  .status(404)
+                  .json({
+                    code: "DELETE IMAGE FILE ERROR",
+                    errorMessage: error,
+                  });
               }
               // 파일 삭제 성공
               return res.json({ success: true });

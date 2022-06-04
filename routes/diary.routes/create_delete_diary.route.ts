@@ -34,15 +34,13 @@ const router = Router();
  *                $ref: "#/definitions/Diary_create_req"
  *        responses:
  *          "200":
- *            description: "반려견 생성 성공"
+ *            description: "다이어리 생성 성공"
  *          "400":
- *            description: "반려견 정보 형식이 유효하지 않습니다."
+ *            description: "요청 형식이 유효하지 않습니다."
  *          "401":
  *            description: "사용자 인증 실패"
  *          "404":
- *            description: "반려견 종이 DB에 존재하지 않습니다."
- *          "409":
- *            description: "사용자가 등록한 반려견의 이름과 중복됩니다."
+ *            description: "사용자가 등록한 반려견이 아닙니다."
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -103,7 +101,7 @@ const router = Router();
  *       petIDs:
  *         type: Array<number>
  *         description: 다이어리를 작성할 반려견의 아이디
- *         example: "1"
+ *         example: [1,2]
  *       title:
  *         type: string
  *         description: 다이어리 제목
@@ -126,12 +124,12 @@ const router = Router();
  *         example: "기분 좋음"
  *       weather:
  *         type: string
- *         description: 당일의 날씨 [맑음,흐림,비,번개,눈,바람]
- *         example: "맑음"
+ *         description: 당일의 날씨 [sunny,sunny-cloudy, snow, rainy, thunderbolt, rainbow, cloudy]
+ *         example: "sunny"
  *       color:
  *         type: string
  *         description: 다이어리 배경 색
- *         example: "red?"
+ *         example: "red"
  *       font:
  *         type: string
  *         description: 다이어리 폰트
@@ -167,22 +165,22 @@ router.post(
         checkEmptyValue(diary.hashTags)
       ) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       createDiary(user.userID, diary, res);
     } else {
       // 유저 인증 no
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
 );
 
-router.post(
+router.delete(
   "/api/diary/delete",
   auth,
   (req: DiaryRequest<PetDiaryModel>, res) => {
@@ -196,8 +194,8 @@ router.post(
 
       if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
 
@@ -205,8 +203,8 @@ router.post(
     } else {
       // 유저 인증 no
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }

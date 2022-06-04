@@ -18,7 +18,7 @@ export function dbCheckPetTodolist(
     // 투두리스트가 반려견의 것이 맞는 경우
     else if (row.length > 0) callback(true, null);
     // 아닌 경우
-    else callback(false, null, "반려견의 투두리스트가 아닙니다.");
+    else callback(false, null, "TODOLIST NOT FOUND");
   });
 }
 

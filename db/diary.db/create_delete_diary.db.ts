@@ -39,11 +39,7 @@ export function dbCheckPetIDs(
       }
       // 사용자 pet이 아닌 경우가 있다면
       if (errPetIDs.length > 0) {
-        callback(
-          false,
-          null,
-          `${errPetIDs}번의 petID에 해당하는 반려견은 사용자의 반려견이 아닙니다.`
-        );
+        callback(false, null, `[${errPetIDs}] PETIDS NOT FOUND`);
       }
       // 없다면 (통과)
       else callback(true, null);
@@ -108,9 +104,8 @@ export function dbWriteDiary(
 
           mql.query(coverSql, (err, row) => {
             if (err)
-              callback(false, null, "해시태그 삽입 실패, 다이어리 백업 실패");
-            else
-              callback(false, null, "해시태그 삽입 실패, 다이어리 백업 성공");
+              callback(false, null, "WRITE HASHTAG FAILED, BACKUP FAILED");
+            else callback(false, null, "WRITE HASHTAG FAILED, BACKUP SUCCEED");
           });
         }
         // 다이어리, 해시태그 삽입 성공
@@ -136,7 +131,7 @@ export function dbCheckPetsDiary(
     if (err) callback(false, err);
     else if (row.length === 0) {
       // 반려견의 다이어리가 아님
-      callback(false, null, "반려견의 다이어리가 아닙니다.");
+      callback(false, null, "DIARY NOT FOUND");
     } else {
       // 반려견의 다이어리가 맞음
       callback(true, null);

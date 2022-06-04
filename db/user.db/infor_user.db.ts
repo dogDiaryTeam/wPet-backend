@@ -81,7 +81,7 @@ export function dbAuthUserOriginPw(
           callback(true, null);
         } else {
           //비밀번호 불일치
-          callback(false, null, "비밀번호 불일치");
+          callback(false, null, "PASSWORD IS MISMATCH");
         }
       });
     }
@@ -249,6 +249,6 @@ export function dbSelectUserProfilePictureUrl(
   return mql.query(sql, userID, (err, row) => {
     if (err) callback(false, null, err);
     else if (row.length > 0) callback(true, row[0].profilePicture, null);
-    else callback(false, null, null, "사용자가 존재하지 않습니다.");
+    else callback(false, null, null, "USERID NOT FOUND");
   });
 }

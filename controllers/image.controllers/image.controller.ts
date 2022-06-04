@@ -87,7 +87,7 @@ export function dbSelectPictureFile(
         else callback(true, data.toString(), null);
       });
     } else {
-      callback(false, null, null, "파일이 존재하지 않음.");
+      callback(false, null, null, "IMAGE FILE NOT FOUND");
     }
   }
 }

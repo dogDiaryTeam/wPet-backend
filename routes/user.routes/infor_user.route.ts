@@ -232,17 +232,18 @@ router.get("/api/user/auth", auth, (req, res) => {
       user.profilePicture,
       function (success, result, error, msg) {
         if (!success && error) {
-          return res.status(400).json({ success: false, message: error });
+          return res
+            .status(404)
+            .json({ code: "FIND IMAGE FILE ERROR", errorMessage: error });
         }
         // 파일이 없는 경우
         else if (!success && !error) {
-          return res.status(404).json({ success: false, message: msg });
+          return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
         }
         // 파일에서 이미지 데이터 가져오기 성공
         else if (user) {
           let userImage: string | null = result;
           return res.status(200).json({
-            success: true,
             email: user.email,
             joinDate: user.joinDate,
             nickName: user.nickName,
@@ -255,8 +256,8 @@ router.get("/api/user/auth", auth, (req, res) => {
   } else {
     //유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });
@@ -279,13 +280,13 @@ router.patch(
       // test 필요
       if (checkEmptyValue(param)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       } else if (param.nickName && checkEmptyValue(param.nickName))
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
 
       updateUser(
@@ -298,8 +299,8 @@ router.patch(
       );
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
@@ -318,15 +319,15 @@ router.post(
       const newPw: string = req.body.newPw;
       if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       updateUserPw(originPw, newPw, user.userID, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
@@ -345,15 +346,15 @@ router.post(
 
       if (checkEmptyValue(newEmail)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       sendAuthUserUpdateEmail(user.userID, user.email, newEmail, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
@@ -373,15 +374,15 @@ router.post(
 
       if (checkEmptyValue(newEmail) || checkEmptyValue(authString)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       compareAuthUserUpdateEmail(user.userID, newEmail, authString, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }

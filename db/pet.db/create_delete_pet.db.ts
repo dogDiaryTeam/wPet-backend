@@ -34,16 +34,16 @@ export function dbCheckPetSpecies(
         reqPetSpecies = reqPetSpecies.filter((element) => element !== name);
       }
 
-      let errMsg: string = "[";
+      let errMsg: string = "(";
 
       //reqPetSpecies : 데이터에 존재하지 않는 종만 나열
       //errMsg : a, b.. 종은 반려견 종 데이터에 존재하지 않습니다.
       for (let i = 0; i < reqPetSpecies.length; i++) {
         errMsg += `${reqPetSpecies[i]}`;
         if (i < reqPetSpecies.length - 1) errMsg += `, `;
-        else errMsg += `]`;
+        else errMsg += `)`;
       }
-      errMsg += `종은 반려견 종 데이터에 존재하지 않습니다.`;
+      errMsg += `BREEDS NOT FOUND`;
       callback(false, null, errMsg);
     }
   });
@@ -63,12 +63,7 @@ export function dbCheckPetName(
   return mql.query(sql, [ownerID, petName], (err, row) => {
     if (err) callback(false, err);
     // 이미 해당 petName이 있는 경우
-    else if (row.length > 0)
-      callback(
-        false,
-        null,
-        "사용자가 키우는 반려견들 중 해당 이름을 사용하는 반려견이 이미 존재합니다."
-      );
+    else if (row.length > 0) callback(false, null, "DUPLICATE PET'S NAME");
     // petName이 중복되지 않는 경우
     else {
       callback(true, null);
@@ -131,22 +126,14 @@ export function dbCheckPetExist(
 
   return mql.query(sql, [ownerID, petID], (err, row) => {
     if (err) callback(false, null, err);
-    // db error (최대 길이 = 1)
-    else if (row.length > 1) callback(false, null, "db error");
     // 존재하는 경우
-    else if (row.length === 1) {
+    else if (row.length > 0) {
       // test 필요
       row[0].petSpecies = row[0].petSpecies.split(",");
       callback(true, row[0], null);
     }
     // 존재하지 않는 경우
-    else
-      callback(
-        false,
-        null,
-        null,
-        `사용자가 키우는 반려견 중 해당 반려견 이 존재하지 않습니다.`
-      );
+    else callback(false, null, null, `PET NOT FOUND`);
   });
 }
 

@@ -38,22 +38,25 @@ export const updateUserPw = (
 
   // 비밀번호 유효성 검증
   if (!checkPw(originPw) || !checkPw(newPw)) {
-    let errMsg = "";
-    let originPwErr = checkPw(originPw) ? "" : "기존 비밀번호 형식 이상.";
-    let newPwErr = checkPw(newPw) ? "" : "새 비밀번호 형식 이상.";
-    errMsg = errMsg + originPwErr + newPwErr;
+    let errArr: Array<string> = [];
+    if (!checkPw(originPw)) errArr.push("OLD PASSWORD");
+    if (!checkPw(newPw)) errArr.push("NEW PASSWORD");
 
-    return res.status(400).json({ success: false, message: errMsg });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: `INVALID FORMAT : [${errArr}]`,
+    });
   } else if (originPw === newPw)
-    return res
-      .status(409)
-      .json({ success: false, message: "기존 비밀번호와 동일합니다." });
+    return res.status(409).json({
+      code: "CONFLICT ERROR",
+      errorMessage: "SAME OLD AND NEW PASSWORD",
+    });
   // auth 정보와 비밀번호 정보 비교
   dbAuthUserOriginPw(originPw, userID, function (success, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (!success && msg) {
-      return res.status(401).json({ success: false, message: msg });
+      return res.status(401).json({ code: "AUTH FAILED", errorMessage: msg });
     }
     // 비밀번호 일치
     // 새 비밀번호로 update
@@ -64,7 +67,9 @@ export const updateUserPw = (
       // DB에 update
       dbUpdateUserNewPw(newPw, userID, function (success, error) {
         if (!success) {
-          return res.status(400).json({ success: false, message: error });
+          return res
+            .status(404)
+            .json({ code: "SQL ERROR", errorMessage: error });
         }
         return res.json({ success: true });
       });
@@ -83,22 +88,24 @@ export const sendAuthUserUpdateEmail = (
 
   // 새 이메일 유효성 검증
   if (!checkEmail(newEmail))
-    return res
-      .status(400)
-      .json({ success: false, message: "새 이메일 형식 이상." });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : EMAIL",
+    });
   else if (originEmail === newEmail)
-    return res
-      .status(409)
-      .json({ success: false, message: "기존 이메일과 동일합니다." });
+    return res.status(409).json({
+      code: "CONFLICT ERROR",
+      errorMessage: "SAME OLD AND NEW EMAIL",
+    });
 
   // (이메일) 유저가 있는지
   dbFindDuplicateEmail(newEmail, function (err, isUser, isAuth) {
     if (err)
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일이 유효하지 않습니다." });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     else if (isUser)
-      return res.status(409).json({ success: false, message: "이메일 중복." });
+      return res
+        .status(409)
+        .json({ code: "CONFLICT ERROR", errorMessage: "DUPLICATE EMAIL" });
 
     // 이메일 중복 안되는 경우 == 변경 가능
     // 이메일 업데이트를 위한 이메일 인증 메일 발송
@@ -109,7 +116,7 @@ export const sendAuthUserUpdateEmail = (
       authString,
       function (success, err) {
         if (!success)
-          return res.status(400).json({ success: false, message: err });
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         //인증번호 부여 성공
         //인증번호를 담은 메일 전송
         mailSendAuthUpdateEmail(newEmail, authString, res);
@@ -134,28 +141,30 @@ export const compareAuthUserUpdateEmail = (
     authString,
     function (success, error, dbAuthString) {
       if (!success) {
-        return res.status(400).json({ success: false, message: error });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
       }
       //부여된 인증번호가 없는 경우
       else if (!dbAuthString) {
         return res
           .status(404)
-          .json({ success: false, message: "부여된 인증번호가 없습니다." });
+          .json({ code: "AUTH FAILED", errorMessage: "AUTH TIMEOUT" });
       } else {
         //인증번호 동일
         if (dbAuthString === authString) {
           // 이메일 업데이트
           dbUpdateUserEmail(userID, newEmail, function (success, error) {
             if (!success)
-              return res.status(400).json({ success: false, message: error });
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: error });
             else return res.json({ success: true });
           });
         }
         //인증번호 동일 x
         else {
           return res.status(401).json({
-            success: false,
-            message: "인증번호가 일치하지 않습니다.",
+            code: "AUTH FAILED",
+            errorMessage: "AUTH CODE IS MISMATCH",
           });
         }
       }
@@ -179,8 +188,8 @@ export const updateUser = (
   //key가 하나 이상이라면
   if (patchLength > 1) {
     return res.status(400).json({
-      success: false,
-      message: "수정 항목의 최대 길이(1)를 초과하는 리스트입니다.",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "MAX NUMBER OF KEYS : 1",
     });
   }
 
@@ -190,8 +199,8 @@ export const updateUser = (
 
     if (patchValue === userNickName)
       return res.status(409).json({
-        success: false,
-        message: "기존 닉네임과 동일합니다.",
+        code: "CONFLICT ERROR",
+        errorMessage: "SAME OLD AND NEW NICKNAME",
       });
     else if (patchValue) updateUserNickName(userID, patchValue, res);
   }
@@ -204,8 +213,8 @@ export const updateUser = (
 
     if (patchValue === userProfilePicture)
       return res.status(409).json({
-        success: false,
-        message: "기존 프로필 사진과 동일합니다.",
+        code: "CONFLICT ERROR",
+        errorMessage: "SAME OLD AND NEW PHOTO",
       });
     else if (patchValue || patchValue === null)
       updateUserProfilePicture(userID, patchValue, res);
@@ -219,8 +228,8 @@ export const updateUser = (
     //지역명 유효
     if (patchValue === userLocation)
       return res.status(409).json({
-        success: false,
-        message: "기존 지역과 동일합니다.",
+        code: "CONFLICT ERROR",
+        errorMessage: "SAME OLD AND NEW LOCATION",
       });
     else if (patchValue || patchValue === null)
       updateUserLocation(userID, patchValue, res);
@@ -228,8 +237,8 @@ export const updateUser = (
   //그 외 (err)
   else {
     return res.status(400).json({
-      success: false,
-      message: "수정이 불가능한 항목이 존재합니다.",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID KEY INCLUDED",
     });
   }
 };
@@ -243,18 +252,18 @@ function updateUserNickName(
   //닉네임 유효성 검사 (유효x)
   if (!checkName(patchValue)) {
     return res.status(400).json({
-      success: false,
-      message: "수정할 닉네임의 형식이 유효하지 않습니다.",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : NICKNAME",
     });
   }
   //(닉네임) 유저가 있는지
   dbFindUser("nickName", patchValue, function (err, isUser, overUser) {
     if (err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (isUser) {
       return res.status(409).json({
-        success: false,
-        message: "해당 닉네임의 유저가 이미 존재합니다.",
+        code: "CONFLICT ERROR",
+        errorMessage: "DUPLICATE NICKNAME",
       });
     }
     //(닉네임) 유저가 없는 경우
@@ -265,7 +274,9 @@ function updateUserNickName(
       patchValue,
       function (success, error) {
         if (!success) {
-          return res.status(400).json({ success: false, message: error });
+          return res
+            .status(404)
+            .json({ code: "SQL ERROR", errorMessage: error });
         }
         //update nickName 성공
         else {
@@ -285,24 +296,28 @@ function updateUserProfilePicture(
   // 기존 사용자 사진 파일의 url 가져오기
   dbSelectUserProfilePictureUrl(userID, function (success, result, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자가 존재하지 않는 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     } else {
       // result == 기존 사용자 사진 파일의 url (OR null)
       // 해당 파일 삭제
       dbDeletePictureFile(result, function (success, error) {
         if (!success) {
-          return res.status(400).json({ success: false, message: error });
+          return res
+            .status(404)
+            .json({ code: "DELETE IMAGE FILE ERROR", errorMessage: error });
         }
         // 파일 삭제 완료
         // 수정할 이미지 데이터 -> 새로운 파일에 삽입
         // 이미지 파일 컨트롤러
         imageController(patchValue, function (success, imageFileUrl, error) {
           if (!success) {
-            return res.status(400).json({ success: false, message: error });
+            return res
+              .status(404)
+              .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
           }
           // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
           // else if (imageFileUrl) {
@@ -314,7 +329,9 @@ function updateUserProfilePicture(
             patchValue,
             function (success, error) {
               if (!success) {
-                return res.status(400).json({ success: false, message: error });
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: error });
               }
               //update profilePicture 성공
               else {
@@ -336,8 +353,8 @@ function updateUserLocation(
 ) {
   if (patchValue && !checkLocation(patchValue)) {
     return res.status(400).json({
-      success: false,
-      message: "수정할 지역명의 형식이 유효하지 않습니다.",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : LOCATION",
     });
   }
   //지역 유효
@@ -347,7 +364,7 @@ function updateUserLocation(
     patchValue,
     function (success, error) {
       if (!success) {
-        return res.status(400).json({ success: false, message: error });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
       } else {
         return res.json({ success: true });
       }

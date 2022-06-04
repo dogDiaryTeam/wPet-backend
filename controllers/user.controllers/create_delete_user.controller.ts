@@ -60,27 +60,26 @@ export const creatUser = (
     !checkPw(user.pw) ||
     !checkName(user.nickName)
   ) {
-    let errMsg = "";
-    let emailErr = checkEmail(user.email) ? "" : "이메일 이상.";
-    let pwErr = checkPw(user.pw) ? "" : "비밀번호 이상.";
-    let nameErr = checkName(user.nickName) ? "" : "닉네임 이상.";
-    errMsg = errMsg + emailErr + pwErr + nameErr;
+    let errArr: Array<string> = [];
+    if (!checkEmail(user.email)) errArr.push("EMAIL");
+    if (!checkPw(user.pw)) errArr.push("PASSWORD");
+    if (!checkName(user.nickName)) errArr.push("NICKNAME");
 
-    return res.status(400).json({ success: false, message: errMsg });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: `INVALID FORMAT : [${errArr}]`,
+    });
   }
 
   // (이메일) 유저가 있는지
   dbFindDuplicateEmail(user.email, function (err, isUser, isAuth) {
     if (err) {
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일이 유효하지 않습니다." });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (isUser) {
       if (isAuth && isAuth === 0)
-        return res.status(403).json({
-          success: false,
-          message: "아직 이메일 인증을 하지 않은 유저입니다.",
-        });
+        return res
+          .status(403)
+          .json({ code: "AUTH FAILED", errorMessage: "SIGNUP AUTH FAILED" });
       // 이메일 중복
       else if (isAuth && isAuth === 1) isOverlapUserErr = true;
       else if (!isAuth) isOverlapUserErr = true;
@@ -90,28 +89,26 @@ export const creatUser = (
     //(닉네임) 유저가 있는지
     dbFindUser("nickName", user.nickName, function (err, isUser, nickNameUser) {
       if (err) {
-        return res
-          .status(400)
-          .json({ success: false, message: "닉네임이 유효하지 않습니다." });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
       } else if (isUser) {
         // 이메일 + 닉네임 중복
         if (isOverlapUserErr) {
           return res.status(409).json({
-            success: false,
-            message: "이메일중복 + 닉네임중복",
+            code: "CONFLICT ERROR",
+            errorMessage: "DUPLICATE EMAIL + NICKNAME",
           });
         }
         // 닉네임만 중복
         return res.status(409).json({
-          success: false,
-          message: "닉네임중복",
+          code: "CONFLICT ERROR",
+          errorMessage: "DUPLICATE NICKNAME",
         });
       }
       // 이메일만 중복
       else if (isOverlapUserErr) {
         return res.status(409).json({
-          success: false,
-          message: "이메일중복",
+          code: "CONFLICT ERROR",
+          errorMessage: "DUPLICATE EMAIL",
         });
       }
       // 회원가입 시 비밀번호
@@ -124,7 +121,9 @@ export const creatUser = (
           user.profilePicture,
           function (success, imageFileUrl, error) {
             if (!success) {
-              return res.status(400).json({ success: false, message: error });
+              return res
+                .status(404)
+                .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
             }
             // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
             else {
@@ -138,8 +137,8 @@ export const creatUser = (
                 function (success, error) {
                   if (!success) {
                     return res
-                      .status(400)
-                      .json({ success: false, message: error });
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: error });
                   }
                   return res.json({ success: true });
                 }
@@ -162,7 +161,7 @@ export const sendAuthEmail = (
     let authString: string = String(Math.random().toString(36).slice(2, 10));
     dbInsertUserEmailAuth(email, authString, function (success, error) {
       if (!success) {
-        return res.status(400).json({ success: false, message: error });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
       } else {
         //인증번호 부여 성공
         //인증번호를 담은 메일 전송
@@ -170,9 +169,10 @@ export const sendAuthEmail = (
       }
     });
   } else {
-    return res
-      .status(400)
-      .json({ success: false, message: "이메일 형식이 유효하지 않습니다." });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : EMAIL",
+    });
   }
 };
 
@@ -187,19 +187,22 @@ export const compareAuthEmail = (
   if (checkEmail(email)) {
     dbSelectUserEmailAuth(email, function (success, error, dbAuthString) {
       if (!success) {
-        return res.status(400).json({ success: false, message: error });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
       }
       //부여된 인증번호가 없는 경우
       else if (!dbAuthString) {
-        return res
-          .status(404)
-          .json({ success: false, message: "부여된 인증번호가 없습니다." });
+        return res.status(404).json({
+          code: "AUTH FAILED",
+          errorMessage: "AUTH TIMEOUT",
+        });
       } else {
         //인증번호 동일
         if (dbAuthString === authString) {
           dbSuccessUserEmailAuth(email, function (success, error) {
             if (!success) {
-              return res.status(400).json({ success: false, message: error });
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: error });
             }
             //인증 성공
             return res.json({
@@ -210,16 +213,17 @@ export const compareAuthEmail = (
         //인증번호 동일 x
         else {
           return res.status(401).json({
-            success: false,
-            message: "인증번호가 일치하지 않습니다.",
+            code: "AUTH FAILED",
+            errorMessage: "AUTH CODE IS MISMATCH",
           });
         }
       }
     });
   } else {
-    return res
-      .status(400)
-      .json({ success: false, message: "이메일이 형식이 유효하지 않습니다." });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : EMAIL",
+    });
   }
 };
 

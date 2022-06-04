@@ -31,15 +31,15 @@ router.post(
         checkEmptyValue(todolist.todoListID)
       ) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       checkTodolist(user.userID, todolist, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }

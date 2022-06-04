@@ -24,20 +24,19 @@ export const findUserPw = (
 
   // 이메일 유효한지
   if (!checkEmail(email))
-    return res
-      .status(400)
-      .json({ success: false, message: "이메일 형식 이상" });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : EMAIL",
+    });
 
   // (이메일) 유저가 있는지
   dbFindUser("email", email, function (err, isUser, user) {
     if (err) {
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일이 유효하지 않습니다." });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (!isUser) {
       return res.status(404).json({
-        success: false,
-        message: "해당 이메일의 유저가 존재하지 않습니다.",
+        code: "NOT FOUND",
+        errorMessage: "EMAIL NOT FOUND",
       });
     } else if (user) {
       // 유저 존재
@@ -50,7 +49,9 @@ export const findUserPw = (
         // db에 update
         dbUpdateUserTempPw(user.userID, hashTempPw, function (success, err) {
           if (!success) {
-            return res.status(400).json({ success: false, message: err });
+            return res
+              .status(404)
+              .json({ code: "SQL ERROR", errorMessage: err });
           }
           // db에 update 성공
           // 메일 전송
@@ -72,27 +73,26 @@ export const loginUser = (
 
   //이메일 유효한지
   if (!checkEmail(email)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "이메일이 형식이 유효하지 않습니다." });
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "INVALID FORMAT : EMAIL",
+    });
   }
   //(이메일) 유저가 있는지
   dbFindUser("email", email, function (err, isUser, user) {
     if (err) {
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일이 유효하지 않습니다." });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (!isUser) {
       return res.status(404).json({
-        success: false,
-        message: "해당 이메일의 유저가 존재하지 않습니다.",
+        code: "NOT FOUND",
+        errorMessage: "EMAIL NOT FOUND",
       });
     } else if (isUser && user) {
       //이메일 인증을 완료하지 않은 유저
       if (user.isAuth === 0) {
         return res.status(403).json({
-          success: false,
-          message: "아직 이메일 인증을 하지 않은 유저입니다.",
+          code: "AUTH FAILED",
+          errorMessage: "SIGNUP AUTH FAILED",
         });
       }
 
@@ -110,7 +110,9 @@ export const loginUser = (
             user.pw,
             function (success, error) {
               if (!success) {
-                return res.status(400).json({ success: false, message: error });
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: error });
               }
               // 쿠키 유효기간 : 일주일
               return res
@@ -120,16 +122,15 @@ export const loginUser = (
                 .status(200)
                 .json({
                   success: true,
-                  email: email,
-                  token: userToken,
                 });
             }
           );
         } else {
           //비밀번호 불일치
-          return res
-            .status(401)
-            .json({ success: false, message: "비밀번호가 일치하지 않습니다." });
+          return res.status(401).json({
+            code: "AUTH FAILED",
+            errorMessage: "PASSWORD IS MISMATCH",
+          });
         }
       });
     }
@@ -145,7 +146,7 @@ export const logoutUser = (
 
   dbDeleteUserToken(userID, function (success, error) {
     if (!success) {
-      return res.status(400).json({ success: false, message: error });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
     }
     res.clearCookie("x_auth");
     return res.json({ success: true });

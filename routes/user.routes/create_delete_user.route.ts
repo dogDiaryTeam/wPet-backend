@@ -153,8 +153,6 @@ const router = Router();
  *         example: "수원"
  */
 
-router.post("/api/user/test", test);
-
 router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
   //회원가입 할때 필요한 정보들을 client에서 가져오면
   //그것들을 데이터 베이스에 넣어준다.
@@ -165,8 +163,8 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
     checkEmptyValue(user.nickName)
   ) {
     return res.status(400).json({
-      success: false,
-      message: "PARAMETER IS EMPTY",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "PARAMETER IS EMPTY",
     });
   }
   creatUser(user, res);
@@ -181,8 +179,8 @@ router.post(
     const email: string = req.body.email;
     if (checkEmptyValue(email)) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     sendAuthEmail(email, res);
@@ -200,8 +198,8 @@ router.post(
     const authString: string = req.body.authString;
     if (checkEmptyValue(email) || checkEmptyValue(authString)) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     compareAuthEmail(email, authString, res);

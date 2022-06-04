@@ -122,7 +122,15 @@ export function checkArrayLen(arr: Array<any>, len: number): boolean {
 // diary weather 유효성 검사
 export function checkDiaryWeather(weather: string): boolean {
   // 추후 수정
-  let dbWeather: Array<string> = ["맑음", "흐림", "비", "번개", "눈", "바람"];
+  let dbWeather: Array<string> = [
+    "sunny",
+    "sunny-cloudy",
+    "snow",
+    "rainy",
+    "thunderbolt",
+    "rainbow",
+    "cloudy",
+  ];
   // 포함
   if (dbWeather.indexOf(weather) > -1) {
     return true;

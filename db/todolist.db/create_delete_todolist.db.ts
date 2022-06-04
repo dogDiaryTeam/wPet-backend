@@ -17,7 +17,7 @@ export function dbCheckTodolistKeyword(
     // 키워드가 있는 경우
     else if (row.length > 0) callback(true, null);
     // 키워드가 없는 경우
-    else callback(false, null, "해당 키워드가 존재하지 않습니다.");
+    else callback(false, null, "KEYWORD NOT FOUND");
   });
 }
 

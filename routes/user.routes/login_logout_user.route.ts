@@ -113,8 +113,8 @@ router.post("/api/user/find/pw", (req: UserRequest<FindPwModel>, res) => {
   const email: string = req.body.email;
   if (checkEmptyValue(email)) {
     return res.status(400).json({
-      success: false,
-      message: "PARAMETER IS EMPTY",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "PARAMETER IS EMPTY",
     });
   }
   findUserPw(email, res);
@@ -128,8 +128,8 @@ router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
   const pw: string = req.body.pw;
   if (checkEmptyValue(email) || checkEmptyValue(pw)) {
     return res.status(400).json({
-      success: false,
-      message: "PARAMETER IS EMPTY",
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "PARAMETER IS EMPTY",
     });
   }
   loginUser(email, pw, res);
@@ -146,8 +146,8 @@ router.get("/api/user/logout", auth, (req, res) => {
     logoutUser(user.userID, res);
   } else {
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });

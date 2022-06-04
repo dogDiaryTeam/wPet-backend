@@ -14,8 +14,6 @@ import mql from "../db/mysql/mysql";
 
 require("dotenv").config();
 
-// import mysql from "mysql";
-
 const { swaggerUI, specs } = require("../swagger/swagger");
 const app: Express = express();
 const port = 3000;

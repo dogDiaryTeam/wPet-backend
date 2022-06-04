@@ -78,7 +78,7 @@ export function dbSelectDiary(
       callback(true, row[0], null);
     }
     // 출력 X
-    else callback(false, null, null, "해당 다이어리가 존재하지 않습니다.");
+    else callback(false, null, null, "DIARY NOT FOUND");
   });
 }
 
@@ -98,6 +98,6 @@ export function dbSelectDiaryPicture(
     // 정상 출력
     else if (row.length > 0) callback(true, row[0], null);
     // 다이어리 없음
-    else callback(false, null, null, "다이어리가 존재하지 않습니다.");
+    else callback(false, null, null, "DIARY NOT FOUND");
   });
 }

@@ -36,22 +36,22 @@ router.post(
         checkEmptyValue(todolist.keyword)
       ) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       createTodolist(user.userID, todolist, res);
       // creatUser(user, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }
 );
 
-router.post(
+router.delete(
   "/api/todolist/delete",
   auth,
   (req: TodolistRequest<InforTodolistModel>, res) => {
@@ -68,16 +68,16 @@ router.post(
         checkEmptyValue(todolist.todoListID)
       ) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       deleteTodolist(user.userID, todolist, res);
       // creatUser(user, res);
     } else {
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }

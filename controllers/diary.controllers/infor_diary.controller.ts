@@ -24,17 +24,17 @@ export const getDiarys = (
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetIDs(userID, [petID], function (success, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자가 등록한 pet의 petID가 아닌 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // petID 모두 사용자의 반려견이 맞는 경우
     // 반려견의 모든 다이어리 가져오기
     dbSelectPetAllDiarys(petID, function (success, result, err) {
       if (!success) {
-        return res.status(400).json({ success: false, message: err });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
       }
       // 정상 출력
       else if (result) {
@@ -47,13 +47,14 @@ export const getDiarys = (
         dbSelectPictureFiles(diaryPictures, function (diaryPictureDatas) {
           // 파일에서 이미지 데이터 가져오기 성공 (array)
           if (result.length !== diaryPictureDatas.length)
-            res
-              .status(500)
-              .json({ success: false, message: "이미지 처리 실패" });
+            return res.status(404).json({
+              code: "FIND IMAGE FILE ERROR",
+              errorMessage: "IMAGE FILES NOT FOUND",
+            });
           for (let i = 0; i < result.length; i++) {
             result[i].picture = diaryPictureDatas[i];
           }
-          return res.json({ success: true, result });
+          return res.json({ result });
         });
       }
     });
@@ -70,11 +71,11 @@ export const getOneDiary = (
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetIDs(userID, [petID], function (success, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자가 등록한 pet의 petID가 아닌 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // petID 모두 사용자의 반려견이 맞는 경우
 
@@ -82,21 +83,21 @@ export const getOneDiary = (
 
     dbCheckPetsDiary(petID, diaryID, function (success, err, msg) {
       if (!success && err) {
-        return res.status(400).json({ success: false, message: err });
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
       }
       // 반려견의 다이어리가 아닌 경우
       else if (!success && !err) {
-        return res.status(404).json({ success: false, message: msg });
+        return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
       }
       // 반려견의 다이어리가 맞는 경우
       // 그 다이어리 정보 return
       dbSelectDiary(petID, diaryID, function (success, result, err, msg) {
         if (!success && err) {
-          return res.status(400).json({ success: false, message: err });
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         }
         // 다이어리가 존재하지 않는 경우
         else if (!success && !err) {
-          return res.status(404).json({ success: false, message: msg });
+          return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
         }
         // 다이어리가 존재하는 경우
         else if (result) {
@@ -105,15 +106,19 @@ export const getOneDiary = (
             result.picture,
             function (success, petProfilePictureData, error, msg) {
               if (!success && error) {
-                return res.status(400).json({ success: false, message: error });
+                return res
+                  .status(404)
+                  .json({ code: "FIND IMAGE FILE ERROR", errorMessage: error });
               }
               // 파일이 없는 경우
               else if (!success && !error) {
-                return res.status(404).json({ success: false, message: msg });
+                return res
+                  .status(404)
+                  .json({ code: "NOT FOUND", errorMessage: msg });
               }
               // 파일에서 이미지 데이터 가져오기 성공
               result.picture = petProfilePictureData;
-              return res.json({ success: true, result });
+              return res.json({ result });
             }
           );
         }

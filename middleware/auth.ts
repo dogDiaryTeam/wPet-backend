@@ -24,8 +24,8 @@ export const auth: Handler = (req, res, next) => {
       (err, row) => {
         if (err)
           return res.status(401).json({
-            isAuth: false,
-            message: err,
+            code: "AUTH FAILED",
+            errorMessage: err,
           });
         if (row.length > 0) {
           //유저 인증 ok
@@ -35,8 +35,8 @@ export const auth: Handler = (req, res, next) => {
         } else {
           //유저 인증 no
           return res.status(401).json({
-            isAuth: false,
-            message: "USER AUTH FAILED",
+            code: "AUTH FAILED",
+            errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
           });
         }
       }
@@ -47,8 +47,8 @@ export const auth: Handler = (req, res, next) => {
       console.log(error);
     }
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 };

@@ -19,7 +19,9 @@ export const mailSendAuthEmail = (
     { authCode: authString },
     async function (err, data) {
       if (err) {
-        return res.status(500).json({ success: false, message: err });
+        return res
+          .status(404)
+          .json({ code: "FIND MAIL FILE ERROR", errorMessage: err });
       }
 
       emailTemplete = data;
@@ -43,7 +45,9 @@ export const mailSendAuthEmail = (
         },
         (error, info) => {
           if (error) {
-            return res.status(500).json({ success: false, message: error });
+            return res
+              .status(404)
+              .json({ code: "SEND MAIL ERROR", errorMessage: error });
           }
 
           // res.send(authNum);
@@ -72,7 +76,9 @@ export const mailSendAuthUpdateEmail = (
     { authCode: authString },
     async function (err, data) {
       if (err) {
-        return res.status(500).json({ success: false, message: err });
+        return res
+          .status(404)
+          .json({ code: "FIND MAIL FILE ERROR", errorMessage: err });
       }
 
       emailTemplete = data;
@@ -97,7 +103,9 @@ export const mailSendAuthUpdateEmail = (
         },
         (error, info) => {
           if (error) {
-            return res.status(500).json({ success: false, message: error });
+            return res
+              .status(404)
+              .json({ code: "SEND MAIL ERROR", errorMessage: error });
           }
 
           // res.send(authNum);
@@ -125,7 +133,9 @@ export const mailSendTempPw = (
     { tempPw: tempPw },
     async function (err, data) {
       if (err) {
-        return res.status(500).json({ success: false, message: err });
+        return res
+          .status(404)
+          .json({ code: "FIND MAIL FILE ERROR", errorMessage: err });
       }
 
       emailTemplete = data;
@@ -149,7 +159,9 @@ export const mailSendTempPw = (
         },
         (error, info) => {
           if (error) {
-            return res.status(500).json({ success: false, message: error });
+            return res
+              .status(404)
+              .json({ code: "SEND MAIL ERROR", errorMessage: error });
           }
 
           // res.send(authNum);

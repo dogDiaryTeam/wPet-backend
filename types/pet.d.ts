@@ -1,9 +1,9 @@
 interface CreatePetModel extends mongoose.Document {
   petName: string;
   birthDate: Date;
-  petSex: string;
+  petSex: string; //gender
   petProfilePicture: string | null;
-  petSpecies: Array<string>;
+  petSpecies: Array<string>; //brige
 }
 
 interface PetIDModel extends mongoose.Document {

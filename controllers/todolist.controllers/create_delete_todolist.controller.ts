@@ -22,11 +22,11 @@ export const createTodolist = (
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, todolist.petID, function (success, result, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자가 등록한 pet의 petID가 아닌 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // 사용자의 반려견이 맞는 경우
 
@@ -35,27 +35,25 @@ export const createTodolist = (
       !checkDate(todolist.listDate) ||
       !checkStringLen(todolist.content, 255)
     ) {
-      let errMsg = "";
-      let todolistDateErr = checkDate(todolist.listDate)
-        ? ""
-        : "투두리스트 날짜 이상.";
-      let todolistContentLenErr = checkStringLen(todolist.content, 255)
-        ? ""
-        : "투두리스트 내용 길이 이상[1-255].";
+      let errArr: Array<string> = [];
+      if (!checkDate(todolist.listDate)) errArr.push("DATE");
+      if (!checkStringLen(todolist.content, 255))
+        errArr.push("CONTENT LENGTH(1-255)");
 
-      errMsg = errMsg + todolistDateErr + todolistContentLenErr;
-
-      return res.status(400).json({ success: false, message: errMsg });
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: `INVALID FORMAT : [${errArr}]`,
+      });
     } else {
       // 투두리스트 키워드 검증
       // DB에 저장된 키워드가 맞는지 검증
       dbCheckTodolistKeyword(todolist.keyword, function (success, err, msg) {
         if (!success && err) {
-          return res.status(400).json({ success: false, message: err });
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         }
         // 키워드가 유효하지 않음
         else if (!success && !err) {
-          return res.status(404).json({ success: false, message: msg });
+          return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
         }
         // 키워드 정상
         // 투두리스트 작성
@@ -66,7 +64,9 @@ export const createTodolist = (
           todolist.keyword,
           function (success, err) {
             if (!success)
-              return res.status(400).json({ success: false, message: err });
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: err });
             return res.json({ success: true });
           }
         );
@@ -85,11 +85,11 @@ export const deleteTodolist = (
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, todolist.petID, function (success, result, err, msg) {
     if (!success && err) {
-      return res.status(400).json({ success: false, message: err });
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
     // 사용자가 등록한 pet의 petID가 아닌 경우
     else if (!success && !err) {
-      return res.status(404).json({ success: false, message: msg });
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // 사용자의 반려견이 맞는 경우
   });

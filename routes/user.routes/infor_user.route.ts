@@ -24,7 +24,44 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/user/auth:
+ *   /users/auth:
+ *     post:
+ *        tags:
+ *        - users
+ *        description: "(이메일 인증) 인증번호 동일한지 확인 -> 동일하다면 이메일 인증 완료 (로그인 가능)"
+ *        produces:
+ *          - "application/json"
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - email
+ *                  - authCode
+ *                properties:
+ *                  email:
+ *                    type: string
+ *                    description: 사용자 이메일 주소
+ *                    example: "test1@naver.com"
+ *                  authCode:
+ *                    type: string
+ *                    description: 사용자가 입력한 인증번호 (8자리)
+ *                    example: "sbsrb1u0"
+ *        responses:
+ *          "201":
+ *            description: "인증 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *          "401":
+ *            description: "AUTH CODE IS MISMATCH : 인증번호가 일치하지 않음."
+ *          "404":
+ *            description: "AUTH TIMEOUT : 인증번호 시간 초과 / (SQL ERROR : DB 에러 (반환되는 경우 없어야함))"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
  *     get:
  *        tags:
  *        - users
@@ -39,16 +76,17 @@ const router = Router();
  *                schema:
  *                  $ref: '#/definitions/UserInfor'
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "NOT FOUND : 이미지 파일을 찾을 수 없음 (반환되는 경우 없어야함))"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/update:
  *     patch:
  *        tags:
  *        - users
- *        description: "현재 로그인 되어있는 사용자의 정보 수정 (수정할 정보만 요청)"
+ *        description: "현재 로그인 되어있는 사용자의 정보 수정 (수정할 정보 하나씩만 요청)"
  *        produces:
  *        - applicaion/json
  *        requestBody:
@@ -62,7 +100,7 @@ const router = Router();
  *                    type: string
  *                    description: 수정할 사용자 닉네임
  *                    example: "수민2"
- *                  profilePicture:
+ *                  photo:
  *                    type: string
  *                    description: 수정할 사용자 프로필사진
  *                    example: "bbb"
@@ -71,20 +109,24 @@ const router = Router();
  *                    description: 수정할 사용자 지역
  *                    example: "서울"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 정보 수정 성공"
+ *          "204":
+ *            description: "SAME OLD AND NEW .. : 기존의 사용자 정보와 수정할 정보가 같음 (수정X)"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "사용자 인증 실패."
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자가 존재하지 않음 / WRITE(DELETE) IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
- *            description: "수정할 이메일이 이미 존재함"
+ *            description: "DUPLICATE NICKNAME : 수정할 닉네임이 이미 존재함"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/update/pw:
- *     post:
+ *   /users/auth/pw:
+ *     put:
  *        tags:
  *        - users
  *        description: "현재 로그인 되어있는 사용자의 비밀번호 수정"
@@ -97,10 +139,10 @@ const router = Router();
  *              schema:
  *                type: object
  *                required:
- *                  - originPw
+ *                  - oldPw
  *                  - newPw
  *                properties:
- *                  originPw:
+ *                  oldPw:
  *                    type: string
  *                    description: 기존의 사용자 비밀번호
  *                    example: "1111111a"
@@ -109,17 +151,21 @@ const router = Router();
  *                    description: 수정할 사용자 비밀번호
  *                    example: "1111111b"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 비밀번호 수정 성공"
+ *          "204":
+ *            description: "SAME OLD AND NEW PASSWORD : 기존의 사용자 비밀번호와 수정할 비밀번호가 같음 (수정X)"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "사용자 인증 실패 or 비밀번호 틀림."
+ *            description: "AUTH FAILED: 사용자 인증 실패 / 비밀번호 틀림"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/sendmail/email/update:
+ *   /update-mails:
  *     post:
  *        tags:
  *        - users
@@ -140,22 +186,24 @@ const router = Router();
  *                    description: 수정할 사용자 이메일
  *                    example: "updatetest@naver.com"
  *        responses:
- *          "200":
- *            description: "사용자 이메일 수정 성공"
+ *          "201":
+ *            description: "수정할 이메일로 인증 메일 전송 성공"
+ *          "204":
+ *            description: "SAME OLD AND NEW EMAIL : 기존의 사용자 이메일과 수정할 이메일이 같음 (수정X)"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "사용자 인증 실패."
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / MAIL ERROR : 이메일 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
- *            description: "수정할 이메일과 기존 이메일이 동일하거나 다른 회원과 이메일 중복"
- *          "500":
- *            description: "메일 발송 시 서버 내의 문제 발생."
+ *            description: "DUPLICATE EMAIL : 다른 회원과 이메일 중복"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/update/email:
- *     post:
+ *   /users/auth/email:
+ *     put:
  *        tags:
  *        - users
  *        description: "(이메일 수정) 인증번호가 동일하면 사용자의 이메일 수정"
@@ -169,25 +217,25 @@ const router = Router();
  *                type: object
  *                required:
  *                  - newEmail
- *                  - authString
+ *                  - authCode
  *                properties:
  *                  newEmail:
  *                    type: string
  *                    description: 수정할 사용자 이메일
  *                    example: "updatetest@naver.com"
- *                  authString:
+ *                  authCode:
  *                    type: string
  *                    description: 사용자가 입력한 인증번호 (8자리)
  *                    example: "sbsrb1u0"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 이메일 수정 성공"
  *          "400":
- *            description: "요청 형식이 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "인증번호가 일치하지 않음."
+ *            description: "AUTH FAILED: 사용자 인증 실패 / AUTH CODE IS MISMATCH : 인증번호가 일치하지 않음."
  *          "404":
- *            description: "부여된 인증번호가 없음."
+ *            description: "AUTH TIMEOUT : 인증번호 시간 초과 / (SQL ERROR : DB 에러 (반환되는 경우 없어야함))"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -208,7 +256,7 @@ const router = Router();
  *         type: string
  *         description: 사용자 닉네임(1-15자)
  *         example: "sumin"
- *       profilePicture:
+ *       photo:
  *         type: string
  *         description: 사용자 프로필사진
  *         example: "bbb"
@@ -219,7 +267,7 @@ const router = Router();
  */
 
 //middleware
-router.get("/api/user/auth", auth, (req, res) => {
+router.get("/users/auth", auth, (req, res) => {
   //middleware를 통해 얻은 유저 정보를 반환한다.
   //인증 완료
   let user: UserInforDTO | null = req.user;
@@ -259,79 +307,71 @@ router.get("/api/user/auth", auth, (req, res) => {
   }
 });
 
-router.patch(
-  "/api/user/update",
-  auth,
-  (req: UserRequest<UpdateUserModel>, res) => {
-    //middleware를 통해 얻은 유저 정보를 이용해
-    //해당 유저 정보를 수정한다.
-    let user: UserInforDTO | null = req.user;
+router.patch("/users/auth", auth, (req: UserRequest<UpdateUserModel>, res) => {
+  //middleware를 통해 얻은 유저 정보를 이용해
+  //해당 유저 정보를 수정한다.
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      let userID: number = user.userID;
-      let userNickName: string = user.nickName;
-      let userProfilePicture: string | null = user.photo;
-      let userLocation: string | null = user.location;
-      //object
-      const param: UpdateUserReqDTO = req.body;
-      // test 필요
-      if (checkEmptyValue(param)) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      } else if (param.nickName && checkEmptyValue(param.nickName))
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
+  if (user) {
+    let userID: number = user.userID;
+    let userNickName: string = user.nickName;
+    let userProfilePicture: string | null = user.photo;
+    let userLocation: string | null = user.location;
+    //object
+    const param: UpdateUserReqDTO = req.body;
+    // test 필요
+    if (checkEmptyValue(param)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    } else if (param.nickName && checkEmptyValue(param.nickName))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
 
-      updateUser(
-        userID,
-        userNickName,
-        userProfilePicture,
-        userLocation,
-        param,
-        res
-      );
-    } else {
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    updateUser(
+      userID,
+      userNickName,
+      userProfilePicture,
+      userLocation,
+      param,
+      res
+    );
+  } else {
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
+  }
+});
+
+router.put("/users/auth/pw", auth, (req: UserRequest<UpdatePwModel>, res) => {
+  //비밀번호 변경 (로그인 된 상태)
+  //현재 비밀번호 + auth + 새 비밀번호
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    const originPw: string = req.body.oldPw;
+    const newPw: string = req.body.newPw;
+    if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
+    updateUserPw(originPw, newPw, user.userID, res);
+  } else {
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
 router.post(
-  "/api/user/update/pw",
-  auth,
-  (req: UserRequest<UpdatePwModel>, res) => {
-    //비밀번호 변경 (로그인 된 상태)
-    //현재 비밀번호 + auth + 새 비밀번호
-    let user: UserInforDTO | null = req.user;
-
-    if (user) {
-      const originPw: string = req.body.oldPw;
-      const newPw: string = req.body.newPw;
-      if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      }
-      updateUserPw(originPw, newPw, user.userID, res);
-    } else {
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
-      });
-    }
-  }
-);
-
-router.post(
-  "/api/user/sendmail/email/update",
+  "/update-mails",
   auth,
   (req: UserRequest<SendAuthUpdateEmailModel>, res) => {
     //이메일 변경 (로그인 된 상태)
@@ -357,8 +397,8 @@ router.post(
   }
 );
 
-router.post(
-  "/api/user/update/email",
+router.put(
+  "/users/auth/email",
   auth,
   (req: UserRequest<CompareAuthUpdateEmailModel>, res) => {
     //이메일 변경 (로그인 된 상태)

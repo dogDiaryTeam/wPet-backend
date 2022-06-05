@@ -15,7 +15,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/user/find/pw:
+ *   /find-pw:
  *     post:
  *        tags:
  *        - users
@@ -36,17 +36,17 @@ const router = Router();
  *                    description: 사용자 이메일 주소
  *                    example: "test1@naver.com"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "임시 비밀번호를 담은 이메일 전송 성공"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "404":
- *            description: "해당 이메일의 유저가 존재하지 않음."
+ *            description: "SQL ERROR : DB 에러 / EMAIL NOT FOUND : 이메일이 존재하지 않음 / MAIL ERROR : 이메일 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/login:
+ *   /login:
  *     post:
  *        tags:
  *        - users
@@ -72,41 +72,41 @@ const router = Router();
  *                    description: 사용자 비밀번호(8-13자)
  *                    example: "1111111a"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 로그인 성공"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "비밀번호 불일치"
+ *            description: "PASSWORD IS MISMATCH : 비밀번호 불일치"
  *          "403":
- *            description: "아직 이메일 인증을 하지 않음."
+ *            description: "SIGNUP AUTH FAILED : 아직 이메일 인증을 하지 않음."
  *          "404":
- *            description: "이메일이 존재하지 않음"
+ *            description: "SQL ERROR : DB 에러 / EMAIL NOT FOUND : 이메일이 존재하지 않음 / MAIL ERROR : 이메일 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/logout:
- *     get:
+ *   /logout:
+ *     post:
  *        tags:
  *        - users
  *        description: "사용자 로그아웃 (쿠키 삭제)"
  *        produces:
  *        - applicaion/json
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 로그아웃 성공"
- *          "400":
- *            description: "사용자 로그아웃 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
  */
 
-router.post("/api/user/find/pw", (req: UserRequest<FindPwModel>, res) => {
+router.post("/find-pw", (req: UserRequest<FindPwModel>, res) => {
   //비밀번호 찾기 시 인증
   //client에게서 받은 이메일로
   //임시 비밀번호를 제공 후, 비밀번호 update
@@ -120,7 +120,7 @@ router.post("/api/user/find/pw", (req: UserRequest<FindPwModel>, res) => {
   findUserPw(email, res);
 });
 
-router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
+router.post("/login", (req: UserRequest<LoginUserModel>, res) => {
   //로그인 정보(email:uq, pw:uq)들을 client에서 가져오면
   //데이터베이스의 정보(email, pw)들과 비교해서
   //존재하는 유저라면 success=true
@@ -136,7 +136,7 @@ router.post("/api/user/login", (req: UserRequest<LoginUserModel>, res) => {
 });
 
 //logout (login된 상태이기 때문에 auth를 넣어준다.)
-router.get("/api/user/logout", auth, (req, res) => {
+router.post("/logout", auth, (req, res) => {
   //middleware를 통해 얻은 유저 정보를 이용해
   //해당 유저를 로그아웃해준다. (token 제거)
   let user: UserInforDTO | null = req.user;

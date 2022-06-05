@@ -26,7 +26,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/user/create:
+ *   /users:
  *     post:
  *        tags:
  *        - users
@@ -40,19 +40,21 @@ const router = Router();
  *              schema:
  *                $ref: "#/definitions/User_create_req"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "사용자 생성 성공"
  *          "400":
- *            description: "사용자 생성 실패"
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "403":
- *            description: "이메일 인증을 하지않음"
+ *            description: "SIGNUP AUTH FAILED : 이메일 인증을 하지않음"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / WRITE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
- *            description: "이미 유일값을 가진 유저가 존재"
+ *            description: "DUPLICATE NICKNAME OR EMAIL : 이미 유일값을 가진 유저가 존재"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/user/sendmail/email/auth:
+ *   /auth-mails:
  *     post:
  *        tags:
  *        - users
@@ -73,50 +75,12 @@ const router = Router();
  *                    description: 사용자 이메일 주소
  *                    example: "test1@naver.com"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "인증메일 전송 성공"
  *          "400":
- *            description: "이메일 형식이 유효하지 않습니다."
- *          "500":
- *            description: "메일 발송 시 서버 내의 문제 발생."
- *        security:
- *          - petstore_auth:
- *              - "write:pets"
- *              - "read:pets"
- *   /api/user/auth/email:
- *     post:
- *        tags:
- *        - users
- *        description: "(이메일 인증) 인증번호 동일한지 확인"
- *        produces:
- *          - "application/json"
- *        requestBody:
- *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - email
- *                  - authString
- *                properties:
- *                  email:
- *                    type: string
- *                    description: 사용자 이메일 주소
- *                    example: "test1@naver.com"
- *                  authString:
- *                    type: string
- *                    description: 사용자가 입력한 인증번호 (8자리)
- *                    example: "sbsrb1u0"
- *        responses:
- *          "200":
- *            description: "인증 성공"
- *          "400":
- *            description: "요청 형식이 유효하지 않음."
- *          "401":
- *            description: "인증번호가 일치하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "404":
- *            description: "부여된 인증번호가 없음."
+ *            description: "SQL ERROR : DB 에러 / MAIL ERROR : 이메일 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -128,7 +92,6 @@ const router = Router();
  *       - email
  *       - pw
  *       - nickName
- *       - profilePicture
  *     properties:
  *       email:
  *         type: string
@@ -142,17 +105,17 @@ const router = Router();
  *         type: string
  *         description: 사용자 닉네임(1-15자)
  *         example: "수민"
- *       profilePicture:
+ *       photo:
  *         type: string
- *         description: 사용자 프로필사진
+ *         description: 사용자 프로필사진 (없다면 "")
  *         example: "aaa"
  *       location:
  *         type: string
- *         description: 사용자 주소
+ *         description: 사용자 주소 (없다면 "")
  *         example: "수원"
  */
 
-router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
+router.post("/users", (req: UserRequest<CreateUserModel>, res) => {
   //회원가입 할때 필요한 정보들을 client에서 가져오면
   //그것들을 데이터 베이스에 넣어준다.
   const user: CreateUserReqDTO = req.body;
@@ -169,40 +132,34 @@ router.post("/api/user/create", (req: UserRequest<CreateUserModel>, res) => {
   creatUser(user, res);
 });
 
-router.post(
-  "/api/user/sendmail/email/auth",
-  (req: UserRequest<SendAuthEmailModel>, res) => {
-    // 회원가입 시 인증
-    // client에게서 받은 email로
-    // 인증번호 담은 인증메일 전송
-    const email: string = req.body.email;
-    if (checkEmptyValue(email)) {
-      return res.status(400).json({
-        code: "INVALID FORMAT ERROR",
-        errorMessage: "PARAMETER IS EMPTY",
-      });
-    }
-    sendAuthEmail(email, res);
+router.post("/auth-mails", (req: UserRequest<SendAuthEmailModel>, res) => {
+  // 회원가입 시 인증
+  // client에게서 받은 email로
+  // 인증번호 담은 인증메일 전송
+  const email: string = req.body.email;
+  if (checkEmptyValue(email)) {
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "PARAMETER IS EMPTY",
+    });
   }
-);
+  sendAuthEmail(email, res);
+});
 
-router.post(
-  "/api/user/auth/email",
-  (req: UserRequest<CompareAuthEmailModel>, res) => {
-    // 회원가입 시 인증
-    // client에게서 받은 인증번호와
-    // 발급한 인증번호를 비교
-    // 동일하면 인증 완료
-    const email: string = req.body.email;
-    const authString: string = req.body.authCode;
-    if (checkEmptyValue(email) || checkEmptyValue(authString)) {
-      return res.status(400).json({
-        code: "INVALID FORMAT ERROR",
-        errorMessage: "PARAMETER IS EMPTY",
-      });
-    }
-    compareAuthEmail(email, authString, res);
+router.post("/users/auth", (req: UserRequest<CompareAuthEmailModel>, res) => {
+  // 회원가입 시 인증
+  // client에게서 받은 인증번호와
+  // 발급한 인증번호를 비교
+  // 동일하면 인증 완료
+  const email: string = req.body.email;
+  const authString: string = req.body.authCode;
+  if (checkEmptyValue(email) || checkEmptyValue(authString)) {
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: "PARAMETER IS EMPTY",
+    });
   }
-);
+  compareAuthEmail(email, authString, res);
+});
 
 export default router;

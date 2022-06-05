@@ -15,7 +15,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/pet/create:
+ *   /pets:
  *     post:
  *        tags:
  *        - pets
@@ -29,51 +29,16 @@ const router = Router();
  *              schema:
  *                $ref: "#/definitions/Pet_create_req"
  *        responses:
- *          "200":
+ *          "201":
  *            description: "반려견 생성 성공"
  *          "400":
- *            description: "반려견 정보 형식이 유효하지 않습니다."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음 / EXCEED MAX ERROR : 등록가능한 최대 반려견 수를 초과 (5마리)"
  *          "401":
- *            description: "사용자 인증 실패"
- *          "403":
- *            description: "등록가능한 최대 반려견 수를 초과 (5마리)"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "반려견 종이 DB에 존재하지 않습니다."
+ *            description: "SQL ERROR : DB 에러 / WRITE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
- *            description: "사용자가 등록한 반려견의 이름과 중복됩니다."
- *        security:
- *          - petstore_auth:
- *              - "write:pets"
- *              - "read:pets"
- *   /api/pet/delete:
- *     post:
- *        tags:
- *        - pets
- *        description: "반려견 등록 삭제"
- *        produces:
- *          - "application/json"
- *        requestBody:
- *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - petID
- *                properties:
- *                  petID:
- *                    type: number
- *                    description: 삭제할 반려견의 아이디
- *                    example: "1"
- *        responses:
- *          "200":
- *            description: "반려견 삭제 성공"
- *          "400":
- *            description: "반려견 삭제 실패"
- *          "401":
- *            description: "사용자 인증 실패"
- *          "404":
- *            description: "사용자가 등록한 반려견이 아닙니다."
+ *            description: "CONFLICT ERROR : 사용자가 등록한 다른 반려견의 이름과 중복됩니다."
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -82,13 +47,13 @@ const router = Router();
  *   Pet_create_req:
  *     type: object
  *     required:
- *       - petName
+ *       - name
  *       - birthDate
- *       - petSex
- *       - petProfilePicture
- *       - petSpecies
+ *       - gender
+ *       - photo
+ *       - breeds
  *     properties:
- *       petName:
+ *       name:
  *         type: string
  *         description: 반려견 이름
  *         example: "흰둥이"
@@ -96,21 +61,21 @@ const router = Router();
  *         type: date
  *         description: 반려견 생년월일
  *         example: "2022-01-01"
- *       petSex:
+ *       gender:
  *         type: string
  *         description: 반려견 성별
  *         example: "여"
- *       petProfilePicture:
+ *       photo:
  *         type: string
  *         description: 반려견 사진
  *         example: "aaa"
- *       petSpecies:
+ *       breeds:
  *         type: Array<string>
  *         description: 반려견 종 (1-3종)
  *         example: ["골든 리트리버", "가스코뉴"]
  */
 
-router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
+router.post("/pets", auth, (req: PetRequest<CreatePetModel>, res) => {
   // 펫 등록 할때 필요한 정보들을 client에서 가져오면
   // 그것들을 데이터 베이스에 넣어준다.
   let user: UserInforDTO | null = req.user;
@@ -140,13 +105,13 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
   }
 });
 
-router.delete("/api/pet/delete", auth, (req: PetRequest<PetIDModel>, res) => {
+router.delete("/pets/:petId", auth, (req, res) => {
   // petName에 해당하는 펫을 삭제
   let user: UserInforDTO | null = req.user;
 
   if (user) {
     // 유저 인증 완료
-    const petID: number = req.body.petID;
+    const petID: number = Number(req.params.petId);
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
         code: "INVALID FORMAT ERROR",

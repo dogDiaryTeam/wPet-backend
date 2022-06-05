@@ -119,7 +119,7 @@ export const loginUser = (
                 .cookie("x_auth", userToken, {
                   maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
-                .status(200)
+                .status(201)
                 .json({
                   success: true,
                 });
@@ -149,6 +149,6 @@ export const logoutUser = (
       return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
     }
     res.clearCookie("x_auth");
-    return res.json({ success: true });
+    return res.status(201).json({ success: true });
   });
 };

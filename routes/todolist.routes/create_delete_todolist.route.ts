@@ -18,7 +18,7 @@ import { checkEmptyValue } from "../../controllers/validations/validate";
 const router = Router();
 
 router.post(
-  "/api/todolist/create",
+  "/todolists",
   auth,
   (req: TodolistRequest<CreateTodolistModel>, res) => {
     // 반려견 한마리 당 투두리스트를 작성
@@ -51,36 +51,30 @@ router.post(
   }
 );
 
-router.delete(
-  "/api/todolist/delete",
-  auth,
-  (req: TodolistRequest<InforTodolistModel>, res) => {
-    // 반려견 한마리 당 투두리스트를 작성
-    // 해당되는 날짜의 투두리스트 내용을 받아
-    // db에 저장
-    let user: UserInforDTO | null = req.user;
+router.delete("/pets/:petId/todolists/:todolistId", auth, (req, res) => {
+  // 반려견 한마리 당 투두리스트를 작성
+  // 해당되는 날짜의 투두리스트 내용을 받아
+  // db에 저장
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      const todolist: InforTodolistReqDTO = req.body;
-      console.log("🚀 ~ todolist", todolist);
-      if (
-        checkEmptyValue(todolist.petID) ||
-        checkEmptyValue(todolist.todoListID)
-      ) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      }
-      deleteTodolist(user.userID, todolist, res);
-      // creatUser(user, res);
-    } else {
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+  if (user) {
+    const petID: number = Number(req.params.petId);
+    const todolistID: number = Number(req.params.todolistId);
+
+    if (checkEmptyValue(petID) || checkEmptyValue(todolistID)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
+    deleteTodolist(user.userID, petID, todolistID, res);
+    // creatUser(user, res);
+  } else {
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
 export default router;

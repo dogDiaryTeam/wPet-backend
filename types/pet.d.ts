@@ -10,15 +10,12 @@ interface PetIDModel extends mongoose.Document {
   petID: number;
 }
 interface UpdatePetModel extends mongoose.Document {
-  petID: number;
-  updateElement: {
-    name?: string;
-    birthDate?: Date;
-    gender?: string;
-    weight?: number;
-    photo?: string;
-    breeds?: Array<string>;
-  };
+  name?: string;
+  birthDate?: Date;
+  gender?: string;
+  weight?: number;
+  photo?: string;
+  breeds?: Array<string>;
 }
 
 export interface PetInforDTO {
@@ -41,15 +38,12 @@ export interface DBPetInforDTO {
 }
 
 export interface UpdatePetInforDTO {
-  petID: number;
-  updateElement: {
-    name?: string;
-    birthDate?: Date;
-    gender?: string;
-    weight?: number;
-    photo?: string;
-    breeds?: Array<string>;
-  };
+  name?: string;
+  birthDate?: Date;
+  gender?: string;
+  weight?: number;
+  photo?: string;
+  breeds?: Array<string>;
 }
 
 export interface DbSelectPetsDTO {

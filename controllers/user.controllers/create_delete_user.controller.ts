@@ -135,7 +135,7 @@ export const creatUser = (
                     .status(404)
                     .json({ code: "SQL ERROR", errorMessage: error });
                 }
-                return res.json({ success: true });
+                return res.status(201).json({ success: true });
               }
             );
           }
@@ -199,7 +199,7 @@ export const compareAuthEmail = (
                 .json({ code: "SQL ERROR", errorMessage: error });
             }
             //인증 성공
-            return res.json({
+            return res.status(201).json({
               success: true,
             });
           });

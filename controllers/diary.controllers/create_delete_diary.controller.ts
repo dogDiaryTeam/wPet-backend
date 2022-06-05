@@ -94,7 +94,7 @@ export const createDiary = (
               .json({ code: "WRITE DIARY ERROR", errorMessage: msg });
           } else {
             // 다이어리, 해시태그 삽입 성공
-            res.json({ success: true });
+            res.status(201).json({ success: true });
           }
         });
       });

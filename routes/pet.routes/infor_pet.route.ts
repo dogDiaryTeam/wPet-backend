@@ -22,7 +22,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/pet/getnames:
+ *   /users/auth/pets:
  *     get:
  *        tags:
  *        - pets
@@ -32,114 +32,125 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "반려견들의 이름 가져오기 성공"
- *          "400":
- *            description: "반려견들의 이름 가져오기 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/pet/getinfo:
- *     post:
+ *   /pets/{petId}:
+ *     delete:
+ *        tags:
+ *        - pets
+ *        description: "반려견 등록 삭제"
+ *        produces:
+ *          - "application/json"
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "삭제할 반려견의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
+ *        responses:
+ *          "200":
+ *            description: "반려견 삭제 성공"
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / DELETE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *     get:
  *        tags:
  *        - pets
  *        description: "반려견 한마리의 정보 가져오기"
  *        produces:
  *          - "application/json"
- *        requestBody:
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "정보를 가져올 반려견의 아이디"
  *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - petID
- *                properties:
- *                  petID:
- *                    type: number
- *                    description: 정보를 가져올 반려견의 아이디
- *                    example: "1"
+ *          type: "number"
+ *          example: "1"
  *        responses:
  *          "200":
  *            description: "반려견 정보 가져오기 성공"
- *          "400":
- *            description: "반려견 정보 가져오기 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "사용자가 등록한 반려견이 아닙니다."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아니거나 이미지 파일을 찾지 못함 / FIND IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/pet/update:
  *     patch:
  *        tags:
  *        - pets
  *        description: "반려견 정보 수정하기 (수정할 정보만 요청)"
  *        produces:
  *          - "application/json"
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "정보를 수정할 반려견의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
  *        requestBody:
  *          required: true
  *          content:
  *            application/json:
  *              schema:
  *                type: object
- *                required:
- *                  - petID
- *                  - updateElement
  *                properties:
- *                  petID:
+ *                  name:
+ *                    type: string
+ *                    description: 반려견 이름
+ *                    example: "검둥이"
+ *                  birthDate:
+ *                    type: date
+ *                    description: 반려견 생년월일
+ *                    example: "2022-01-02"
+ *                  gender:
+ *                    type: string
+ *                    description: 반려견 성별
+ *                    example: "남"
+ *                  weight:
  *                    type: number
- *                    description: 정보를 수정할 반려견의 아이디
- *                    example: "1"
- *                  updateElement:
- *                    type: object
- *                    description: 수정할 정보 (하나씩만)
- *                    properties:
- *                      petName:
- *                        type: string
- *                        description: 반려견 이름
- *                        example: "검둥이"
- *                      birthDate:
- *                        type: date
- *                        description: 반려견 생년월일
- *                        example: "2022-01-02"
- *                      petSex:
- *                        type: string
- *                        description: 반려견 성별
- *                        example: "남자"
- *                      weight:
- *                        type: number
- *                        description: 반려견 몸무게
- *                        example: "20.9"
- *                      petProfilePicture:
- *                        type: string
- *                        description: 반려견 사진
- *                        example: "bb"
- *                      petSpecies:
- *                        type: Array<string>
- *                        description: 반려견 종들 (1-3종)
- *                        example: ["그레이 하운드"]
+ *                    description: 반려견 몸무게
+ *                    example: "20.9"
+ *                  photo:
+ *                    type: string
+ *                    description: 반려견 사진
+ *                    example: "bb"
+ *                  breeds:
+ *                    type: Array<string>
+ *                    description: 반려견 종들 (1-3종)
+ *                    example: ["그레이 하운드"]
  *        responses:
- *          "200":
+ *          "201":
  *            description: "반려견 정보 수정 성공"
+ *          "204":
+ *            description: "SAME OLD AND NEW .. : 기존의 반려견 정보와 수정할 정보가 같음 (수정X)"
  *          "400":
- *            description: "요청 데이터가 유효하지 않음."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "사용자가 등록한 반려견이 아니거나 반려견 종이 DB에 존재하지 않습니다."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / WRITE(DELETE) IMAGE FILE ERROR : 이미지 처리 중 에러 발생 / UPDATE BREEDS ERROR : 종 업데이트 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
- *            description: "기존 요소와 동일하거나 수정할 반려견 이름이 사용자가 등록한 반려견의 이름과 중복됩니다."
- *          "500":
- *            description: "서버 내의 문제 발생"
+ *            description: "CONFLICT ERROR : 수정할 이름이 사용자의 다른 반려견과 이름이 중복됨."
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/pet/species:
+ *   /breeds:
  *     get:
  *        tags:
  *        - pets
@@ -149,17 +160,17 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "모든 반려견 종 가져오기 성공"
- *          "400":
- *            description: "모든 반려견 종 가져오기 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
  */
 
-router.get("/api/pet/getnames", auth, (req, res) => {
+router.get("/users/auth/pets", auth, (req, res) => {
   // 사용자가 등록한 pet들 정보 return
   let user: UserInforDTO | null = req.user;
 
@@ -175,7 +186,7 @@ router.get("/api/pet/getnames", auth, (req, res) => {
   }
 });
 
-router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
+router.get("/pets/:petId", auth, (req, res) => {
   // 사용자가 등록한 pet 중
   // 해당 petID pet 정보 return
 
@@ -183,7 +194,7 @@ router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
 
   if (user) {
     // 유저 인증 완료
-    const petID: number = req.body.petID;
+    const petID: number = Number(req.params.petId);
 
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
@@ -201,80 +212,55 @@ router.post("/api/pet/getinfo", auth, (req: PetRequest<PetIDModel>, res) => {
   }
 });
 
-router.patch(
-  "/api/pet/update",
-  auth,
-  (req: PetRequest<UpdatePetModel>, res) => {
-    // 사용자가 등록한 반려견의 정보 중
-    // 수정할 부분을 요청으로 보내면
-    // 해당 부분에 대해 수정을 진행
-    let user: UserInforDTO | null = req.user;
+router.patch("/pets/:petId", auth, (req: PetRequest<UpdatePetModel>, res) => {
+  // 사용자가 등록한 반려견의 정보 중
+  // 수정할 부분을 요청으로 보내면
+  // 해당 부분에 대해 수정을 진행
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      // 유저 인증 완료
-      //object
-      const param: UpdatePetInforDTO = req.body;
+  if (user) {
+    // 유저 인증 완료
+    const petID: number = Number(req.params.petId);
 
-      if (
-        checkEmptyValue(param.petID) ||
-        checkEmptyValue(param.updateElement)
-      ) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      } else if (
-        param.updateElement.name &&
-        checkEmptyValue(param.updateElement.name)
-      )
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      else if (
-        param.updateElement.birthDate &&
-        checkEmptyValue(param.updateElement.birthDate)
-      )
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      else if (
-        param.updateElement.gender &&
-        checkEmptyValue(param.updateElement.gender)
-      )
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      else if (
-        param.updateElement.weight &&
-        checkEmptyValue(param.updateElement.weight)
-      )
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      else if (
-        param.updateElement.breeds &&
-        checkEmptyValue(param.updateElement.breeds)
-      )
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      updatePetInfor(user.userID, param, res);
-    } else {
-      // 유저 인증 no
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    //object
+    const param: UpdatePetInforDTO = req.body;
+
+    if (param.name && checkEmptyValue(param.name))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
-    }
+    else if (param.birthDate && checkEmptyValue(param.birthDate))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    else if (param.gender && checkEmptyValue(param.gender))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    else if (param.weight && checkEmptyValue(param.weight))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    else if (param.breeds && checkEmptyValue(param.breeds))
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    updatePetInfor(user.userID, petID, param, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
-router.get("/api/pet/species", auth, (req, res) => {
+router.get("/breeds", auth, (req, res) => {
   // 사용자가 등록한 pet들 정보 return
   let user: UserInforDTO | null = req.user;
 

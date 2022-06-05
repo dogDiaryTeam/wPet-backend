@@ -19,7 +19,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/diary/create:
+ *   /diarys:
  *     post:
  *        tags:
  *        - diarys
@@ -36,49 +36,11 @@ const router = Router();
  *          "200":
  *            description: "다이어리 생성 성공"
  *          "400":
- *            description: "요청 형식이 유효하지 않습니다."
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "사용자가 등록한 반려견이 아닙니다."
- *        security:
- *          - petstore_auth:
- *              - "write:pets"
- *              - "read:pets"
- *   /api/diary/delete:
- *     post:
- *        tags:
- *        - diarys
- *        description: "다이어리 삭제하기"
- *        produces:
- *          - "application/json"
- *        requestBody:
- *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - petID
- *                  - diaryID
- *                properties:
- *                  petID:
- *                    type: number
- *                    description: 다이어리를 작성한 반려견의 아이디
- *                    example: "1"
- *                  diaryID:
- *                    type: number
- *                    description: 삭제할 다이어리의 아이디
- *                    example: "1"
- *        responses:
- *          "200":
- *            description: "다이어리 삭제 성공"
- *          "400":
- *            description: "다이어리 삭제 실패"
- *          "401":
- *            description: "사용자 인증 실패"
- *          "404":
- *            description: "사용자가 등록한 반려견이 아니거나 반려견의 다이어리가 아닙니다."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / WRITE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 / WRITE DIARY ERROR : 해시태그 삽입 시 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -89,9 +51,9 @@ const router = Router();
  *     required:
  *       - petIDs
  *       - title
- *       - picture
+ *       - photo
  *       - texts
- *       - shareIs
+ *       - isShare
  *       - petState
  *       - weather
  *       - color
@@ -106,7 +68,7 @@ const router = Router();
  *         type: string
  *         description: 다이어리 제목
  *         example: "안녕하세요"
- *       picture:
+ *       photo:
  *         type: string
  *         description: 다이어리 사진 (한장)
  *         example: "aa"
@@ -114,7 +76,7 @@ const router = Router();
  *         type: string
  *         description: 다이어리 본문
  *         example: "안녕하세요안녕하세요안녕하세요안녕하세요"
- *       shareIs:
+ *       isShare:
  *         type: number
  *         description: 다이어리 공유 유무 (0:공유안함, 1:공유함)
  *         example: "0"
@@ -140,74 +102,66 @@ const router = Router();
  *         example: ["강아지", "산책"]
  */
 
-router.post(
-  "/api/diary/create",
-  auth,
-  (req: DiaryRequest<CreateDiaryModel>, res) => {
-    // 다이어리 작성 할때 필요한 정보들을 client에서 가져오면
-    // 그것들을 데이터 베이스에 넣어준다.
-    let user: UserInforDTO | null = req.user;
+router.post("/diarys", auth, (req: DiaryRequest<CreateDiaryModel>, res) => {
+  // 다이어리 작성 할때 필요한 정보들을 client에서 가져오면
+  // 그것들을 데이터 베이스에 넣어준다.
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      // 유저 인증 완료
-      const diary: DiaryInforDTO = req.body;
+  if (user) {
+    // 유저 인증 완료
+    const diary: DiaryInforDTO = req.body;
 
-      if (
-        checkEmptyValue(diary.petIDs) ||
-        diary.petIDs.length === 0 ||
-        checkEmptyValue(diary.title) ||
-        checkEmptyValue(diary.texts) ||
-        checkEmptyValue(diary.isShare) ||
-        checkEmptyValue(diary.petState) ||
-        checkEmptyValue(diary.weather) ||
-        checkEmptyValue(diary.color) ||
-        checkEmptyValue(diary.font) ||
-        checkEmptyValue(diary.hashTags)
-      ) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      }
-      createDiary(user.userID, diary, res);
-    } else {
-      // 유저 인증 no
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    if (
+      checkEmptyValue(diary.petIDs) ||
+      diary.petIDs.length === 0 ||
+      checkEmptyValue(diary.title) ||
+      checkEmptyValue(diary.texts) ||
+      checkEmptyValue(diary.isShare) ||
+      checkEmptyValue(diary.petState) ||
+      checkEmptyValue(diary.weather) ||
+      checkEmptyValue(diary.color) ||
+      checkEmptyValue(diary.font) ||
+      checkEmptyValue(diary.hashTags)
+    ) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
+    createDiary(user.userID, diary, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
-router.delete(
-  "/api/diary/delete",
-  auth,
-  (req: DiaryRequest<PetDiaryModel>, res) => {
-    // 특정 id 다이어리 삭제
-    let user: UserInforDTO | null = req.user;
+router.delete("/pets/:petId/diarys/:diaryId", auth, (req, res) => {
+  // 특정 id 다이어리 삭제
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      // 유저 인증 완료
-      const petID: number = req.body.petID;
-      const diaryID: number = req.body.diaryID;
+  if (user) {
+    // 유저 인증 완료
+    const petID: number = Number(req.params.petId);
+    const diaryID: number = Number(req.params.diaryId);
 
-      if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      }
-
-      deleteDiary(user.userID, petID, diaryID, res);
-    } else {
-      // 유저 인증 no
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
+
+    deleteDiary(user.userID, petID, diaryID, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
 export default router;

@@ -64,7 +64,7 @@ export const createTodolist = (
               return res
                 .status(404)
                 .json({ code: "SQL ERROR", errorMessage: err });
-            return res.json({ success: true });
+            return res.status(201).json({ success: true });
           }
         );
       });
@@ -72,15 +72,17 @@ export const createTodolist = (
   });
 };
 
+// 개발 중
 export const deleteTodolist = (
   userID: number,
-  todolist: InforTodolistReqDTO,
+  petID: number,
+  todolistID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
   // 투두리스트 등록 (반려견 한마리 당)
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
-  dbCheckPetExist(userID, todolist.petID, function (success, result, err, msg) {
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
       return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }

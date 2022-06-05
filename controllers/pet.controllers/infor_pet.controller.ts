@@ -87,126 +87,119 @@ export const getPetInfor = (
 
 export const updatePetInfor = (
   userID: number,
+  petID: number,
   updateInfor: UpdatePetInforDTO,
   res: Response<any, Record<string, any>, number>
 ) => {
   // userID의 유저가 등록한 pet 한마리 정보 수정 (weight 포함)
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
-  dbCheckPetExist(
-    userID,
-    updateInfor.petID,
-    function (success, result, err, msg) {
-      if (!success && err) {
-        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
+    if (!success && err) {
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+    }
+    // 사용자에게 해당 이름의 pet이 존재하지 않는 경우
+    else if (!success && !err) {
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+    } else if (result) {
+      // pet이 존재하는 경우
+      // param 유효성 검증
+      let patchValue: any;
+      let patchKeys: Array<string> = Object.keys(updateInfor);
+      let patchLength: number = patchKeys.length;
+      //key가 하나 이상이라면
+      if (patchLength > 1) {
+        return res.status(400).json({
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "MAX NUMBER OF KEYS : 1",
+        });
       }
-      // 사용자에게 해당 이름의 pet이 존재하지 않는 경우
-      else if (!success && !err) {
-        return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
-      } else if (result) {
-        // pet이 존재하는 경우
-        // param 유효성 검증
-        let patchValue: any;
-        let patchKeys: Array<string> = Object.keys(updateInfor.updateElement);
-        let patchLength: number = patchKeys.length;
-        //key가 하나 이상이라면
-        if (patchLength > 1) {
-          return res.status(400).json({
-            code: "INVALID FORMAT ERROR",
-            errorMessage: "MAX NUMBER OF KEYS : 1",
+
+      //petName 수정
+      else if ("name" in updateInfor) {
+        patchValue = updateInfor["name"];
+
+        if (patchValue === result.name)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S NAME",
           });
-        }
+        else if (patchValue) updatePetName(userID, petID, patchValue, res);
+      }
+      //birthDate 수정
+      else if ("birthDate" in updateInfor) {
+        patchValue = updateInfor["birthDate"];
+        //birthDate 있다면
 
-        //petName 수정
-        else if ("name" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["name"];
-
-          if (patchValue === result.name)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S NAME",
-            });
-          else if (patchValue)
-            updatePetName(userID, updateInfor.petID, patchValue, res);
-        }
-        //birthDate 수정
-        else if ("birthDate" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["birthDate"];
-          //birthDate 있다면
-
-          //birthDate 유효
-          if (patchValue === result.birthDate)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S BIRTHDATE",
-            });
-          else if (patchValue)
-            updatePetBirthDate(updateInfor.petID, patchValue, res);
-        }
-        //petSex 수정
-        else if ("gender" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["gender"];
-
-          //petSex 유효
-          if (patchValue === result.gender)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S GENDER",
-            });
-          else if (patchValue) updatePetSex(updateInfor.petID, patchValue, res);
-        }
-        //weight 수정
-        else if ("weight" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["weight"];
-
-          //weight 유효
-          if (patchValue === result.weight)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S WEIGHT",
-            });
-          else if (patchValue)
-            updatePetWeight(updateInfor.petID, patchValue, res);
-        }
-        //petProfilePicture 수정
-        else if ("photo" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["photo"];
-          // 프로필 사진 은 빈값일 수 있음
-          patchValue = patchValue === "" ? null : patchValue;
-
-          //petProfilePicture 유효
-          if (patchValue === result.photo)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S PHOTO",
-            });
-          else if (patchValue || patchValue === null)
-            updatePetProfilePicture(updateInfor.petID, patchValue, res);
-        }
-        //petSpecies 수정
-        else if ("breeds" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["breeds"];
-
-          //petSpecies 유효
-          if (patchValue === result.breeds)
-            return res.status(409).json({
-              code: "CONFLICT ERROR",
-              errorMessage: "SAME OLD AND NEW PET'S BREEDS",
-            });
-          else if (patchValue)
-            updatePetSpecies(updateInfor.petID, patchValue, res);
-        }
-
-        //그 외 (err)
-        else {
-          return res.status(400).json({
-            code: "INVALID FORMAT ERROR",
-            errorMessage: "INVALID KEY INCLUDED",
+        //birthDate 유효
+        if (patchValue === result.birthDate)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S BIRTHDATE",
           });
-        }
+        else if (patchValue) updatePetBirthDate(petID, patchValue, res);
+      }
+      //petSex 수정
+      else if ("gender" in updateInfor) {
+        patchValue = updateInfor["gender"];
+
+        //petSex 유효
+        if (patchValue === result.gender)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S GENDER",
+          });
+        else if (patchValue) updatePetSex(petID, patchValue, res);
+      }
+      //weight 수정
+      else if ("weight" in updateInfor) {
+        patchValue = updateInfor["weight"];
+
+        //weight 유효
+        if (patchValue === result.weight)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S WEIGHT",
+          });
+        else if (patchValue) updatePetWeight(petID, patchValue, res);
+      }
+      //petProfilePicture 수정
+      else if ("photo" in updateInfor) {
+        patchValue = updateInfor["photo"];
+        // 프로필 사진 은 빈값일 수 있음
+        patchValue = patchValue === "" ? null : patchValue;
+
+        //petProfilePicture 유효
+        if (patchValue === result.photo)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S PHOTO",
+          });
+        else if (patchValue || patchValue === null)
+          updatePetProfilePicture(petID, patchValue, res);
+      }
+      //petSpecies 수정
+      else if ("breeds" in updateInfor) {
+        patchValue = updateInfor["breeds"];
+
+        //petSpecies 유효
+        if (patchValue === result.breeds)
+          return res.status(204).json({
+            code: "CONFLICT ERROR",
+            errorMessage: "SAME OLD AND NEW PET'S BREEDS",
+          });
+        else if (patchValue) updatePetSpecies(petID, patchValue, res);
+      }
+
+      //그 외 (err)
+      else {
+        return res.status(400).json({
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "INVALID KEY INCLUDED",
+        });
       }
     }
-  );
+  });
 };
 
 // 반려견 이름 업데이트
@@ -242,7 +235,7 @@ function updatePetName(
       }
       //update 성공
       else {
-        return res.json({ success: true });
+        return res.status(201).json({ success: true });
       }
     });
   });
@@ -269,7 +262,7 @@ function updatePetBirthDate(
     }
     //update 성공
     else {
-      return res.json({ success: true });
+      return res.status(201).json({ success: true });
     }
   });
 }
@@ -295,7 +288,7 @@ function updatePetSex(
     }
     //update 성공
     else {
-      return res.json({ success: true });
+      return res.status(201).json({ success: true });
     }
   });
 }
@@ -321,7 +314,7 @@ function updatePetWeight(
     }
     //update 성공
     else {
-      return res.json({ success: true });
+      return res.status(201).json({ success: true });
     }
   });
 }
@@ -376,7 +369,7 @@ function updatePetProfilePicture(
                 }
                 //update 성공
                 else {
-                  return res.json({ success: true });
+                  return res.status(201).json({ success: true });
                 }
               }
             );
@@ -417,7 +410,7 @@ function updatePetSpecies(
         });
       }
       // pet 종이 db에 존재하는 경우
-      //petSpecies update
+      // petSpecies update
       dbUpdatePetSpecies(petID, patchPetSpecies, function (success, err, msg) {
         if (!success && err) {
           return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
@@ -428,7 +421,7 @@ function updatePetSpecies(
         }
         //update 성공
         else {
-          return res.json({ success: true });
+          return res.status(201).json({ success: true });
         }
       });
     }

@@ -47,7 +47,7 @@ export const updateUserPw = (
       errorMessage: `INVALID FORMAT : [${errArr}]`,
     });
   } else if (originPw === newPw)
-    return res.status(409).json({
+    return res.status(204).json({
       code: "CONFLICT ERROR",
       errorMessage: "SAME OLD AND NEW PASSWORD",
     });
@@ -71,7 +71,7 @@ export const updateUserPw = (
             .status(404)
             .json({ code: "SQL ERROR", errorMessage: error });
         }
-        return res.json({ success: true });
+        return res.status(201).json({ success: true });
       });
     });
   });
@@ -93,7 +93,7 @@ export const sendAuthUserUpdateEmail = (
       errorMessage: "INVALID FORMAT : EMAIL",
     });
   else if (originEmail === newEmail)
-    return res.status(409).json({
+    return res.status(204).json({
       code: "CONFLICT ERROR",
       errorMessage: "SAME OLD AND NEW EMAIL",
     });
@@ -157,7 +157,7 @@ export const compareAuthUserUpdateEmail = (
               return res
                 .status(404)
                 .json({ code: "SQL ERROR", errorMessage: error });
-            else return res.json({ success: true });
+            else return res.status(201).json({ success: true });
           });
         }
         //인증번호 동일 x
@@ -198,7 +198,7 @@ export const updateUser = (
     patchValue = param["nickName"];
 
     if (patchValue === userNickName)
-      return res.status(409).json({
+      return res.status(204).json({
         code: "CONFLICT ERROR",
         errorMessage: "SAME OLD AND NEW NICKNAME",
       });
@@ -212,7 +212,7 @@ export const updateUser = (
     //profilePicture 있다면
 
     if (patchValue === userProfilePicture)
-      return res.status(409).json({
+      return res.status(204).json({
         code: "CONFLICT ERROR",
         errorMessage: "SAME OLD AND NEW PHOTO",
       });
@@ -227,7 +227,7 @@ export const updateUser = (
 
     //지역명 유효
     if (patchValue === userLocation)
-      return res.status(409).json({
+      return res.status(204).json({
         code: "CONFLICT ERROR",
         errorMessage: "SAME OLD AND NEW LOCATION",
       });
@@ -280,7 +280,7 @@ function updateUserNickName(
         }
         //update nickName 성공
         else {
-          return res.json({ success: true });
+          return res.status(201).json({ success: true });
         }
       }
     );
@@ -335,7 +335,7 @@ function updateUserProfilePicture(
               }
               //update profilePicture 성공
               else {
-                return res.json({ success: true });
+                return res.status(201).json({ success: true });
               }
             }
           );
@@ -366,7 +366,7 @@ function updateUserLocation(
       if (!success) {
         return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
       } else {
-        return res.json({ success: true });
+        return res.status(201).json({ success: true });
       }
     }
   );

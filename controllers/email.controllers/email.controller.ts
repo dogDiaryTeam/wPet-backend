@@ -53,7 +53,7 @@ export const mailSendAuthEmail = (
           // res.send(authNum);
           //? 전송을 끝내는 메소드
           transporter.close();
-          return res.json({
+          return res.status(201).json({
             success: true,
           });
         }
@@ -111,7 +111,7 @@ export const mailSendAuthUpdateEmail = (
           // res.send(authNum);
           //? 전송을 끝내는 메소드
           transporter.close();
-          return res.json({
+          return res.status(201).json({
             success: true,
           });
         }
@@ -167,7 +167,7 @@ export const mailSendTempPw = (
           // res.send(authNum);
           //? 전송을 끝내는 메소드
           transporter.close();
-          return res.json({
+          return res.status(201).json({
             success: true,
           });
         }

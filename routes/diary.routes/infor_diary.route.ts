@@ -15,114 +15,120 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/diary/getall:
- *     post:
+ *   /pets/{petId}/diarys:
+ *     get:
  *        tags:
  *        - diarys
  *        description: "반려견이 작성한 모든 다이어리의 정보 가져오기"
  *        produces:
  *          - "application/json"
- *        requestBody:
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "다이어리를 작성한 반려견의 아이디"
  *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - petID
- *                  - diaryID
- *                properties:
- *                  petID:
- *                    type: number
- *                    description: 다이어리를 작성한 반려견의 아이디
- *                    example: "1"
- *                  diaryID:
- *                    type: number
- *                    description: 정보를 가져올 다이어리의 아이디
- *                    example: "1"
+ *          type: "number"
+ *          example: "1"
  *        responses:
  *          "200":
  *            description: "모든 다이어리 정보 가져오기 성공"
- *          "400":
- *            description: "모든 다이어리 정보 가져오기 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "사용자가 등록한 반려견이 아닙니다."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / FIND IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
- *   /api/diary/getinfo:
- *     post:
+ *   /pets/{petId}/diarys/{diaryId}:
+ *     delete:
+ *        tags:
+ *        - diarys
+ *        description: "다이어리 삭제하기"
+ *        produces:
+ *          - "application/json"
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "다이어리를 작성한 반려견의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
+ *        - name: "diaryId"
+ *          in: "path"
+ *          description: "삭제할 다이어리의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
+ *        responses:
+ *          "200":
+ *            description: "다이어리 삭제 성공"
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아니거나 반려견의 다이어리가 아님 / DELETE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *     get:
  *        tags:
  *        - diarys
  *        description: "반려견이 작성한 다이어리 한개의 정보 가져오기"
  *        produces:
  *          - "application/json"
- *        requestBody:
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "다이어리를 작성한 반려견의 아이디"
  *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - petID
- *                  - diaryID
- *                properties:
- *                  petID:
- *                    type: number
- *                    description: 다이어리를 작성한 반려견의 아이디
- *                    example: "1"
- *                  diaryID:
- *                    type: number
- *                    description: 정보를 가져올 다이어리의 아이디
- *                    example: "1"
+ *          type: "number"
+ *          example: "1"
+ *        - name: "diaryId"
+ *          in: "path"
+ *          description: "정보를 가져올 다이어리의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
  *        responses:
  *          "200":
  *            description: "다이어리 정보 가져오기 성공"
- *          "400":
- *            description: "다이어리 정보 가져오기 실패"
  *          "401":
- *            description: "사용자 인증 실패"
+ *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "사용자가 등록한 반려견이 아니거나 반려견의 다이어리가 아니거나 다이어리가 존재하지 않습니다."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아니거나 반려견의 다이어리가 아니거나 이미지 파일을 찾을 수 없음 / FIND IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
  */
 
-router.post(
-  "/api/diary/getall",
-  auth,
-  (req: DiaryRequest<PetAllDiaryModel>, res) => {
-    // 반려견의 다이어리가 맞다면
-    // 모든 다이어리의 정보를 반환한다.
-    let user: UserInforDTO | null = req.user;
+router.get("/pets/:petId/diarys", auth, (req, res) => {
+  // 반려견의 다이어리가 맞다면
+  // 모든 다이어리의 정보를 반환한다.
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      // 유저 인증 완료
-      const petID: number = req.body.petID;
-      if (checkEmptyValue(petID)) {
-        return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
-        });
-      }
-      getDiarys(user.userID, petID, res);
-    } else {
-      // 유저 인증 no
-      return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+  if (user) {
+    // 유저 인증 완료
+    const petID: number = Number(req.params.petId);
+    if (checkEmptyValue(petID)) {
+      return res.status(400).json({
+        success: false,
+        message: "PARAMETER IS EMPTY",
       });
     }
+    getDiarys(user.userID, petID, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      isAuth: false,
+      message: "USER AUTH FAILED",
+    });
   }
-);
+});
 
-router.post(
-  "/api/diary/getinfo",
+router.get(
+  "/pets/:petId/diarys/:diaryId",
   auth,
   (req: DiaryRequest<PetDiaryModel>, res) => {
     // 반려견의 다이어리가 맞다면
@@ -131,8 +137,8 @@ router.post(
 
     if (user) {
       // 유저 인증 완료
-      const petID: number = req.body.petID;
-      const diaryID: number = req.body.diaryID;
+      const petID: number = Number(req.params.petId);
+      const diaryID: number = Number(req.params.diaryId);
       if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
         return res.status(400).json({
           success: false,

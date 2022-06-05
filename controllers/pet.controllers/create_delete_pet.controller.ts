@@ -134,7 +134,7 @@ export const createPet = (
                           .json({ code: "SQL ERROR", errorMessage: err });
                       }
                       // insert 성공
-                      return res.json({ success: true });
+                      return res.status(201).json({ success: true });
                     });
                   }
                 }

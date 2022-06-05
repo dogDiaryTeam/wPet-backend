@@ -228,31 +228,28 @@ router.get("/api/user/auth", auth, (req, res) => {
   //role:1,2.... -> 관리자
   if (user) {
     // 사용자 사진 가져오기
-    dbSelectPictureFile(
-      user.profilePicture,
-      function (success, result, error, msg) {
-        if (!success && error) {
-          return res
-            .status(404)
-            .json({ code: "FIND IMAGE FILE ERROR", errorMessage: error });
-        }
-        // 파일이 없는 경우
-        else if (!success && !error) {
-          return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
-        }
-        // 파일에서 이미지 데이터 가져오기 성공
-        else if (user) {
-          let userImage: string | null = result;
-          return res.status(200).json({
-            email: user.email,
-            joinDate: user.joinDate,
-            nickName: user.nickName,
-            profilePicture: userImage,
-            location: user.location,
-          });
-        }
+    dbSelectPictureFile(user.photo, function (success, result, error, msg) {
+      if (!success && error) {
+        return res
+          .status(404)
+          .json({ code: "FIND IMAGE FILE ERROR", errorMessage: error });
       }
-    );
+      // 파일이 없는 경우
+      else if (!success && !error) {
+        return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+      }
+      // 파일에서 이미지 데이터 가져오기 성공
+      else if (user) {
+        let userImage: string | null = result;
+        return res.status(200).json({
+          email: user.email,
+          joinDate: user.joinDate,
+          nickName: user.nickName,
+          photo: userImage,
+          location: user.location,
+        });
+      }
+    });
   } else {
     //유저 인증 no
     return res.status(401).json({
@@ -273,7 +270,7 @@ router.patch(
     if (user) {
       let userID: number = user.userID;
       let userNickName: string = user.nickName;
-      let userProfilePicture: string | null = user.profilePicture;
+      let userProfilePicture: string | null = user.photo;
       let userLocation: string | null = user.location;
       //object
       const param: UpdateUserReqDTO = req.body;
@@ -315,7 +312,7 @@ router.post(
     let user: UserInforDTO | null = req.user;
 
     if (user) {
-      const originPw: string = req.body.originPw;
+      const originPw: string = req.body.oldPw;
       const newPw: string = req.body.newPw;
       if (checkEmptyValue(originPw) || checkEmptyValue(newPw)) {
         return res.status(400).json({
@@ -370,7 +367,7 @@ router.post(
 
     if (user) {
       const newEmail: string = req.body.newEmail;
-      const authString: string = req.body.authString;
+      const authString: string = req.body.authCode;
 
       if (checkEmptyValue(newEmail) || checkEmptyValue(authString)) {
         return res.status(400).json({

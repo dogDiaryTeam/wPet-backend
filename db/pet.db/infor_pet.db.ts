@@ -1,11 +1,7 @@
-import { DBPetInforDTO } from "../../types/pet";
+import { DBPetInforDTO, DbSelectPetsDTO } from "../../types/pet";
+
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
-
-interface DbSelectPetsDTO {
-  petID: number;
-  petName: string;
-}
 
 // 사용자가 등록한 반려견들 정보 (반려견 이름)
 export function dbSelectPets(
@@ -16,7 +12,7 @@ export function dbSelectPets(
     error?: MysqlError
   ) => void
 ): any {
-  let sql: string = "SELECT petID, petName FROM pettbl WHERE ownerID=?";
+  let sql: string = "SELECT petID, petName AS name FROM pettbl WHERE ownerID=?";
 
   return mql.query(sql, ownerID, (err, row) => {
     if (err) callback(false, null, err);
@@ -118,7 +114,7 @@ export function dbSelectPetProfilePictureUrl(
   let sql: string = `SELECT petProfilePicture FROM pettbl WHERE petID=?`;
   return mql.query(sql, petID, (err, row) => {
     if (err) callback(false, null, err);
-    else if (row.length > 0) callback(true, row[0], null);
+    else if (row.length > 0) callback(true, row[0].petProfilePicture, null);
     else callback(false, null, null, "PET NOT FOUND");
   });
 }

@@ -19,7 +19,7 @@ export const auth: Handler = (req, res, next) => {
 
     //user id로 user 찾기
     mql.query(
-      "SELECT * FROM usertbl WHERE userID=? AND token=?",
+      "SELECT userID, email, pw, token, joinDate, nickName, profilePicture AS photo, location, isAuth FROM usertbl WHERE userID=? AND token=?",
       [decoded, token],
       (err, row) => {
         if (err)

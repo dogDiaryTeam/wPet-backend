@@ -2,7 +2,7 @@ interface CreateUserModel extends mongoose.Document {
   email: string;
   pw: string;
   nickName: string;
-  profilePicture: string | null;
+  photo: string | null;
   location: string | null;
 }
 
@@ -14,7 +14,7 @@ interface LoginUserModel extends mongoose.Document {
 interface UpdateUserModel extends mongoose.Document {
   email?: string;
   nickName?: string;
-  profilePicture?: string;
+  photo?: string;
   location?: string;
 }
 
@@ -24,7 +24,7 @@ interface SendAuthEmailModel extends mongoose.Document {
 
 interface CompareAuthEmailModel extends mongoose.Document {
   email: string;
-  authString: string;
+  authCode: string;
 }
 
 interface FindPwModel extends mongoose.Document {
@@ -32,7 +32,7 @@ interface FindPwModel extends mongoose.Document {
 }
 
 interface UpdatePwModel extends mongoose.Document {
-  originPw: string;
+  oldPw: string;
   newPw: string;
 }
 
@@ -42,7 +42,7 @@ interface SendAuthUpdateEmailModel extends mongoose.Document {
 
 interface CompareAuthUpdateEmailModel extends mongoose.Document {
   newEmail: string;
-  authString: string;
+  authCode: string;
 }
 
 export interface UserInforDTO {
@@ -52,7 +52,7 @@ export interface UserInforDTO {
   token: string | null;
   joinDate: Date;
   nickName: string;
-  profilePicture: string | null;
+  photo: string | null;
   location: string | null;
   isAuth: number;
 }
@@ -63,7 +63,7 @@ export interface DbFindUserDTO {
   pw: string;
   joinDate: Date;
   nickName: string;
-  profilePicture: string | null;
+  photo: string | null;
   location: string | null;
   isAuth: number;
 }
@@ -72,13 +72,13 @@ export interface CreateUserReqDTO {
   email: string;
   pw: string;
   nickName: string;
-  profilePicture: string | null;
+  photo: string | null;
   location: string | null;
 }
 
 export interface UpdateUserReqDTO {
   email?: string;
   nickName?: string;
-  profilePicture?: string;
+  photo?: string;
   location?: string;
 }

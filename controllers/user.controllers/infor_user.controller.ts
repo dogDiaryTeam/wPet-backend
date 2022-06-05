@@ -205,8 +205,8 @@ export const updateUser = (
     else if (patchValue) updateUserNickName(userID, patchValue, res);
   }
   //profilePicture 수정
-  else if ("profilePicture" in param) {
-    patchValue = param["profilePicture"];
+  else if ("photo" in param) {
+    patchValue = param["photo"];
     // 프로필 사진 은 빈값일 수 있음
     patchValue = patchValue === "" ? null : patchValue;
     //profilePicture 있다면

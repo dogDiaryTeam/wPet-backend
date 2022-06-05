@@ -81,13 +81,13 @@ export function dbInsertPet(
     "INSERT INTO pettbl(`ownerID`, `petName`, `birthDate`, `petProfilePicture`, `petSex`) VALUES (?,?,?,?,?)";
   return mql.query(
     sql,
-    [ownerID, pet.petName, pet.birthDate, pet.petProfilePicture, pet.petSex],
+    [ownerID, pet.name, pet.birthDate, pet.photo, pet.gender],
     (err, row) => {
       if (err) callback(false, err);
       // insert 성공
       else {
         //pet 종 insert
-        let petSpeciesLen: number = pet.petSpecies.length;
+        let petSpeciesLen: number = pet.breeds.length;
         let petID: number = row.insertId;
         let petSpeciesSql: string = `INSERT INTO pet_petspeciestbl (petSpeciesID, petID) 
                                       SELECT petSpeciesID, ${petID} FROM petspeciestbl WHERE petSpeciesName=?`;
@@ -97,7 +97,7 @@ export function dbInsertPet(
           petSpeciesSql += " OR petSpeciesName=? OR petSpeciesName=?";
         }
 
-        mql.query(petSpeciesSql, pet.petSpecies, (err, row) => {
+        mql.query(petSpeciesSql, pet.breeds, (err, row) => {
           if (err) callback(false, err);
           // insert 성공
           else callback(true);
@@ -118,8 +118,8 @@ export function dbCheckPetExist(
     message?: string
   ) => void
 ): any {
-  let sql: string = `SELECT pettbl.petID, pettbl.petName, pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, 
-    pettbl.petLevel, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS petSpecies 
+  let sql: string = `SELECT pettbl.petID, pettbl.petName AS name, pettbl.birthDate, pettbl.petSex AS gender, pettbl.petProfilePicture AS photo, 
+    pettbl.petLevel AS level, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS breeds 
     FROM pettbl, pet_petspeciestbl, petspeciestbl WHERE pettbl.ownerID=? AND pettbl.petID=? 
     AND pettbl.petID=pet_petspeciestbl.petID AND pet_petspeciestbl.petSpeciesID=petspeciestbl.petSpeciesID 
     GROUP BY pettbl.petName,pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight`;
@@ -129,7 +129,7 @@ export function dbCheckPetExist(
     // 존재하는 경우
     else if (row.length > 0) {
       // test 필요
-      row[0].petSpecies = row[0].petSpecies.split(",");
+      row[0].breeds = row[0].breeds.split(",");
       callback(true, row[0], null);
     }
     // 존재하지 않는 경우
@@ -147,7 +147,7 @@ export function dbDeletePet(
     "DELETE FROM pettbl WHERE ownerID=? AND petID=? AND petName=? AND birthDate=? AND petSex=?";
   return mql.query(
     sql,
-    [ownerID, pet.petID, pet.petName, pet.birthDate, pet.petSex],
+    [ownerID, pet.petID, pet.name, pet.birthDate, pet.gender],
     (err, row) => {
       if (err) callback(false, err);
       // 삭제 성공

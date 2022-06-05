@@ -157,7 +157,7 @@ router.post(
         diary.petIDs.length === 0 ||
         checkEmptyValue(diary.title) ||
         checkEmptyValue(diary.texts) ||
-        checkEmptyValue(diary.shareIs) ||
+        checkEmptyValue(diary.isShare) ||
         checkEmptyValue(diary.petState) ||
         checkEmptyValue(diary.weather) ||
         checkEmptyValue(diary.color) ||

@@ -224,8 +224,8 @@ router.patch(
           errorMessage: "PARAMETER IS EMPTY",
         });
       } else if (
-        param.updateElement.petName &&
-        checkEmptyValue(param.updateElement.petName)
+        param.updateElement.name &&
+        checkEmptyValue(param.updateElement.name)
       )
         return res.status(400).json({
           code: "INVALID FORMAT ERROR",
@@ -240,8 +240,8 @@ router.patch(
           errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
-        param.updateElement.petSex &&
-        checkEmptyValue(param.updateElement.petSex)
+        param.updateElement.gender &&
+        checkEmptyValue(param.updateElement.gender)
       )
         return res.status(400).json({
           code: "INVALID FORMAT ERROR",
@@ -256,8 +256,8 @@ router.patch(
           errorMessage: "PARAMETER IS EMPTY",
         });
       else if (
-        param.updateElement.petSpecies &&
-        checkEmptyValue(param.updateElement.petSpecies)
+        param.updateElement.breeds &&
+        checkEmptyValue(param.updateElement.breeds)
       )
         return res.status(400).json({
           code: "INVALID FORMAT ERROR",

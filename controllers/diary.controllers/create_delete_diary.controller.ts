@@ -26,7 +26,7 @@ export const createDiary = (
   // 다이어리 등록
 
   // 다이어리 사진 은 빈값일 수 있음
-  diary.picture = diary.picture === "" ? null : diary.picture;
+  diary.photo = diary.photo === "" ? null : diary.photo;
 
   let petNum: number = diary.petIDs.length;
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
@@ -72,7 +72,7 @@ export const createDiary = (
     } else {
       // 다이어리 작성 (petIDs의 반려견들에게 동시에)
       // 이미지 파일 컨트롤러
-      imageController(diary.picture, function (success, imageFileUrl, error) {
+      imageController(diary.photo, function (success, imageFileUrl, error) {
         if (!success) {
           return res
             .status(404)
@@ -80,7 +80,7 @@ export const createDiary = (
         }
         // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
 
-        diary.picture = imageFileUrl;
+        diary.photo = imageFileUrl;
         dbWriteDiary(diary, function (success, err, msg) {
           if (!success && err) {
             return res

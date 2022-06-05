@@ -38,7 +38,7 @@ declare global {
         token: string | null;
         joinDate: Date;
         nickName: string;
-        profilePicture: string;
+        photo: string | null;
         location: string | null;
         isAuth: number;
       } | null;

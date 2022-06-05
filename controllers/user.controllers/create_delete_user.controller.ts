@@ -36,9 +36,6 @@ const saltRounds = 10;
 //404 : 찾을 수 없음.
 //409: 중복 경우 (충돌을 수정해서 요청을 다시 보낼 경우)
 //412 : 요청이 부족한 경우 (요청을 처리하는데 필요한 데이터가 충족하는지 확인해야 한다.)
-export const test: Handler = (req, res) => {
-  //test
-};
 
 export const creatUser = (
   user: CreateUserReqDTO,
@@ -48,7 +45,7 @@ export const creatUser = (
   //그것들을 데이터 베이스에 넣어준다.
 
   // 프로필 사진, 지역 은 빈값일 수 있음
-  user.profilePicture = user.profilePicture === "" ? null : user.profilePicture;
+  user.photo = user.photo === "" ? null : user.photo;
   user.location = user.location === "" ? null : user.location;
 
   // 중복 에러 메시지
@@ -117,35 +114,32 @@ export const creatUser = (
 
         // DB에 추가 (인증 전)
         // 이미지 파일 컨트롤러
-        imageController(
-          user.profilePicture,
-          function (success, imageFileUrl, error) {
-            if (!success) {
-              return res
-                .status(404)
-                .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
-            }
-            // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
-            else {
-              user.profilePicture = imageFileUrl;
-              dbInsertUser(
-                user.email,
-                user.pw,
-                user.nickName,
-                user.profilePicture,
-                user.location,
-                function (success, error) {
-                  if (!success) {
-                    return res
-                      .status(404)
-                      .json({ code: "SQL ERROR", errorMessage: error });
-                  }
-                  return res.json({ success: true });
-                }
-              );
-            }
+        imageController(user.photo, function (success, imageFileUrl, error) {
+          if (!success) {
+            return res
+              .status(404)
+              .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
           }
-        );
+          // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+          else {
+            user.photo = imageFileUrl;
+            dbInsertUser(
+              user.email,
+              user.pw,
+              user.nickName,
+              user.photo,
+              user.location,
+              function (success, error) {
+                if (!success) {
+                  return res
+                    .status(404)
+                    .json({ code: "SQL ERROR", errorMessage: error });
+                }
+                return res.json({ success: true });
+              }
+            );
+          }
+        });
       });
     });
   });

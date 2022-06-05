@@ -31,12 +31,9 @@ export const createTodolist = (
     // 사용자의 반려견이 맞는 경우
 
     // 투두리스트 정보 유효성 검사
-    if (
-      !checkDate(todolist.listDate) ||
-      !checkStringLen(todolist.content, 255)
-    ) {
+    if (!checkDate(todolist.date) || !checkStringLen(todolist.content, 255)) {
       let errArr: Array<string> = [];
-      if (!checkDate(todolist.listDate)) errArr.push("DATE");
+      if (!checkDate(todolist.date)) errArr.push("DATE");
       if (!checkStringLen(todolist.content, 255))
         errArr.push("CONTENT LENGTH(1-255)");
 
@@ -59,7 +56,7 @@ export const createTodolist = (
         // 투두리스트 작성
         dbInsertTodolist(
           todolist.petID,
-          todolist.listDate,
+          todolist.date,
           todolist.content,
           todolist.keyword,
           function (success, err) {

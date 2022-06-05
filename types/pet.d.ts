@@ -1,9 +1,9 @@
 interface CreatePetModel extends mongoose.Document {
-  petName: string;
+  name: string;
   birthDate: Date;
-  petSex: string; //gender
-  petProfilePicture: string | null;
-  petSpecies: Array<string>; //brige
+  gender: string;
+  photo: string | null;
+  breeds: Array<string>;
 }
 
 interface PetIDModel extends mongoose.Document {
@@ -12,42 +12,47 @@ interface PetIDModel extends mongoose.Document {
 interface UpdatePetModel extends mongoose.Document {
   petID: number;
   updateElement: {
-    petName?: string;
+    name?: string;
     birthDate?: Date;
-    petSex?: string;
+    gender?: string;
     weight?: number;
-    petProfilePicture?: string;
-    petSpecies?: Array<string>;
+    photo?: string;
+    breeds?: Array<string>;
   };
 }
 
 export interface PetInforDTO {
-  petName: string;
+  name: string;
   birthDate: Date;
-  petSex: string;
-  petProfilePicture: string | null;
-  petSpecies: Array<string>;
+  gender: string;
+  photo: string | null;
+  breeds: Array<string>;
 }
 
 export interface DBPetInforDTO {
   petID: number;
-  petName: string;
+  name: string;
   birthDate: Date;
-  petSex: string;
-  petProfilePicture: string | null;
-  petLevel: number;
+  gender: string;
+  photo: string | null;
+  level: number;
   weight: number | null;
-  petSpecies: Array<string>;
+  breeds: Array<string>;
 }
 
 export interface UpdatePetInforDTO {
   petID: number;
   updateElement: {
-    petName?: string;
+    name?: string;
     birthDate?: Date;
-    petSex?: string;
+    gender?: string;
     weight?: number;
-    petProfilePicture?: string;
-    petSpecies?: Array<string>;
+    photo?: string;
+    breeds?: Array<string>;
   };
+}
+
+export interface DbSelectPetsDTO {
+  petID: number;
+  name: string;
 }

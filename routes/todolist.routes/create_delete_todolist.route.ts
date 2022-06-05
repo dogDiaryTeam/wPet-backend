@@ -31,7 +31,7 @@ router.post(
       console.log("🚀 ~ todolist", todolist);
       if (
         checkEmptyValue(todolist.petID) ||
-        checkEmptyValue(todolist.listDate) ||
+        checkEmptyValue(todolist.date) ||
         checkEmptyValue(todolist.content) ||
         checkEmptyValue(todolist.keyword)
       ) {

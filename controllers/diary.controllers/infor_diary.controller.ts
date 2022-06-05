@@ -41,7 +41,7 @@ export const getDiarys = (
         // result = array..
         let diaryPictures: Array<string | null> = [];
         for (let i = 0; i < result.length; i++) {
-          diaryPictures.push(result[i].picture);
+          diaryPictures.push(result[i].photo);
         }
         // 다이어리 사진url -> 파일안의 데이터 가져오기
         dbSelectPictureFiles(diaryPictures, function (diaryPictureDatas) {
@@ -52,7 +52,7 @@ export const getDiarys = (
               errorMessage: "IMAGE FILES NOT FOUND",
             });
           for (let i = 0; i < result.length; i++) {
-            result[i].picture = diaryPictureDatas[i];
+            result[i].photo = diaryPictureDatas[i];
           }
           return res.json({ result });
         });
@@ -103,7 +103,7 @@ export const getOneDiary = (
         else if (result) {
           // pet 사진url -> 파일안의 데이터 가져오기
           dbSelectPictureFile(
-            result.picture,
+            result.photo,
             function (success, petProfilePictureData, error, msg) {
               if (!success && error) {
                 return res
@@ -117,7 +117,7 @@ export const getOneDiary = (
                   .json({ code: "NOT FOUND", errorMessage: msg });
               }
               // 파일에서 이미지 데이터 가져오기 성공
-              result.picture = petProfilePictureData;
+              result.photo = petProfilePictureData;
               return res.json({ result });
             }
           );

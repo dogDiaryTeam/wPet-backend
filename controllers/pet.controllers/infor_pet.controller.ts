@@ -61,7 +61,7 @@ export const getPetInfor = (
     else if (result) {
       // pet 사진url -> 파일안의 데이터 가져오기
       dbSelectPictureFile(
-        result.petProfilePicture,
+        result.photo,
         function (success, petProfilePictureData, error, msg) {
           if (!success && error) {
             return res
@@ -76,7 +76,7 @@ export const getPetInfor = (
           }
           // 파일에서 이미지 데이터 가져오기 성공
           else {
-            result.petProfilePicture = petProfilePictureData;
+            result.photo = petProfilePictureData;
             res.json({ result });
           }
         }
@@ -118,10 +118,10 @@ export const updatePetInfor = (
         }
 
         //petName 수정
-        else if ("petName" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["petName"];
+        else if ("name" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["name"];
 
-          if (patchValue === result.petName)
+          if (patchValue === result.name)
             return res.status(409).json({
               code: "CONFLICT ERROR",
               errorMessage: "SAME OLD AND NEW PET'S NAME",
@@ -144,11 +144,11 @@ export const updatePetInfor = (
             updatePetBirthDate(updateInfor.petID, patchValue, res);
         }
         //petSex 수정
-        else if ("petSex" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["petSex"];
+        else if ("gender" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["gender"];
 
           //petSex 유효
-          if (patchValue === result.petSex)
+          if (patchValue === result.gender)
             return res.status(409).json({
               code: "CONFLICT ERROR",
               errorMessage: "SAME OLD AND NEW PET'S GENDER",
@@ -169,13 +169,13 @@ export const updatePetInfor = (
             updatePetWeight(updateInfor.petID, patchValue, res);
         }
         //petProfilePicture 수정
-        else if ("petProfilePicture" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["petProfilePicture"];
+        else if ("photo" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["photo"];
           // 프로필 사진 은 빈값일 수 있음
           patchValue = patchValue === "" ? null : patchValue;
 
           //petProfilePicture 유효
-          if (patchValue === result.petProfilePicture)
+          if (patchValue === result.photo)
             return res.status(409).json({
               code: "CONFLICT ERROR",
               errorMessage: "SAME OLD AND NEW PET'S PHOTO",
@@ -184,11 +184,11 @@ export const updatePetInfor = (
             updatePetProfilePicture(updateInfor.petID, patchValue, res);
         }
         //petSpecies 수정
-        else if ("petSpecies" in updateInfor.updateElement) {
-          patchValue = updateInfor.updateElement["petSpecies"];
+        else if ("breeds" in updateInfor.updateElement) {
+          patchValue = updateInfor.updateElement["breeds"];
 
           //petSpecies 유효
-          if (patchValue === result.petSpecies)
+          if (patchValue === result.breeds)
             return res.status(409).json({
               code: "CONFLICT ERROR",
               errorMessage: "SAME OLD AND NEW PET'S BREEDS",

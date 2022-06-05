@@ -29,8 +29,7 @@ export const createPet = (
   // 펫 등록
 
   // 프로필 사진 은 빈값일 수 있음
-  pet.petProfilePicture =
-    pet.petProfilePicture === "" ? null : pet.petProfilePicture;
+  pet.photo = pet.photo === "" ? null : pet.photo;
 
   // 기존에 등록한 반려견 마리 수
   dbSelectPets(userID, function (success, userPets, err) {
@@ -45,23 +44,22 @@ export const createPet = (
         });
       // pet 유효성 검사 (petName, birthDate, petSex, petSpecies db..)
       else if (
-        !checkName(pet.petName) ||
+        !checkName(pet.name) ||
         !checkDate(pet.birthDate) ||
-        !checkSex(pet.petSex) ||
-        !checkPetSpecies(pet.petSpecies)
+        !checkSex(pet.gender) ||
+        !checkPetSpecies(pet.breeds)
       ) {
         let errArr: Array<string | MysqlError> = [];
-        if (!checkName(pet.petName)) errArr.push("NAME");
+        if (!checkName(pet.name)) errArr.push("NAME");
         if (!checkDate(pet.birthDate)) errArr.push("BIRTHDATE");
-        if (!checkSex(pet.petSex)) errArr.push("GENDER");
+        if (!checkSex(pet.gender)) errArr.push("GENDER");
 
-        if (!checkPetSpecies(pet.petSpecies))
-          errArr.push("NUMBER OF BREEDS (1-3)");
+        if (!checkPetSpecies(pet.breeds)) errArr.push("NUMBER OF BREEDS (1-3)");
         else {
           // pet species -> db에 저장되어 있는 pet 종에 속하는지 확인
           dbCheckPetSpecies(
-            pet.petSpecies,
-            pet.petSpecies.length,
+            pet.breeds,
+            pet.breeds.length,
             function (success, err, msg) {
               if (!success && err) {
                 return res
@@ -85,8 +83,8 @@ export const createPet = (
       } else {
         // pet species -> db에 저장되어 있는 pet 종에 속하는지 확인
         dbCheckPetSpecies(
-          pet.petSpecies,
-          pet.petSpecies.length,
+          pet.breeds,
+          pet.breeds.length,
           function (success, err, msg) {
             if (!success && err) {
               return res
@@ -101,7 +99,7 @@ export const createPet = (
             }
             // pet 종이 db에 존재하는 경우
             // userID, petname -> 그 user의 petName 중복 안되는지 확인
-            dbCheckPetName(userID, pet.petName, function (success, err, msg) {
+            dbCheckPetName(userID, pet.name, function (success, err, msg) {
               if (!success && err) {
                 return res
                   .status(404)
@@ -118,7 +116,7 @@ export const createPet = (
               // DB에 추가 (인증 전)
               // 이미지 파일 컨트롤러
               imageController(
-                pet.petProfilePicture,
+                pet.photo,
                 function (success, imageFileUrl, error) {
                   if (!success) {
                     return res.status(404).json({
@@ -128,7 +126,7 @@ export const createPet = (
                   }
                   // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
                   else {
-                    pet.petProfilePicture = imageFileUrl;
+                    pet.photo = imageFileUrl;
                     dbInsertPet(userID, pet, function (success, err) {
                       if (!success) {
                         return res
@@ -174,23 +172,18 @@ export const deletePet = (
         }
         // pet 삭제 성공
         // 사진 데이터 존재
-        else if (result.petProfilePicture) {
+        else if (result.photo) {
           // pet 사진url -> 사진 파일 삭제
-          dbDeletePictureFile(
-            result.petProfilePicture,
-            function (success, error) {
-              if (!success) {
-                return res
-                  .status(404)
-                  .json({
-                    code: "DELETE IMAGE FILE ERROR",
-                    errorMessage: error,
-                  });
-              }
-              // 파일 삭제 성공
-              return res.json({ success: true });
+          dbDeletePictureFile(result.photo, function (success, error) {
+            if (!success) {
+              return res.status(404).json({
+                code: "DELETE IMAGE FILE ERROR",
+                errorMessage: error,
+              });
             }
-          );
+            // 파일 삭제 성공
+            return res.json({ success: true });
+          });
         }
         // 사진 데이터 없음
         else return res.json({ success: true });

@@ -14,7 +14,6 @@ import {
   compareAuthEmail,
   creatUser,
   sendAuthEmail,
-  test,
 } from "../../controllers/user.controllers/create_delete_user.controller";
 
 import { Router } from "express";
@@ -195,7 +194,7 @@ router.post(
     // 발급한 인증번호를 비교
     // 동일하면 인증 완료
     const email: string = req.body.email;
-    const authString: string = req.body.authString;
+    const authString: string = req.body.authCode;
     if (checkEmptyValue(email) || checkEmptyValue(authString)) {
       return res.status(400).json({
         code: "INVALID FORMAT ERROR",

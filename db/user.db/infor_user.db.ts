@@ -14,7 +14,7 @@ export function dbFindUser(
     user?: DbFindUserDTO
   ) => void
 ): any {
-  let sql: string = `SELECT userID, email, pw, joinDate, nickName, profilePicture, location, isAuth 
+  let sql: string = `SELECT userID, email, pw, joinDate, nickName, profilePicture AS photo, location, isAuth 
                       FROM usertbl WHERE ${element} = ?`;
 
   return mql.query(sql, elementName, (err, row) => {

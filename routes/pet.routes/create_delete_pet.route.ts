@@ -120,10 +120,10 @@ router.post("/api/pet/create", auth, (req: PetRequest<CreatePetModel>, res) => {
     const pet: PetInforDTO = req.body;
 
     if (
-      checkEmptyValue(pet.petName) ||
+      checkEmptyValue(pet.name) ||
       checkEmptyValue(pet.birthDate) ||
-      checkEmptyValue(pet.petSex) ||
-      checkEmptyValue(pet.petSpecies)
+      checkEmptyValue(pet.gender) ||
+      checkEmptyValue(pet.breeds)
     ) {
       return res.status(400).json({
         code: "INVALID FORMAT ERROR",

@@ -1,33 +1,9 @@
+import { DbSelectDiaryDTO, DbSelectPetAllDiarysDTO } from "../../types/diary";
+
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
 
 const maxPetNum: number = 5;
-
-interface DbSelectPetAllDiarysDTO {
-  diaryID: number;
-  petID: number;
-  diaryDate: Date;
-  title: string;
-  picture: string | null;
-  color: string;
-  font: string;
-}
-
-interface DbSelectDiaryDTO {
-  diaryID: number;
-  petID: number;
-  diaryDate: Date;
-  title: string;
-  picture: string | null;
-  texts: string;
-  shareIs: number;
-  petState: string;
-  weather: string;
-  albumPick: number;
-  color: string;
-  font: string;
-  hashTagNames: string | Array<string>;
-}
 
 // (petID) -> 반려견의 모든 다이어리 get
 export function dbSelectPetAllDiarys(
@@ -38,8 +14,8 @@ export function dbSelectPetAllDiarys(
     error?: MysqlError
   ) => void
 ): any {
-  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate, diarytbl.title, 
-                    diarytbl.picture, diarytbl.color, diarytbl.font FROM diarytbl 
+  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate AS date, diarytbl.title, 
+                    diarytbl.picture AS photo, diarytbl.color, diarytbl.font FROM diarytbl 
                     WHERE diarytbl.petID=?`;
 
   return mql.query(sql, petID, (err, row) => {
@@ -62,8 +38,8 @@ export function dbSelectDiary(
     message?: string
   ) => void
 ): any {
-  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate, diarytbl.title, diarytbl.picture, 
-                    diarytbl.texts, diarytbl.shareIs, diarytbl.petState, diarytbl.weather, diarytbl.albumPick, diarytbl.color, 
+  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate AS date, diarytbl.title, diarytbl.picture AS photo, 
+                    diarytbl.texts, diarytbl.shareIs AS isShare, diarytbl.petState, diarytbl.weather, diarytbl.albumPick, diarytbl.color, 
                     diarytbl.font, GROUP_CONCAT(diary_hashtagtbl.hashTagName) AS hashTagNames FROM diary_hashtagtbl, diarytbl 
                     WHERE diarytbl.petID=? AND diarytbl.diaryID=? AND diarytbl.diaryID=diary_hashtagtbl.diaryID GROUP BY diarytbl.diaryID, 
                     diarytbl.petID, diarytbl.diaryDate, diarytbl.title, diarytbl.picture, diarytbl.texts, diarytbl.shareIs, 
@@ -96,7 +72,7 @@ export function dbSelectDiaryPicture(
   return mql.query(sql, diaryID, (err, row) => {
     if (err) callback(false, null, err);
     // 정상 출력
-    else if (row.length > 0) callback(true, row[0], null);
+    else if (row.length > 0) callback(true, row[0].picture, null);
     // 다이어리 없음
     else callback(false, null, null, "DIARY NOT FOUND");
   });

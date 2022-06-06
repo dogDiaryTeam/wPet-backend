@@ -30,7 +30,7 @@ const router = Router();
  *     post:
  *        tags:
  *        - users
- *        description: "사용자 생성하기"
+ *        description: "사용자를 생성하고, 인증 메일까지 전송"
  *        produces:
  *          - "application/json"
  *        requestBody:
@@ -41,13 +41,13 @@ const router = Router();
  *                $ref: "#/definitions/User_create_req"
  *        responses:
  *          "201":
- *            description: "사용자 생성 성공"
+ *            description: "사용자 생성 + 인증메일 전송 성공"
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "403":
  *            description: "SIGNUP AUTH FAILED : 이메일 인증을 하지않음"
  *          "404":
- *            description: "SQL ERROR : DB 에러 / WRITE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
+ *            description: "SQL ERROR : DB 에러 / WRITE IMAGE FILE ERROR : 이미지 처리 중 에러 발생 / MAIL ERROR : 이메일 처리 중 에러 발생 (반환되는 경우 없어야함)"
  *          "409":
  *            description: "DUPLICATE NICKNAME OR EMAIL : 이미 유일값을 가진 유저가 존재"
  *        security:

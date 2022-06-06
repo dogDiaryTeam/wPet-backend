@@ -112,7 +112,7 @@ const router = Router();
  *          "201":
  *            description: "사용자 정보 수정 성공"
  *          "204":
- *            description: "SAME OLD AND NEW .. : 기존의 사용자 정보와 수정할 정보가 같음 (수정X)"
+ *            description: "기존의 사용자 정보와 수정할 정보가 같음 (수정X) (no content -> 아무 메시지도 반환x)"
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
@@ -154,7 +154,7 @@ const router = Router();
  *          "201":
  *            description: "사용자 비밀번호 수정 성공"
  *          "204":
- *            description: "SAME OLD AND NEW PASSWORD : 기존의 사용자 비밀번호와 수정할 비밀번호가 같음 (수정X)"
+ *            description: "기존의 사용자 비밀번호와 수정할 비밀번호가 같음 (수정X) (no content -> 아무 메시지도 반환x)"
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
@@ -189,7 +189,7 @@ const router = Router();
  *          "201":
  *            description: "수정할 이메일로 인증 메일 전송 성공"
  *          "204":
- *            description: "SAME OLD AND NEW EMAIL : 기존의 사용자 이메일과 수정할 이메일이 같음 (수정X)"
+ *            description: "기존의 사용자 이메일과 수정할 이메일이 같음 (수정X) (no content -> 아무 메시지도 반환x)"
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":

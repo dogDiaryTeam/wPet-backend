@@ -135,7 +135,9 @@ export const creatUser = (
                     .status(404)
                     .json({ code: "SQL ERROR", errorMessage: error });
                 }
-                return res.status(201).json({ success: true });
+                // 회원가입 완료
+                // 인증 이메일 바로 전송
+                sendAuthEmail(user.email, res);
               }
             );
           }

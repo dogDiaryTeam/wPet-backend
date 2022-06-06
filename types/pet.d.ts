@@ -13,8 +13,8 @@ interface UpdatePetModel extends mongoose.Document {
   name?: string;
   birthDate?: Date;
   gender?: string;
-  weight?: number;
-  photo?: string;
+  weight?: number | null;
+  photo?: string | null;
   breeds?: Array<string>;
 }
 
@@ -41,8 +41,8 @@ export interface UpdatePetInforDTO {
   name?: string;
   birthDate?: Date;
   gender?: string;
-  weight?: number;
-  photo?: string;
+  weight?: number | null;
+  photo?: string | null;
   breeds?: Array<string>;
 }
 

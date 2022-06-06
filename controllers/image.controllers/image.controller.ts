@@ -5,14 +5,14 @@ import fs from "fs";
 // 이미지 데이터 -> text 파일로 "images/" 폴더에 저장
 // 저장 경로를 DB에 저장
 export function imageController(
-  imageData: string | null,
+  imageData: string | null | undefined,
   callback: (
     success: boolean,
     imageFileUrl: string | null,
     error?: NodeJS.ErrnoException
   ) => void
 ): any {
-  if (imageData == null) {
+  if (imageData === null || imageData === undefined) {
     callback(true, null);
   } else {
     // 파일명은 랜덤함수 -> 이미 있는 파일인지 확인 후, 있다면 다시 랜덤 (안겹치게)
@@ -44,7 +44,7 @@ export function dbDeletePictureFile(
   fileUrl: string | null,
   callback: (success: boolean, error?: NodeJS.ErrnoException) => void
 ): any {
-  if (fileUrl == null) {
+  if (fileUrl === null) {
     callback(true);
   } else {
     // url에 파일이 존재하는지 확인
@@ -74,7 +74,7 @@ export function dbSelectPictureFile(
     message?: string
   ) => void
 ): any {
-  if (fileUrl == null) {
+  if (fileUrl === null) {
     callback(true, null, null);
   } else {
     // url에 파일이 존재하는지 확인

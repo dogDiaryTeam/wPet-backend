@@ -59,7 +59,7 @@ export function dbCheckPetName(
     message?: string
   ) => void
 ): any {
-  let sql: string = "SELECT * FROM pettbl WHERE ownerID=? AND petName=?";
+  let sql: string = "SELECT * FROM pettbl WHERE ownerID=? AND name=?";
   return mql.query(sql, [ownerID, petName], (err, row) => {
     if (err) callback(false, err);
     // 이미 해당 petName이 있는 경우
@@ -78,7 +78,7 @@ export function dbInsertPet(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string =
-    "INSERT INTO pettbl(`ownerID`, `petName`, `birthDate`, `petProfilePicture`, `petSex`) VALUES (?,?,?,?,?)";
+    "INSERT INTO pettbl(`ownerID`, `name`, `birthDate`, `photo`, `gender`) VALUES (?,?,?,?,?)";
   return mql.query(
     sql,
     [ownerID, pet.name, pet.birthDate, pet.photo, pet.gender],
@@ -118,11 +118,11 @@ export function dbCheckPetExist(
     message?: string
   ) => void
 ): any {
-  let sql: string = `SELECT pettbl.petID, pettbl.petName AS name, pettbl.birthDate, pettbl.petSex AS gender, pettbl.petProfilePicture AS photo, 
-    pettbl.petLevel AS level, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS breeds 
+  let sql: string = `SELECT pettbl.petID, pettbl.name, pettbl.birthDate, pettbl.gender, pettbl.photo, 
+    pettbl.level, pettbl.weight, GROUP_CONCAT(petspeciestbl.petSpeciesName) AS breeds 
     FROM pettbl, pet_petspeciestbl, petspeciestbl WHERE pettbl.ownerID=? AND pettbl.petID=? 
     AND pettbl.petID=pet_petspeciestbl.petID AND pet_petspeciestbl.petSpeciesID=petspeciestbl.petSpeciesID 
-    GROUP BY pettbl.petName,pettbl.birthDate, pettbl.petSex, pettbl.petProfilePicture, pettbl.petLevel, pettbl.weight`;
+    GROUP BY pettbl.name,pettbl.birthDate, pettbl.gender, pettbl.photo, pettbl.level, pettbl.weight`;
 
   return mql.query(sql, [ownerID, petID], (err, row) => {
     if (err) callback(false, null, err);
@@ -144,7 +144,7 @@ export function dbDeletePet(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string =
-    "DELETE FROM pettbl WHERE ownerID=? AND petID=? AND petName=? AND birthDate=? AND petSex=?";
+    "DELETE FROM pettbl WHERE ownerID=? AND petID=? AND name=? AND birthDate=? AND gender=?";
   return mql.query(
     sql,
     [ownerID, pet.petID, pet.name, pet.birthDate, pet.gender],

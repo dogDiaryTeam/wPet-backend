@@ -43,7 +43,7 @@ export function checkLocation(location: string): boolean {
 export function checkDate(date: Date): boolean {
   let dateStr = date.toString();
   let vValue = dateStr;
-  let vValue_Num = vValue.replace(/[^0-9]/g, "");
+  let vValue_Num = vValue.replace(/-/g, "");
 
   //8자리가 아닌 경우 false
   if (vValue_Num.length != 8) {

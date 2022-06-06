@@ -92,7 +92,7 @@ const router = Router();
  *     patch:
  *        tags:
  *        - pets
- *        description: "반려견 정보 수정하기 (수정할 정보만 요청)"
+ *        description: "반려견 정보 수정하기 (수정할 정보만 요청 (여러줄이어도 가능))"
  *        produces:
  *          - "application/json"
  *        parameters:
@@ -123,7 +123,7 @@ const router = Router();
  *                    example: "남"
  *                  weight:
  *                    type: number
- *                    description: 반려견 몸무게
+ *                    description: 반려견 몸무게 (null을 보낼때는 0을 보내면 됨)
  *                    example: "20.9"
  *                  photo:
  *                    type: string
@@ -137,15 +137,17 @@ const router = Router();
  *          "201":
  *            description: "반려견 정보 수정 성공"
  *          "204":
- *            description: "SAME OLD AND NEW .. : 기존의 반려견 정보와 수정할 정보가 같음 (수정X)"
+ *            description: "(모든 row) 기존의 반려견 정보와 수정할 정보가 같음 (수정X) (no content -> 아무 메시지도 반환x) (row 하나라도 기존정보와 다르면 정상적으로 작동)"
  *          "400":
- *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음 (이름 중복...)"
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/definitions/PetUpdateErr'
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / WRITE(DELETE) IMAGE FILE ERROR : 이미지 처리 중 에러 발생 / UPDATE BREEDS ERROR : 종 업데이트 중 에러 발생 (반환되는 경우 없어야함)"
- *          "409":
- *            description: "CONFLICT ERROR : 수정할 이름이 사용자의 다른 반려견과 이름이 중복됨."
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / PARTIALLY UPDATE SUCCEED, WRITE(DELETE) IMAGE FILE ERROR : 사진과 종을 제외한 데이터는 수정완료지만 이미지 처리 중 에러 발생 / UPDATE BREEDS ERROR : 종 업데이트 중 에러 발생 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"
@@ -168,6 +170,26 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
+ * definitions:
+ *   PetUpdateErr:
+ *     type: object
+ *     properties:
+ *       code:
+ *         type: string
+ *         description: 사용자 이메일 주소
+ *         example: "test4@naver.com"
+ *       errorMessage:
+ *         type: object
+ *         properties:
+ *           invalidFormat:
+ *             type: Array<string>
+ *             description: 유효하지 않은 요청 데이터들을 반환
+ *           duplication:
+ *             type: Array<string>
+ *             description: 중복값을 요청하는 데이터들을 반환
+ *           sqlErr:
+ *             type: Array<string>
+ *             description: DB, IMAGE 로직 에러들을 반환 (반환되면 안됨)
  */
 
 router.get("/users/auth/pets", auth, (req, res) => {

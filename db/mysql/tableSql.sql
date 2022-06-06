@@ -14,13 +14,13 @@
 -- (
 --  petID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  ownerID INT UNSIGNED NOT NULL,
---  petName VARCHAR(20) NOT NULL,
+--  name VARCHAR(20) NOT NULL,
 --  birthDate DATE NOT NULL,
---  petProfilePicture TEXT,
---  petLevel TINYINT UNSIGNED NOT NULL DEFAULT 1,
---  petSex VARCHAR(2) NOT NULL,
+--  photo TEXT,
+--  level TINYINT UNSIGNED NOT NULL DEFAULT 1,
+--  gender VARCHAR(2) NOT NULL,
 --  weight float(5,2),
---  UNIQUE KEY (ownerID, petName),
+--  UNIQUE KEY (ownerID, name),
 --  FOREIGN KEY (ownerID) REFERENCES userTBL(userID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE walkInforTBL

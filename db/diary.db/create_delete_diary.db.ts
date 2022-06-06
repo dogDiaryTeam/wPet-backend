@@ -47,6 +47,45 @@ export function dbCheckPetIDs(
   });
 }
 
+// (반려견 당) 하루에 한 다이어리만 작성 가능
+export function dbCheckTodayPetDiary(
+  petIDs: Array<number>,
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    message?: string
+  ) => void
+): any {
+  let petNum: number = petIDs.length;
+  let sql: string =
+    "SELECT diarytbl.petID, pettbl.name FROM diarytbl, pettbl WHERE diarytbl.diaryDate = DATE_FORMAT(NOW(), '%Y-%m-%d') AND diarytbl.petID=pettbl.petID AND (petID=?";
+  for (let i = 0; i < petNum - 1; i++) {
+    sql += " OR petID=?";
+  }
+  sql += ")";
+
+  return mql.query(sql, petIDs, (err, row) => {
+    if (err) callback(false, err);
+    // 이미 당일 다이어리 작성한 반려견 존재 -> 작성 불가
+    else if (row.length > 0) {
+      let writtenPetsLen: number = row.length;
+      // 이미 작성한 반려견들의 이름들
+      let writtenPets: Array<number> = [];
+
+      for (let j = 0; j < writtenPetsLen; j++) {
+        writtenPets.push(row[j].name);
+      }
+      callback(
+        false,
+        null,
+        `[${writtenPets}] PETS ALREADY WRITTEN TODAY'S DIARY`
+      );
+    }
+    // 이미 작성한 반려견들이 없다면 -> 작성 가능
+    else callback(true, null);
+  });
+}
+
 // 다이어리 작성
 export function dbWriteDiary(
   diaryInfor: DiaryInforDTO,

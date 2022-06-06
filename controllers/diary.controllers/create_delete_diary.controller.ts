@@ -6,6 +6,7 @@ import {
 import {
   dbCheckPetIDs,
   dbCheckPetsDiary,
+  dbCheckTodayPetDiary,
   dbDeleteDiary,
   dbWriteDiary,
 } from "../../db/diary.db/create_delete_diary.db";
@@ -70,33 +71,50 @@ export const createDiary = (
         errorMessage: `INVALID FORMAT : [${errArr}]`,
       });
     } else {
-      // 다이어리 작성 (petIDs의 반려견들에게 동시에)
-      // 이미지 파일 컨트롤러
-      imageController(diary.photo, function (success, imageFileUrl, error) {
-        if (!success) {
-          return res
-            .status(404)
-            .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
+      // (반려견 당) 하루에 한 다이어리만 작성 가능
+      dbCheckTodayPetDiary(diary.petIDs, function (success, err, msg) {
+        if (!success && err) {
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         }
-        // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+        // 이미 당일 다이어리 작성한 반려견 존재 -> 작성 불가
+        else if (!success && !err) {
+          return res.status(409).json({
+            code: "CONFLICT ERROR",
+            errorMessage: msg,
+          });
+        }
+        // 이미 작성한 반려견들이 없다면 -> 작성 가능
+        else {
+          // 다이어리 작성 (petIDs의 반려견들에게 동시에)
 
-        diary.photo = imageFileUrl;
-        dbWriteDiary(diary, function (success, err, msg) {
-          if (!success && err) {
-            return res
-              .status(404)
-              .json({ code: "SQL ERROR", errorMessage: err });
-          }
-          // 다이어리 삽입 성공, 해시태그 삽입 실패 (백업 성공 or 실패)
-          else if (!success && !err) {
-            return res
-              .status(404)
-              .json({ code: "WRITE DIARY ERROR", errorMessage: msg });
-          } else {
-            // 다이어리, 해시태그 삽입 성공
-            res.status(201).json({ success: true });
-          }
-        });
+          // 이미지 파일 컨트롤러
+          imageController(diary.photo, function (success, imageFileUrl, error) {
+            if (!success) {
+              return res
+                .status(404)
+                .json({ code: "WRITE IMAGE FILE ERROR", errorMessage: error });
+            }
+            // 파일 생성 완료 (imageFileUrl : 이미지 파일 저장 경로) -> DB 저장
+
+            diary.photo = imageFileUrl;
+            dbWriteDiary(diary, function (success, err, msg) {
+              if (!success && err) {
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: err });
+              }
+              // 다이어리 삽입 성공, 해시태그 삽입 실패 (백업 성공 or 실패)
+              else if (!success && !err) {
+                return res
+                  .status(404)
+                  .json({ code: "WRITE DIARY ERROR", errorMessage: msg });
+              } else {
+                // 다이어리, 해시태그 삽입 성공
+                res.status(201).json({ success: true });
+              }
+            });
+          });
+        }
       });
     }
   });

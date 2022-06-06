@@ -1,4 +1,8 @@
-import { DBPetInforDTO, DbSelectPetsDTO } from "../../types/pet";
+import {
+  DBPetInforDTO,
+  DbSelectPetsDTO,
+  UpdatePetInforDTO,
+} from "../../types/pet";
 
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
@@ -12,7 +16,7 @@ export function dbSelectPets(
     error?: MysqlError
   ) => void
 ): any {
-  let sql: string = "SELECT petID, petName AS name FROM pettbl WHERE ownerID=?";
+  let sql: string = "SELECT petID, name FROM pettbl WHERE ownerID=?";
 
   return mql.query(sql, ownerID, (err, row) => {
     if (err) callback(false, null, err);
@@ -21,7 +25,36 @@ export function dbSelectPets(
   });
 }
 
-// pet 정보 update
+// pet 정보들 update
+export function dbUpdatePetInfors(
+  petID: number,
+  elementNames: Array<string>,
+  elementObj: UpdatePetInforDTO,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = `UPDATE pettbl SET`;
+  let elementLen: number = elementNames.length;
+  for (let i = 0; i < elementLen; i++) {
+    if (
+      elementNames[i] === "weight" &&
+      elementObj[elementNames[i] as keyof typeof elementObj] === null
+    ) {
+      sql += ` ${elementNames[i]}=null`;
+    } else
+      sql += ` ${elementNames[i]}="${
+        elementObj[elementNames[i] as keyof typeof elementObj]
+      }"`;
+    if (i !== elementLen - 1) sql += `,`;
+  }
+  sql += ` WHERE petID=?`;
+
+  return mql.query(sql, petID, (err, row) => {
+    if (err) callback(false, err);
+    else callback(true);
+  });
+}
+
+// pet 정보들 update
 export function dbUpdatePetInfor(
   petID: number,
   elementName: string,
@@ -111,10 +144,10 @@ export function dbSelectPetProfilePictureUrl(
   ) => void
 ): any {
   // 기존 사진파일 url 가져오기
-  let sql: string = `SELECT petProfilePicture FROM pettbl WHERE petID=?`;
+  let sql: string = `SELECT photo FROM pettbl WHERE petID=?`;
   return mql.query(sql, petID, (err, row) => {
     if (err) callback(false, null, err);
-    else if (row.length > 0) callback(true, row[0].petProfilePicture, null);
+    else if (row.length > 0) callback(true, row[0].photo, null);
     else callback(false, null, null, "PET NOT FOUND");
   });
 }

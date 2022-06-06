@@ -34,24 +34,28 @@ export function dbUpdatePetInfors(
 ): any {
   let sql: string = `UPDATE pettbl SET`;
   let elementLen: number = elementNames.length;
-  for (let i = 0; i < elementLen; i++) {
-    if (
-      elementNames[i] === "weight" &&
-      elementObj[elementNames[i] as keyof typeof elementObj] === null
-    ) {
-      sql += ` ${elementNames[i]}=null`;
-    } else
-      sql += ` ${elementNames[i]}="${
-        elementObj[elementNames[i] as keyof typeof elementObj]
-      }"`;
-    if (i !== elementLen - 1) sql += `,`;
-  }
-  sql += ` WHERE petID=?`;
+  if (elementLen === 0) return callback(true);
+  else {
+    for (let i = 0; i < elementLen; i++) {
+      if (elementNames[i] === "breeds" || elementNames[i] === "photo") continue;
+      else if (
+        elementNames[i] === "weight" &&
+        elementObj[elementNames[i] as keyof typeof elementObj] === null
+      ) {
+        sql += ` ${elementNames[i]}=null`;
+      } else
+        sql += ` ${elementNames[i]}="${
+          elementObj[elementNames[i] as keyof typeof elementObj]
+        }"`;
+      if (i !== elementLen - 1) sql += `,`;
+    }
+    sql += ` WHERE petID=?`;
 
-  return mql.query(sql, petID, (err, row) => {
-    if (err) callback(false, err);
-    else callback(true);
-  });
+    return mql.query(sql, petID, (err, row) => {
+      if (err) callback(false, err);
+      else callback(true);
+    });
+  }
 }
 
 // pet 정보들 update

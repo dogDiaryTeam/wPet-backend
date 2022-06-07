@@ -73,7 +73,7 @@ export const creatUser = (
     if (err) {
       return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (isUser) {
-      if (isAuth && isAuth === 0)
+      if (isAuth === 0)
         return res
           .status(403)
           .json({ code: "AUTH FAILED", errorMessage: "SIGNUP AUTH FAILED" });

@@ -37,7 +37,7 @@ export function dbInsertUser(
               }
             }
           );
-        }, 360000);
+        }, 120000);
         callback(true);
       }
     }

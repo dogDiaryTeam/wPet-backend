@@ -5,12 +5,14 @@ import {
 import { checkDate, checkStringLen } from "../validations/validate";
 import {
   dbCheckTodolistKeyword,
+  dbDeleteTodolist,
   dbInsertTodolist,
 } from "../../db/todolist.db/create_delete_todolist.db";
 
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbCheckPetIDs } from "../../db/diary.db/create_delete_diary.db";
+import { dbCheckPetTodolist } from "../../db/todolist.db/infor_todolist.db";
 
 export const createTodolist = (
   userID: number,
@@ -79,8 +81,7 @@ export const deleteTodolist = (
   todolistID: number,
   res: Response<any, Record<string, any>, number>
 ) => {
-  // 투두리스트 등록 (반려견 한마리 당)
-
+  // 투두리스트 삭제
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
@@ -91,5 +92,24 @@ export const deleteTodolist = (
       return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
     // 사용자의 반려견이 맞는 경우
+    // 반려견의 투두리스트 목록이 맞는지 검증
+    dbCheckPetTodolist(petID, todolistID, function (success, err, msg) {
+      if (!success && err) {
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+      }
+      // 반려견의 투두리스트가 아닌 경우
+      else if (!success && !err) {
+        return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+      }
+      // 반려견의 투두리스트가 맞는 경우
+      // 삭제
+      dbDeleteTodolist(todolistID, function (success, err) {
+        if (!success) {
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+        } else {
+          return res.json({ success: true });
+        }
+      });
+    });
   });
 };

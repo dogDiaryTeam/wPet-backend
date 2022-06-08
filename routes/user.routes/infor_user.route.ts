@@ -75,6 +75,8 @@ const router = Router();
  *              application/json:
  *                schema:
  *                  $ref: '#/definitions/UserInfor'
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":

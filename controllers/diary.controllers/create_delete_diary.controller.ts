@@ -17,6 +17,7 @@ import {
 
 import { DiaryInforDTO } from "../../types/diary";
 import { Response } from "express-serve-static-core";
+import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbSelectDiaryPicture } from "../../db/diary.db/infor_diary.db";
 
 export const createDiary = (
@@ -129,7 +130,7 @@ export const deleteDiary = (
   // 다이어리 삭제
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
-  dbCheckPetIDs(userID, [petID], function (success, err, msg) {
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
     if (!success && err) {
       return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     }
@@ -137,7 +138,7 @@ export const deleteDiary = (
     else if (!success && !err) {
       return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
     }
-    // petID 모두 사용자의 반려견이 맞는 경우
+    // 사용자의 반려견이 맞는 경우
 
     // 반려견의 다이어리가 맞는지 검증
     dbCheckPetsDiary(petID, diaryID, function (success, err, msg) {

@@ -32,6 +32,8 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "모든 다이어리 정보 가져오기 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
@@ -63,6 +65,8 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "다이어리 삭제 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
@@ -93,6 +97,8 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "다이어리 정보 가져오기 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
@@ -113,16 +119,16 @@ router.get("/pets/:petId/diarys", auth, (req, res) => {
     const petID: number = Number(req.params.petId);
     if (checkEmptyValue(petID)) {
       return res.status(400).json({
-        success: false,
-        message: "PARAMETER IS EMPTY",
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
     getDiarys(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({
-      isAuth: false,
-      message: "USER AUTH FAILED",
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
     });
   }
 });
@@ -141,16 +147,16 @@ router.get(
       const diaryID: number = Number(req.params.diaryId);
       if (checkEmptyValue(petID) || checkEmptyValue(diaryID)) {
         return res.status(400).json({
-          success: false,
-          message: "PARAMETER IS EMPTY",
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
         });
       }
       getOneDiary(user.userID, petID, diaryID, res);
     } else {
       // 유저 인증 no
       return res.status(401).json({
-        isAuth: false,
-        message: "USER AUTH FAILED",
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
   }

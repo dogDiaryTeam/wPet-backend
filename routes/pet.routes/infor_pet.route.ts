@@ -57,6 +57,8 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "반려견 삭제 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
@@ -81,6 +83,8 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "반려견 정보 가져오기 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":

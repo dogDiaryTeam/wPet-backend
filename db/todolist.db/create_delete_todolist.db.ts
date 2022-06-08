@@ -38,3 +38,16 @@ export function dbInsertTodolist(
     else callback(true);
   });
 }
+
+// DB에서 투두리스트 삭제
+export function dbDeleteTodolist(
+  todolistID: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = "DELETE FROM todolisttbl WHERE todoListID=?";
+  return mql.query(sql, todolistID, (err, row) => {
+    if (err) callback(false, err);
+    // 삭제 성공
+    else callback(true);
+  });
+}

@@ -33,28 +33,44 @@ export const createTodolist = (
     // 사용자의 반려견이 맞는 경우
 
     // 투두리스트 정보 유효성 검사
+    let errArr: Array<string> = [];
+
     if (!checkDate(todolist.date) || !checkStringLen(todolist.content, 255)) {
-      let errArr: Array<string> = [];
       if (!checkDate(todolist.date)) errArr.push("DATE");
       if (!checkStringLen(todolist.content, 255))
         errArr.push("CONTENT LENGTH(1-255)");
-
-      return res.status(400).json({
-        code: "INVALID FORMAT ERROR",
-        errorMessage: `INVALID FORMAT : [${errArr}]`,
-      });
-    } else {
-      // 투두리스트 키워드 검증
-      // DB에 저장된 키워드가 맞는지 검증
-      dbCheckTodolistKeyword(todolist.keyword, function (success, err, msg) {
-        if (!success && err) {
-          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+    }
+    // 투두리스트 키워드 검증
+    // DB에 저장된 키워드가 맞는지 검증
+    dbCheckTodolistKeyword(todolist.keyword, function (success, err, msg) {
+      if (!success && err) {
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+      }
+      // 키워드가 유효하지 않음
+      else if (!success && !err && msg !== undefined) {
+        // 다른 요청들도 유효하지 않은 경우
+        if (errArr.length > 0) {
+          errArr.push(msg);
+          return res.status(400).json({
+            code: "INVALID FORMAT ERROR",
+            errorMessage: `INVALID FORMAT : [${errArr}]`,
+          });
         }
-        // 키워드가 유효하지 않음
-        else if (!success && !err) {
-          return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
-        }
-        // 키워드 정상
+        // 키워드만 유효하지 않은 경우
+        else
+          return res.status(400).json({
+            code: "INVALID FORMAT ERROR",
+            errorMessage: `INVALID FORMAT : ${msg}`,
+          });
+      }
+      // 키워드 정상
+      else if (errArr.length > 0) {
+        // date, content 유효성 오류
+        return res.status(400).json({
+          code: "INVALID FORMAT ERROR",
+          errorMessage: `INVALID FORMAT : [${errArr}]`,
+        });
+      } else {
         // 투두리스트 작성
         dbInsertTodolist(
           todolist.petID,
@@ -69,8 +85,8 @@ export const createTodolist = (
             return res.status(201).json({ success: true });
           }
         );
-      });
-    }
+      }
+    });
   });
 };
 

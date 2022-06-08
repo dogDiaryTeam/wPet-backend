@@ -37,11 +37,11 @@ const router = Router();
  *          "201":
  *            description: "투두리스트 생성 성공"
  *          "400":
- *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음 (키워드가 DB에 존재하지 않은 경우 포함)"
  *          "401":
  *            description: "AUTH FAILED: 사용자 인증 실패"
  *          "404":
- *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아니거나 DB에 존재하지 않는 키워드인 경우 (반환되는 경우 없어야함)"
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 (반환되는 경우 없어야함)"
  *        security:
  *          - petstore_auth:
  *              - "write:pets"

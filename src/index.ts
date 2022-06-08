@@ -8,6 +8,7 @@ import createDeleteTodolistRoutes from "../routes/todolist.routes/create_delete_
 import createDeleteUserRoutes from "../routes/user.routes/create_delete_user.route";
 import inforDiaryRoutes from "../routes/diary.routes/infor_diary.route";
 import inforPetRoutes from "../routes/pet.routes/infor_pet.route";
+import inforTodolistRoutes from "../routes/todolist.routes/infor_todolist.route";
 import inforUserRoutes from "../routes/user.routes/infor_user.route";
 import loginLogoutUserRoutes from "../routes/user.routes/login_logout_user.route";
 import mql from "../db/mysql/mysql";
@@ -37,6 +38,8 @@ app.use(inforPetRoutes);
 app.use(createDeleteDiaryRoutes);
 app.use(inforDiaryRoutes);
 app.use(createDeleteTodolistRoutes);
+app.use(inforTodolistRoutes);
+
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 app.get("/", (req: Request, res: Response) => {

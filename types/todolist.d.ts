@@ -5,6 +5,12 @@ interface CreateTodolistModel extends mongoose.Document {
   keyword: string;
 }
 
+interface UpdateTodolistModel extends mongoose.Document {
+  date: Date;
+  content: string;
+  keyword: string;
+}
+
 interface InforTodolistModel extends mongoose.Document {
   petID: number;
   todoListID: number;
@@ -12,6 +18,12 @@ interface InforTodolistModel extends mongoose.Document {
 
 export interface CreateTodolistReqDTO {
   petID: number;
+  date: Date;
+  content: string;
+  keyword: string;
+}
+
+export interface UpdateTodolistReqDTO {
   date: Date;
   content: string;
   keyword: string;

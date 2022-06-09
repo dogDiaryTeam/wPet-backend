@@ -58,9 +58,9 @@ export function dbCheckTodayPetDiary(
 ): any {
   let petNum: number = petIDs.length;
   let sql: string =
-    "SELECT diarytbl.petID, pettbl.name FROM diarytbl, pettbl WHERE diarytbl.diaryDate = DATE_FORMAT(NOW(), '%Y-%m-%d') AND diarytbl.petID=pettbl.petID AND (petID=?";
+    "SELECT diarytbl.petID, pettbl.name FROM diarytbl, pettbl WHERE diarytbl.diaryDate = DATE_FORMAT(NOW(), '%Y-%m-%d') AND diarytbl.petID=pettbl.petID AND (diarytbl.petID=?";
   for (let i = 0; i < petNum - 1; i++) {
-    sql += " OR petID=?";
+    sql += " OR diarytbl.petID=?";
   }
   sql += ")";
 

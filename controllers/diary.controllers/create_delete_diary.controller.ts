@@ -73,15 +73,15 @@ export const createDiary = (
       });
     } else {
       // (반려견 당) 하루에 한 다이어리만 작성 가능
-      dbCheckTodayPetDiary(diary.petIDs, function (success, err, msg) {
-        if (!success && err) {
+      dbCheckTodayPetDiary(diary.petIDs, function (success, err, writtenPets) {
+        if (!success) {
           return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
         }
         // 이미 당일 다이어리 작성한 반려견 존재 -> 작성 불가
-        else if (!success && !err) {
+        else if (writtenPets !== undefined && writtenPets.length > 0) {
           return res.status(409).json({
             code: "CONFLICT ERROR",
-            errorMessage: msg,
+            errorMessage: `[${writtenPets}] PETS ALREADY WRITTEN TODAY'S DIARY`,
           });
         }
         // 이미 작성한 반려견들이 없다면 -> 작성 가능

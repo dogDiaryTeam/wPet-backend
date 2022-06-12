@@ -29,7 +29,7 @@ export function dbInsertTodolist(
   keyword: string,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
-  let sql: string = `INSERT INTO todolisttbl (petID, listDate, content, todoListKeywordID) 
+  let sql: string = `INSERT INTO todolisttbl (petID, date, content, todoListKeywordID) 
                         SELECT ?,?,?,todoListKeywordID FROM todolistkeywordtbl WHERE keyword=?`;
 
   // 투두리스트 테이블에 저장

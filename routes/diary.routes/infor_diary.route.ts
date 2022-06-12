@@ -2,6 +2,7 @@ import { PetAllDiaryModel, PetDiaryModel } from "../../types/diary";
 import {
   getDiarys,
   getOneDiary,
+  getTodayDiaryWritablePets,
 } from "../../controllers/diary.controllers/infor_diary.controller";
 
 import { DiaryRequest } from "../../types/express";
@@ -107,6 +108,46 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
+ *   /diarys/writable-pets:
+ *     get:
+ *        tags:
+ *        - diarys
+ *        description: "당일 다이어리 작성이 가능한지 (이름, petID, 작성가능유무) 목록 가져오기 (가능하다면 작성가능유무는 true)"
+ *        produces:
+ *          - "application/json"
+ *        responses:
+ *          "200":
+ *            description: "당일 다이어리 작성이 가능한지 반려견들 가져오기 성공"
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/definitions/WritablePets'
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ * definitions:
+ *   WritablePets:
+ *     type: object
+ *     properties:
+ *       result:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             petid:
+ *               type: number
+ *               description: 사용자가 등록한 반려견의 ID
+ *             name:
+ *               type: string
+ *               description: 사용자가 등록한 반려견의 이름
+ *             writable:
+ *               type: boolean
+ *               description: 당일 다이어리 작성이 가능한지(true) 아닌지(false)
  */
 
 router.get("/pets/:petId/diarys", auth, (req, res) => {
@@ -161,5 +202,21 @@ router.get(
     }
   }
 );
+
+router.get("/diarys/writable-pets", auth, (req, res) => {
+  // 당일 다이어리 작성이 가능한 반려견들 목록 반환
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    // 유저 인증 완료
+    getTodayDiaryWritablePets(user.userID, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
+  }
+});
 
 export default router;

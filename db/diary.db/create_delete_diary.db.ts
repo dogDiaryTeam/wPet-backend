@@ -47,13 +47,13 @@ export function dbCheckPetIDs(
   });
 }
 
-// (반려견 당) 하루에 한 다이어리만 작성 가능
+// 당일 다이어리를 이미 작성한 반려견들 반환
 export function dbCheckTodayPetDiary(
   petIDs: Array<number>,
   callback: (
     success: boolean,
     error: MysqlError | null,
-    message?: string
+    result?: Array<string>
   ) => void
 ): any {
   let petNum: number = petIDs.length;
@@ -70,19 +70,16 @@ export function dbCheckTodayPetDiary(
     else if (row.length > 0) {
       let writtenPetsLen: number = row.length;
       // 이미 작성한 반려견들의 이름들
-      let writtenPets: Array<number> = [];
+      let writtenPets: Array<string> = [];
 
       for (let j = 0; j < writtenPetsLen; j++) {
         writtenPets.push(row[j].name);
       }
-      callback(
-        false,
-        null,
-        `[${writtenPets}] PETS ALREADY WRITTEN TODAY'S DIARY`
-      );
+
+      callback(true, null, writtenPets);
     }
     // 이미 작성한 반려견들이 없다면 -> 작성 가능
-    else callback(true, null);
+    else callback(true, null, []);
   });
 }
 

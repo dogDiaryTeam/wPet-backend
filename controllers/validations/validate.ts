@@ -157,3 +157,15 @@ export function checkTodolistIsCheck(isCheck: number): boolean {
   if (isCheck === 0 || isCheck === 1) return true;
   return false;
 }
+
+// year 유효성 검사
+export function checkYear(year: number): boolean {
+  if (year > 2000 && year < 2100) return true;
+  return false;
+}
+
+// month 유효성 검사
+export function checkMonth(month: number): boolean {
+  if (month > 0 && month < 13) return true;
+  return false;
+}

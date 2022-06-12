@@ -1,6 +1,7 @@
 import {
   dbCheckPetIDs,
   dbCheckPetsDiary,
+  dbCheckTodayPetDiary,
 } from "../../db/diary.db/create_delete_diary.db";
 import {
   dbSelectDiary,
@@ -12,6 +13,8 @@ import {
 } from "../image.controllers/image.controller";
 
 import { Response } from "express-serve-static-core";
+import { TodayDiaryWritablePetDTO } from "../../types/diary";
+import { dbSelectPets } from "../../db/pet.db/infor_pet.db";
 
 export const getDiarys = (
   userID: number,
@@ -126,3 +129,57 @@ export const getOneDiary = (
     });
   });
 };
+
+export const getTodayDiaryWritablePets = (
+  userID: number,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // (userID) ->
+  // userID의 유저가 등록한 pet들 중 당일 다이어리 작성이 가능한 펫들 반환
+  //    = 당일 다이어리를 아직 작성하지 않은 펫들
+
+  // 사용자가 등록한 펫들 가져오기
+  dbSelectPets(userID, function (success, pets, err) {
+    if (!success) {
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+    } else if (pets !== null && pets.length > 0) {
+      let petIDs: Array<number> = [];
+      let result: Array<TodayDiaryWritablePetDTO> = [];
+      let petLen: number = pets.length;
+      for (let i = 0; i < petLen; i++) {
+        petIDs.push(pets[i].petID);
+        result.push({
+          petID: pets[i].petID,
+          name: pets[i].name,
+          writable: true,
+        });
+      }
+
+      // 각 펫 별로, 당일 다이어리 작성했는지 확인
+      dbCheckTodayPetDiary(petIDs, function (success, err, writtenPets) {
+        if (!success) {
+          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+        }
+        // 이미 당일 다이어리 작성한 반려견들 = writtenPets
+        else if (writtenPets !== undefined && writtenPets.length > 0) {
+          // pets 에서 제거
+          for (let i = 0; i < petLen; i++) {
+            // (== -1) : 이미 작성한 펫이 아닌 경우 = writable=true
+            // (!= -1) : 이미 작성한 펫인 경우 = writable=false
+            if (writtenPets.indexOf(result[i].name) !== -1)
+              result[i]["writable"] = false;
+          }
+          return res.json({ result });
+        } else {
+          return res.json({ result });
+        }
+      });
+    }
+    // 반려견 등록을 하지 않은 유저
+    else return res.json({ result: [] });
+  });
+};
+
+/*
+[ {petid:1, name:zz, writable:true}, {}...]
+*/

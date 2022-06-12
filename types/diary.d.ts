@@ -58,3 +58,9 @@ export interface DbSelectDiaryDTO {
   font: string;
   hashTagNames: string | Array<string>;
 }
+
+export interface TodayDiaryWritablePetDTO {
+  petID: number;
+  name: string;
+  writable: boolean;
+}

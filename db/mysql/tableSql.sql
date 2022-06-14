@@ -8,7 +8,8 @@
 --  nickName VARCHAR(20) NOT NULL UNIQUE,
 --  profilePicture TEXT,
 --  location VARCHAR(255),
---  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
+--  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+--  kakaoID INT UNSIGNED
 -- )
 -- CREATE TABLE petTBL
 -- (
@@ -99,8 +100,8 @@
 --  picture TEXT,
 --  texts TEXT NOT NULL,
 --  shareIs TINYINT(1) NOT NULL DEFAULT 0,
---  petState VARCHAR(10) NOT NULL,
---  weather VARCHAR(10) NOT NULL,
+--  petState VARCHAR(30) NOT NULL,
+--  weather VARCHAR(30) NOT NULL,
 --  albumPick TINYINT(1) NOT NULL DEFAULT 0,
 --  color VARCHAR(30) NOT NULL,
 --  font VARCHAR(30) NOT NULL,

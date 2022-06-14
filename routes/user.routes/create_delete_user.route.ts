@@ -16,10 +16,13 @@ import {
   sendAuthEmail,
 } from "../../controllers/user.controllers/create_delete_user.controller";
 
+import { Response } from "express-serve-static-core";
 import { Router } from "express";
 import { UserRequest } from "../../types/express";
 import { auth } from "../../middleware/auth";
+import axios from "axios";
 import { checkEmptyValue } from "../../controllers/validations/validate";
+import fetch from "node-fetch";
 
 const router = Router();
 
@@ -162,4 +165,64 @@ router.post("/users/auth", (req: UserRequest<CompareAuthEmailModel>, res) => {
   compareAuthEmail(email, authString, res);
 });
 
+router.get("/kakao-login", async (req, res) => {
+  // 회원가입 시 인증
+  // client에게서 받은 인증번호와
+  // 발급한 인증번호를 비교
+  // 동일하면 인증 완료
+  console.log(req.query.code);
+  let code = req.query.code;
+  const baseUrl = process.env.KAKAO_OAUTH_TOKEN_API_URL;
+  const config: any = {
+    client_id: process.env.KAKAO_CLIENT_ID,
+    grant_type: process.env.KAKAO_GRANT_TYPE,
+    redirect_uri: process.env.KAKAO_REDIRECT_URL,
+    code: code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  const kakaoToken = await kakao(finalUrl);
+
+  if ("access_token" in kakaoToken) {
+    // res.send("HI " + JSON.stringify(kakaoToken));
+    // 엑세스 토큰이 있는 경우 API에 접근
+    const { access_token } = kakaoToken;
+    const userInfo = await getUserInfo(access_token);
+    const user = userInfo.kakao_account.profile;
+    console.log(user);
+    res.send("HI " + JSON.stringify(userInfo));
+  } else {
+    // 엑세스 토큰이 없으면 로그인페이지로 리다이렉트
+    console.log("access_token 없음");
+  }
+});
+
+const kakao = async (finalUrl: any) => {
+  try {
+    return await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json", // 이 부분을 명시하지않으면 text로 응답을 받게됨
+      },
+    }).then((res) => res.json());
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getUserInfo = async (access_token: any) => {
+  try {
+    return await fetch("https://kapi.kakao.com/v2/user/me", {
+      method: "GET",
+
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-type": "application/json",
+      },
+    }).then((res) => res.json());
+  } catch (e) {
+    console.log(e);
+  }
+};
 export default router;

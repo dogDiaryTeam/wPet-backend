@@ -51,8 +51,8 @@ export const createDiary = (
     // 다이어리 정보 유효성 검사
     if (
       !checkStringLen(diary.title, 30) ||
-      !checkStringLen(diary.petState, 10) ||
-      !checkStringLen(diary.weather, 10) ||
+      !checkStringLen(diary.petState, 30) ||
+      !checkStringLen(diary.weather, 30) ||
       !checkDiaryWeather(diary.weather) ||
       !checkStringLen(diary.color, 30) ||
       !checkStringLen(diary.font, 30) ||

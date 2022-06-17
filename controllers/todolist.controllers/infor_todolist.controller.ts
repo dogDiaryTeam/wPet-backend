@@ -17,11 +17,11 @@ import {
   dbUpdateTodolistCheck,
   dbUpdateTodolistInfo,
 } from "../../db/todolist.db/infor_todolist.db";
+import { dbSelectPets, dbSelectPetsIdName } from "../../db/pet.db/infor_pet.db";
 
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbCheckTodolistKeyword } from "../../db/todolist.db/create_delete_todolist.db";
-import { dbSelectPets } from "../../db/pet.db/infor_pet.db";
 
 export const checkTodolist = (
   userID: number,
@@ -176,7 +176,7 @@ export const getUserPetsTodolist = (
   // 투두리스트 목록 반환 (오늘, 내일)
 
   // 사용자가 등록한 펫들 가져오기
-  dbSelectPets(userID, function (success, pets, err) {
+  dbSelectPetsIdName(userID, function (success, pets, err) {
     if (!success) {
       return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
     } else if (pets !== null && pets.length > 0) {

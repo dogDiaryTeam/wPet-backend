@@ -33,6 +33,25 @@ export interface DiaryInforDTO {
   hashTags: Array<string>;
 }
 
+export interface DbSelectUserAllDiarysDTO {
+  diaryID: number;
+  petID: number;
+  date: Date;
+  photo: string | null;
+}
+
+// photo 수정
+// export interface UserOneDiaryDTO {
+//   diaryID: number;
+//   petID: number;
+//   photo: string | null;
+// }
+
+// export interface UserAllDiarysDTO {
+//   date: Date;
+//   diarys: Array<UserOneDiaryDTO>;
+// }
+
 export interface DbSelectPetAllDiarysDTO {
   diaryID: number;
   petID: number;

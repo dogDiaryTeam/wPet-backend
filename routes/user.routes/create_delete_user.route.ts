@@ -19,14 +19,16 @@ import {
   getUserInfo,
   kakao,
   kakaoLoginApi,
-} from "../../controllers/user.controllers/kakao_api_user.controller";
+} from "../../controllers/user.controllers/kakao_user.controller";
 
+import { KakaoUserDTO } from "../../types/kakao";
 import { Response } from "express-serve-static-core";
 import { Router } from "express";
 import { UserRequest } from "../../types/express";
 import { auth } from "../../middleware/auth";
 import axios from "axios";
 import { checkEmptyValue } from "../../controllers/validations/validate";
+import { kakaoLogin } from "../../controllers/user.controllers/kakao_login_logout.controller";
 
 const router = Router();
 
@@ -169,14 +171,18 @@ router.post("/users/auth", (req: UserRequest<CompareAuthEmailModel>, res) => {
   compareAuthEmail(email, authString, res);
 });
 
-router.get("/kakao-login", (req, res) => {
-  // 카카오 간편로그인
+router.get("/kakao-login", async (req, res) => {
+  // 카카오 간편로그인 (회원가입 & 로그인)
   // API 연결
   // 회원인 경우 / 아닌 경우 나눠서 로직 처리
   console.log(req.query.code);
   let code = req.query.code;
-  let user = kakaoLoginApi(code, res);
+  let user: KakaoUserDTO | null = await kakaoLoginApi(code, res);
+  console.log(user);
   // 정보 -> db에서 확인
+  if (user) kakaoLogin(user, res);
+  // 카카오 정보가 없음
+
   // 있다면
   // 로그인
 });

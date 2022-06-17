@@ -1,9 +1,40 @@
-import { DbSelectDiaryDTO, DbSelectPetAllDiarysDTO } from "../../types/diary";
+import {
+  DbSelectDiaryDTO,
+  DbSelectPetAllDiarysDTO,
+  DbSelectUserAllDiarysDTO,
+} from "../../types/diary";
 
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
 
 const maxPetNum: number = 5;
+
+// (userID) -> 모든 반려견의 모든 다이어리 get (달 별로)
+export function dbSelectUserAllDiarys(
+  userID: number,
+  year: number,
+  month: string,
+  callback: (
+    success: boolean,
+    result: Array<DbSelectUserAllDiarysDTO> | null,
+    error?: MysqlError
+  ) => void
+): any {
+  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate AS date, 
+                    diarytbl.picture AS photo FROM diarytbl, pettbl
+                    WHERE pettbl.ownerID=? AND pettbl.petID = diarytbl.petID 
+                    AND DATE_FORMAT(diarytbl.diaryDate, '%Y-%m') = '?-${month}'
+                    ORDER BY date`;
+
+  return mql.query(sql, [userID, year], (err, row) => {
+    if (err) callback(false, null, err);
+    // 정상 출력
+    else {
+      callback(true, row);
+    }
+  });
+}
+//DATE_FORMAT(todolisttbl.date, '%Y-%m') = '?-${month}'
 
 // (petID) -> 반려견의 모든 다이어리 get
 export function dbSelectPetAllDiarys(

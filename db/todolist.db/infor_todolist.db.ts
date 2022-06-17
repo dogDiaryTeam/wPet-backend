@@ -139,7 +139,7 @@ export function dbSelectPetTodolistsInfo(
   let sql: string = `SELECT todolisttbl.todoListID, todolisttbl.petID, todolisttbl.date, todolisttbl.content, 
                       todolisttbl.isCheck, todolistkeywordtbl.keyword FROM todolisttbl, todolistkeywordtbl 
                       WHERE todolisttbl.petID=? AND todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID AND 
-                      DATE_FORMAT(todolisttbl.date, '%Y-%m') = '?-${month}'`;
+                      DATE_FORMAT(todolisttbl.date, '%Y-%m') = '?-${month}' ORDER BY todolisttbl.date`;
   return mql.query(sql, [petID, year], (err, row) => {
     if (err) callback(false, err);
     else callback(true, null, row);

@@ -75,7 +75,7 @@ export function dbCheckTodayPetDiary(
       for (let j = 0; j < writtenPetsLen; j++) {
         writtenPets.push(row[j].name);
       }
-
+      console.log(writtenPets);
       callback(true, null, writtenPets);
     }
     // 이미 작성한 반려견들이 없다면 -> 작성 가능

@@ -46,7 +46,13 @@ export interface UpdatePetInforDTO {
   breeds?: Array<string>;
 }
 
+export interface DbSelectPetsIdNameDTO {
+  petID: number;
+  name: string;
+}
+
 export interface DbSelectPetsDTO {
   petID: number;
   name: string;
+  photo: string | null;
 }

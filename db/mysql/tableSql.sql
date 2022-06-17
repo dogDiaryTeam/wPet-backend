@@ -2,14 +2,14 @@
 -- (
 --  userID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  email VARCHAR(255) NOT NULL UNIQUE,
---  pw VARCHAR(255) NOT NULL UNIQUE,
+--  pw VARCHAR(255),
 --  token TEXT,
 --  joinDate DATE NOT NULL,
 --  nickName VARCHAR(20) NOT NULL UNIQUE,
 --  profilePicture TEXT,
 --  location VARCHAR(255),
 --  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
---  kakaoID INT UNSIGNED
+--  kakaoID INT UNSIGNED UNIQUE
 -- )
 -- CREATE TABLE petTBL
 -- (

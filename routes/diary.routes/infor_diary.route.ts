@@ -1,8 +1,9 @@
 import { PetAllDiaryModel, PetDiaryModel } from "../../types/diary";
 import {
-  getDiarys,
   getOneDiary,
+  getPetDiarys,
   getTodayDiaryWritablePets,
+  getUserDiarys,
 } from "../../controllers/diary.controllers/infor_diary.controller";
 
 import { DiaryRequest } from "../../types/express";
@@ -16,6 +17,43 @@ const router = Router();
 /**
  * @swagger
  * paths:
+ *   /users/auth/diarys/{year}/{month}:
+ *     get:
+ *        tags:
+ *        - diarys
+ *        description: "사용자의 반려견들의 모든 다이어리 정보 가져오기"
+ *        produces:
+ *          - "application/json"
+ *        parameters:
+ *        - name: "year"
+ *          in: "path"
+ *          description: "가져올 다이어리의 년도"
+ *          required: true
+ *          type: "number"
+ *          example: "2022"
+ *        - name: "month"
+ *          in: "path"
+ *          description: "가져올 다이어리의 달"
+ *          required: true
+ *          type: "number"
+ *          example: "6"
+ *        responses:
+ *          "200":
+ *            description: "사용자의 모든 다이어리 정보 가져오기 성공"
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/definitions/AllDiarys'
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / FIND IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
  *   /pets/{petId}/diarys:
  *     get:
  *        tags:
@@ -112,12 +150,12 @@ const router = Router();
  *     get:
  *        tags:
  *        - diarys
- *        description: "당일 다이어리 작성이 가능한지 (이름, petID, 작성가능유무) 목록 가져오기 (가능하다면 작성가능유무는 true)"
+ *        description: "당일 다이어리 작성이 가능한 반려견들 (이름, petID) 목록 가져오기"
  *        produces:
  *          - "application/json"
  *        responses:
  *          "200":
- *            description: "당일 다이어리 작성이 가능한지 반려견들 가져오기 성공"
+ *            description: "당일 다이어리 작성이 가능한 반려견들 가져오기 성공"
  *            content:
  *              application/json:
  *                schema:
@@ -141,14 +179,46 @@ const router = Router();
  *           properties:
  *             petid:
  *               type: number
- *               description: 사용자가 등록한 반려견의 ID
+ *               description: 다이어리 작성이 가능한 반려견의 ID
  *             name:
  *               type: string
- *               description: 사용자가 등록한 반려견의 이름
- *             writable:
- *               type: boolean
- *               description: 당일 다이어리 작성이 가능한지(true) 아닌지(false)
+ *               description: 다이어리 작성이 가능한 반려견의 이름
+ *   AllDiarys:
+ *     type: object
+ *     properties:
+ *       result:
+ *         type: object
+ *         properties:
+ *             '2022-06-01':
+ *               type: array
+ *               description: 해당 date의 다이어리들 목록 (날짜는 예시)
  */
+
+router.get("/users/auth/diarys/:year/:month", auth, (req, res) => {
+  // 사용자가 등록한 모든 반려견의
+  // 모든 다이어리의 정보를 반환한다.
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    // 유저 인증 완료
+    const year: number = Number(req.params.year);
+    const month: number = Number(req.params.month);
+
+    if (checkEmptyValue(year) || checkEmptyValue(month)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    }
+    getUserDiarys(user.userID, year, month, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
+  }
+});
 
 router.get("/pets/:petId/diarys", auth, (req, res) => {
   // 반려견의 다이어리가 맞다면
@@ -164,7 +234,7 @@ router.get("/pets/:petId/diarys", auth, (req, res) => {
         errorMessage: "PARAMETER IS EMPTY",
       });
     }
-    getDiarys(user.userID, petID, res);
+    getPetDiarys(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({

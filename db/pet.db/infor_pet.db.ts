@@ -1,6 +1,7 @@
 import {
   DBPetInforDTO,
   DbSelectPetsDTO,
+  DbSelectPetsIdNameDTO,
   UpdatePetInforDTO,
 } from "../../types/pet";
 
@@ -16,7 +17,26 @@ export function dbSelectPets(
     error?: MysqlError
   ) => void
 ): any {
-  let sql: string = "SELECT petID, name FROM pettbl WHERE ownerID=?";
+  let sql: string =
+    "SELECT petID, name, photo FROM pettbl WHERE ownerID=? ORDER BY petID";
+
+  return mql.query(sql, ownerID, (err, row) => {
+    if (err) callback(false, null, err);
+    // 출력 성공
+    else callback(true, row);
+  });
+}
+
+export function dbSelectPetsIdName(
+  ownerID: number,
+  callback: (
+    success: boolean,
+    result: Array<DbSelectPetsIdNameDTO> | null,
+    error?: MysqlError
+  ) => void
+): any {
+  let sql: string =
+    "SELECT petID, name FROM pettbl WHERE ownerID=? ORDER BY petID";
 
   return mql.query(sql, ownerID, (err, row) => {
     if (err) callback(false, null, err);

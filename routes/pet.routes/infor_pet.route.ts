@@ -26,7 +26,7 @@ const router = Router();
  *     get:
  *        tags:
  *        - pets
- *        description: "사용자가 등록한 반려견들의 이름 가져오기"
+ *        description: "사용자가 등록한 반려견들의 정보 (petID, name, photo) 가져오기"
  *        produces:
  *          - "application/json"
  *        responses:

@@ -28,11 +28,7 @@ export const kakaoLoginApi = async (
     const userEmail = userInfo.kakao_account.has_email
       ? userInfo.kakao_account.email
       : null;
-    console.log(userInfo);
-    console.log(userID);
-    console.log(userNickName);
-    console.log(userProfileUrl);
-    console.log(userEmail);
+
     // res.send("HI " + JSON.stringify(userInfo));
     return {
       userID,

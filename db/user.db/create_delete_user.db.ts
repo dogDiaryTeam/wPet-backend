@@ -160,3 +160,18 @@ export function dbSuccessUserEmailAuth(
     }
   });
 }
+
+// 사용자 delete
+export function dbDeleteUser(
+  userID: number,
+  callback: (success: boolean, error?: MysqlError | string) => void
+): any {
+  let sql: string = "DELETE FROM usertbl WHERE userID=?";
+  return mql.query(sql, userID, (err, row) => {
+    if (err) callback(false, err);
+    // 사용자 삭제 성공
+    else if (row.affectedRows > 0) {
+      callback(true);
+    } else callback(false, "DELETE USER FAILED");
+  });
+}

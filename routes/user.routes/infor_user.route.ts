@@ -127,6 +127,36 @@ const router = Router();
  *          - petstore_auth:
  *              - "write:pets"
  *              - "read:pets"
+ *     delete:
+ *        tags:
+ *        - users
+ *        description: "사용자 삭제하기 (요청온 비밀번호가 일치할 경우)"
+ *        produces:
+ *        - applicaion/json
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  pw:
+ *                    type: string
+ *                    description: 삭제할 사용자의 비밀번호
+ *                    example: "111111a!"
+ *        responses:
+ *          "200":
+ *            description: "사용자 삭제 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패 또는 비밀번호 불일치"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
  *   /users/auth/pw:
  *     put:
  *        tags:

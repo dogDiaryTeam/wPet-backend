@@ -7,15 +7,16 @@ import {
   checkSex,
 } from "../validations/validate";
 import {
-  dbFindDuplicateEmail,
-  dbFindUser,
-} from "../../db/user.db/infor_user.db";
-import {
+  dbDeleteUser,
   dbInsertUser,
   dbInsertUserEmailAuth,
   dbSelectUserEmailAuth,
   dbSuccessUserEmailAuth,
 } from "../../db/user.db/create_delete_user.db";
+import {
+  dbFindDuplicateEmail,
+  dbFindUser,
+} from "../../db/user.db/infor_user.db";
 
 import { CreateUserReqDTO } from "../../types/user";
 import { Response } from "express-serve-static-core";
@@ -223,26 +224,40 @@ export const compareAuthEmail = (
   }
 };
 
-// export const deleteUser = (
-//   email: string,
-//   res: Response<any, Record<string, any>, number>
-// ) => {
-//   //이메일 주소로 인증
-//   if (checkEmail(email)) {
-//     let authString: string = String(Math.random().toString(36).slice(2));
-//     dbInsertUserEmailAuth(email, authString, function (success, error) {
-//       if (!success) {
-//         console.log(error);
-//       } else {
-//         //인증번호 부여 성공
-//         console.log("db에 authstring 넣기 성공");
-//         //인증번호를 담은 메일 전송
-//         mailSendAuthEmail(email, authString, res);
-//       }
-//     });
-//   } else {
-//     return res
-//       .status(400)
-//       .json({ success: false, message: "이메일 형식이 유효하지 않습니다." });
-//   }
-// };
+export const deleteUser = (
+  userID: number,
+  userPw: string,
+  pw: string,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // 요청 데이터 (pw) 유효성 검사
+  if (!checkPw(pw)) {
+    return res.status(400).json({
+      code: "INVALID FORMAT ERROR",
+      errorMessage: `INVALID FORMAT : PASSWORD`,
+    });
+  } else {
+    // pw 일치하는지 검증
+    bcrypt.compare(pw, userPw, (error, result) => {
+      if (result) {
+        //성공
+        //비밀번호 일치
+        // DB에서 삭제
+        dbDeleteUser(userID, function (success, error) {
+          if (!success) {
+            return res
+              .status(404)
+              .json({ code: "SQL ERROR", errorMessage: error });
+          }
+          return res.json({ success: true });
+        });
+      } else {
+        //비밀번호 불일치
+        return res.status(401).json({
+          code: "AUTH FAILED",
+          errorMessage: "PASSWORD IS MISMATCH",
+        });
+      }
+    });
+  }
+};

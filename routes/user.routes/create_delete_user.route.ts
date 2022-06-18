@@ -2,6 +2,7 @@ import {
   CompareAuthEmailModel,
   CreateUserModel,
   CreateUserReqDTO,
+  DeleteUserModel,
   FindPwModel,
   LoginUserModel,
   SendAuthEmailModel,
@@ -13,6 +14,7 @@ import {
 import {
   compareAuthEmail,
   creatUser,
+  deleteUser,
   sendAuthEmail,
 } from "../../controllers/user.controllers/create_delete_user.controller";
 import {
@@ -185,6 +187,30 @@ router.get("/kakao-login", async (req, res) => {
 
   // 있다면
   // 로그인
+});
+
+router.delete("/users/auth", auth, (req: UserRequest<DeleteUserModel>, res) => {
+  //회원가입 할때 필요한 정보들을 client에서 가져오면
+  //그것들을 데이터 베이스에 넣어준다.
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    let userPw: string = user.pw;
+    const pw: string = req.body.pw;
+    // test 필요
+    if (checkEmptyValue(pw)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    }
+    deleteUser(user.userID, userPw, pw, res);
+  } else {
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
+  }
 });
 
 export default router;

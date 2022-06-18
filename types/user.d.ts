@@ -44,6 +44,10 @@ interface CompareAuthUpdateEmailModel extends mongoose.Document {
   authCode: string;
 }
 
+interface DeleteUserModel extends mongoose.Document {
+  pw: string;
+}
+
 export interface UserInforDTO {
   userID: number;
   email: string;

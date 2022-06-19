@@ -20,12 +20,11 @@ export function dbUpdateUserTempPw(
 //token update
 export function dbUpdateUserToken(
   token: string,
-  email: string,
-  pw: string,
+  userID: number,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
-  let sql: string = "UPDATE usertbl SET token=? WHERE email=? AND pw=?";
-  return mql.query(sql, [token, email, pw], (err, row) => {
+  let sql: string = "UPDATE usertbl SET token=? WHERE userID=?";
+  return mql.query(sql, [token, userID], (err, row) => {
     if (err) callback(false, err);
     else {
       callback(true);

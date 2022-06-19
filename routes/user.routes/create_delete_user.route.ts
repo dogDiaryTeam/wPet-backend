@@ -30,7 +30,7 @@ import { UserRequest } from "../../types/express";
 import { auth } from "../../middleware/auth";
 import axios from "axios";
 import { checkEmptyValue } from "../../controllers/validations/validate";
-import { kakaoLogin } from "../../controllers/user.controllers/kakao_login_logout.controller";
+import { kakaoUserInsert } from "../../controllers/user.controllers/kakao_login_logout.controller";
 
 const router = Router();
 
@@ -182,7 +182,7 @@ router.get("/kakao-login", async (req, res) => {
   let user: KakaoUserDTO | null = await kakaoLoginApi(code, res);
   console.log(user);
   // 정보 -> db에서 확인
-  if (user) kakaoLogin(user, res);
+  if (user) kakaoUserInsert(user, res);
   // 카카오 정보가 없음
 
   // 있다면

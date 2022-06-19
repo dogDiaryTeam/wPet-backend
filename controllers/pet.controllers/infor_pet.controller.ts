@@ -497,32 +497,26 @@ export const updatePetInfor = (
                                   }
                                 })
                                 .catch((err) => {
-                                  console.log("ㄴㄴ");
                                   console.log(err);
                                 });
                             })
                             .catch((err) => {
-                              console.log("ㄴㄴ");
                               console.log(err);
                             });
                         })
                         .catch((err) => {
-                          console.log("ㄴㄴ");
                           console.log(err);
                         });
                     })
                     .catch((err) => {
-                      console.log("ㄴㄴ");
                       console.log(err);
                     });
                 })
                 .catch((err) => {
-                  console.log("ㄴㄴ");
                   console.log(err);
                 });
             })
             .catch((err) => {
-              console.log("ㄴ");
               console.log(err);
             });
         }

@@ -104,27 +104,22 @@ export const loginUser = (
 
           let userToken = jwt.sign(String(user.userID), process.env.TOKEN);
 
-          dbUpdateUserToken(
-            userToken,
-            email,
-            user.pw,
-            function (success, error) {
-              if (!success) {
-                return res
-                  .status(404)
-                  .json({ code: "SQL ERROR", errorMessage: error });
-              }
-              // 쿠키 유효기간 : 일주일
+          dbUpdateUserToken(userToken, user.userID, function (success, error) {
+            if (!success) {
               return res
-                .cookie("x_auth", userToken, {
-                  maxAge: 14 * 24 * 60 * 60 * 1000,
-                })
-                .status(201)
-                .json({
-                  success: true,
-                });
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: error });
             }
-          );
+            // 쿠키 유효기간 : 일주일
+            return res
+              .cookie("x_auth", userToken, {
+                maxAge: 14 * 24 * 60 * 60 * 1000,
+              })
+              .status(201)
+              .json({
+                success: true,
+              });
+          });
         } else {
           //비밀번호 불일치
           return res.status(401).json({

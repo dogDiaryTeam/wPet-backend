@@ -5,7 +5,7 @@
 --  pw VARCHAR(255),
 --  token TEXT,
 --  joinDate DATE NOT NULL,
---  nickName VARCHAR(20) NOT NULL UNIQUE,
+--  nickName VARCHAR(255) NOT NULL UNIQUE,
 --  profilePicture TEXT,
 --  location VARCHAR(255),
 --  isAuth TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,

@@ -22,16 +22,15 @@ export const kakaoLoginApi = async (
     // 엑세스 토큰이 있는 경우 API에 접근
     const { access_token } = kakaoToken;
     const userInfo = await getUserInfo(access_token);
-    const userID = userInfo.id;
-    const userNickName = userInfo.kakao_account.profile.nickname;
-    const userProfileUrl = userInfo.kakao_account.profile.profile_image_url;
-    const userEmail = userInfo.kakao_account.has_email
-      ? userInfo.kakao_account.email
-      : null;
+    const kakaoID: number = userInfo.id;
+    const userNickName: string = userInfo.kakao_account.profile.nickname;
+    const userProfileUrl: string =
+      userInfo.kakao_account.profile.profile_image_url;
+    const userEmail: string = userInfo.kakao_account.email;
 
     // res.send("HI " + JSON.stringify(userInfo));
     return {
-      userID,
+      kakaoID,
       userNickName,
       userProfileUrl,
       userEmail,

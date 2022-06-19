@@ -1,5 +1,5 @@
 export interface KakaoUserDTO {
-  userID: number;
+  kakaoID: number;
   userNickName: string;
   userProfileUrl: string;
   userEmail: string;

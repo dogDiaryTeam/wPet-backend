@@ -58,35 +58,44 @@ export const getUserDiarys = (
 
           let photos = diarys.map((diary) => diary.photo);
           // 다이어리 사진url -> 파일안의 데이터 가져오기
-          dbSelectPictureFiles(photos, function (diaryPictureDatas) {
-            // 파일에서 이미지 데이터 가져오기 성공 (array)
-            if (photos.length !== diaryPictureDatas.length)
-              return res.status(404).json({
-                code: "FIND IMAGE FILE ERROR",
-                errorMessage: "IMAGE FILES NOT FOUND",
-              });
-
-            for (let i = 0; i < diarysLen; i++) {
-              if (String(diarys[i].date) in result) {
-                // date key 존재
-                result[String(diarys[i].date)].push({
-                  diaryID: diarys[i].diaryID,
-                  petID: diarys[i].petID,
-                  photo: diaryPictureDatas[i],
+          dbSelectPictureFiles(
+            photos,
+            function (success, diaryPictureDatas, err) {
+              if (!success) {
+                return res.status(404).json({
+                  code: "FIND IMAGE FILE ERROR",
+                  errorMessage: err,
                 });
-              } else {
-                result[String(diarys[i].date)] = [
-                  {
-                    diaryID: diarys[i].diaryID,
-                    petID: diarys[i].petID,
-                    photo: diaryPictureDatas[i],
-                  },
-                ];
+              } else if (diaryPictureDatas !== null) {
+                // 파일에서 이미지 데이터 가져오기 성공 (array)
+                if (photos.length !== diaryPictureDatas.length)
+                  return res.status(404).json({
+                    code: "FIND IMAGE FILE ERROR",
+                    errorMessage: "IMAGE FILES NOT FOUND",
+                  });
+
+                for (let i = 0; i < diarysLen; i++) {
+                  if (String(diarys[i].date) in result) {
+                    // date key 존재
+                    result[String(diarys[i].date)].push({
+                      diaryID: diarys[i].diaryID,
+                      petID: diarys[i].petID,
+                      photo: diaryPictureDatas[i],
+                    });
+                  } else {
+                    result[String(diarys[i].date)] = [
+                      {
+                        diaryID: diarys[i].diaryID,
+                        petID: diarys[i].petID,
+                        photo: diaryPictureDatas[i],
+                      },
+                    ];
+                  }
+                }
+                return res.json({ result });
               }
             }
-          });
-
-          return res.json({ result });
+          );
         } else {
           // diary 0개
           return res.json({ result: [] });
@@ -127,18 +136,28 @@ export const getPetDiarys = (
           diaryPictures.push(result[i].photo);
         }
         // 다이어리 사진url -> 파일안의 데이터 가져오기
-        dbSelectPictureFiles(diaryPictures, function (diaryPictureDatas) {
-          // 파일에서 이미지 데이터 가져오기 성공 (array)
-          if (result.length !== diaryPictureDatas.length)
-            return res.status(404).json({
-              code: "FIND IMAGE FILE ERROR",
-              errorMessage: "IMAGE FILES NOT FOUND",
-            });
-          for (let i = 0; i < result.length; i++) {
-            result[i].photo = diaryPictureDatas[i];
+        dbSelectPictureFiles(
+          diaryPictures,
+          function (success, diaryPictureDatas, err) {
+            if (!success) {
+              return res.status(404).json({
+                code: "FIND IMAGE FILE ERROR",
+                errorMessage: err,
+              });
+            } else if (diaryPictureDatas !== null) {
+              // 파일에서 이미지 데이터 가져오기 성공 (array)
+              if (result.length !== diaryPictureDatas.length)
+                return res.status(404).json({
+                  code: "FIND IMAGE FILE ERROR",
+                  errorMessage: "IMAGE FILES NOT FOUND",
+                });
+              for (let i = 0; i < result.length; i++) {
+                result[i].photo = diaryPictureDatas[i];
+              }
+              return res.json({ result });
+            }
           }
-          return res.json({ result });
-        });
+        );
       }
     });
   });
@@ -184,6 +203,7 @@ export const getOneDiary = (
         }
         // 다이어리가 존재하는 경우
         else if (result) {
+          // console.log()
           // pet 사진url -> 파일안의 데이터 가져오기
           dbSelectPictureFile(
             result.photo,

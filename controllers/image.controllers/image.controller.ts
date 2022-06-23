@@ -12,6 +12,7 @@ export function imageController(
     error?: NodeJS.ErrnoException
   ) => void
 ): any {
+  console.log("image", imageData);
   if (imageData === null || imageData === undefined) {
     callback(true, null);
   } else {
@@ -74,6 +75,8 @@ export function dbSelectPictureFile(
     message?: string
   ) => void
 ): any {
+  console.log("image", fileUrl);
+  console.log(typeof fileUrl);
   if (fileUrl === null) {
     callback(true, null, null);
   } else {
@@ -95,23 +98,29 @@ export function dbSelectPictureFile(
 // 사진파일들 가져오기
 export function dbSelectPictureFiles(
   fileUrls: Array<string | null>,
-  callback: (result: Array<string>) => void
+  callback: (
+    success: boolean,
+    result: Array<string | null> | null,
+    err?: string
+  ) => void
 ): any {
   let fileLen: number = fileUrls.length;
-  let newFiles: Array<string> = [];
+  let newFiles: Array<string | null> = [];
   let file: string | null;
 
   let data;
   for (let i = 0; i < fileLen; i++) {
     file = fileUrls[i];
     // url에 파일이 존재하는지 확인
-    if (file && fs.existsSync(file)) {
+    if (file === null) {
+      newFiles.push(null);
+    } else if (file && fs.existsSync(file)) {
       // url에 위치한 파일 내용 가져오기
       data = fs.readFileSync(file);
       newFiles.push(data.toString());
     } else {
-      newFiles.push("");
+      callback(false, null, "IMAGE FILE NOT FOUND");
     }
   }
-  callback(newFiles);
+  callback(true, newFiles);
 }

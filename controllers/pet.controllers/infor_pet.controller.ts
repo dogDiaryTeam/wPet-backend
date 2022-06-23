@@ -51,18 +51,28 @@ export const getUserPets = (
       let petPhotos: Array<string | null> = result.map((pet) => pet.photo);
 
       // pet 사진url -> 파일안의 데이터 가져오기
-      dbSelectPictureFiles(petPhotos, function (diaryPictureDatas) {
-        // 파일에서 이미지 데이터 가져오기 성공 (array)
-        if (petPhotos.length !== diaryPictureDatas.length)
-          return res.status(404).json({
-            code: "FIND IMAGE FILE ERROR",
-            errorMessage: "IMAGE FILES NOT FOUND",
-          });
-        for (let i = 0; i < petLen; i++) {
-          result[i].photo = diaryPictureDatas[i];
+      dbSelectPictureFiles(
+        petPhotos,
+        function (success, diaryPictureDatas, err) {
+          if (!success) {
+            return res.status(404).json({
+              code: "FIND IMAGE FILE ERROR",
+              errorMessage: err,
+            });
+          } else if (diaryPictureDatas !== null) {
+            // 파일에서 이미지 데이터 가져오기 성공 (array)
+            if (petPhotos.length !== diaryPictureDatas.length)
+              return res.status(404).json({
+                code: "FIND IMAGE FILE ERROR",
+                errorMessage: "IMAGE FILES NOT FOUND",
+              });
+            for (let i = 0; i < petLen; i++) {
+              result[i].photo = diaryPictureDatas[i];
+            }
+            return res.json({ result });
+          }
         }
-        return res.json({ result });
-      });
+      );
     } else return res.json({ result });
   });
 };

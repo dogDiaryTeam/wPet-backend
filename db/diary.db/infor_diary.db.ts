@@ -82,6 +82,7 @@ export function dbSelectDiary(
     else if (row.length > 0) {
       let hashTagNames: Array<string> = row[0].hashTagNames.split(",");
       row[0].hashTagNames = hashTagNames;
+      console.log(typeof row[0].photo);
       callback(true, row[0], null);
     }
     // 출력 X

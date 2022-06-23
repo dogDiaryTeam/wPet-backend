@@ -95,13 +95,14 @@ export function dbWriteDiary(
   let petIDs: Array<number> = diaryInfor.petIDs;
   let petNum: number = petIDs.length;
 
+  diaryInfor.photo = diaryInfor.photo === null ? null : `"${diaryInfor.photo}"`;
   let sql: string = `INSERT INTO diarytbl (petID, diaryDate, title, picture, texts, shareIs, petState, weather, color, font) 
-                    VALUES ("${diaryInfor.petIDs[0]}",NOW(),"${diaryInfor.title}", "${diaryInfor.photo}", "${diaryInfor.texts}", 
+                    VALUES ("${diaryInfor.petIDs[0]}",NOW(),"${diaryInfor.title}", ${diaryInfor.photo}, "${diaryInfor.texts}", 
                     "${diaryInfor.isShare}", "${diaryInfor.petState}", "${diaryInfor.weather}", "${diaryInfor.color}", "${diaryInfor.font}")`;
   for (let i = 0; i < petNum - 1; i++) {
-    sql += `,("${diaryInfor.petIDs[i + 1]}",NOW(),"${diaryInfor.title}", "${
+    sql += `,("${diaryInfor.petIDs[i + 1]}",NOW(),"${diaryInfor.title}", ${
       diaryInfor.photo
-    }", "${diaryInfor.texts}", "${diaryInfor.isShare}", "${
+    }, "${diaryInfor.texts}", "${diaryInfor.isShare}", "${
       diaryInfor.petState
     }", "${diaryInfor.weather}", "${diaryInfor.color}", "${diaryInfor.font}")`;
   }

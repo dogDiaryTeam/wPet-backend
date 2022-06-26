@@ -109,7 +109,7 @@ const router = Router();
  *              - "write:pets"
  *              - "read:pets"
  *   /pets/{petId}/todolists/{todolistId}/{isCheck}:
- *     post:
+ *     patch:
  *        tags:
  *        - todolists
  *        description: "투두리스트 한개 체크 또는 체크해제하기"
@@ -269,35 +269,39 @@ const router = Router();
  *               description: 투두리스트의 키워드 (DB에 저장된 상태)
  */
 
-router.post("/pets/:petId/todolists/:todolistId/:isCheck", auth, (req, res) => {
-  // 반려견 한마리 당 가지는
-  // 투두리스트 중
-  // 완료 후 체크
-  let user: UserInforDTO | null = req.user;
+router.patch(
+  "/pets/:petId/todolists/:todolistId/:isCheck",
+  auth,
+  (req, res) => {
+    // 반려견 한마리 당 가지는
+    // 투두리스트 중
+    // 완료 후 체크
+    let user: UserInforDTO | null = req.user;
 
-  if (user) {
-    const petID: number = Number(req.params.petId);
-    const todolistID: number = Number(req.params.todolistId);
-    const isCheck: number = Number(req.params.isCheck);
+    if (user) {
+      const petID: number = Number(req.params.petId);
+      const todolistID: number = Number(req.params.todolistId);
+      const isCheck: number = Number(req.params.isCheck);
 
-    if (
-      checkEmptyValue(petID) ||
-      checkEmptyValue(todolistID) ||
-      checkEmptyValue(isCheck)
-    ) {
-      return res.status(400).json({
-        code: "INVALID FORMAT ERROR",
-        errorMessage: "PARAMETER IS EMPTY",
+      if (
+        checkEmptyValue(petID) ||
+        checkEmptyValue(todolistID) ||
+        checkEmptyValue(isCheck)
+      ) {
+        return res.status(400).json({
+          code: "INVALID FORMAT ERROR",
+          errorMessage: "PARAMETER IS EMPTY",
+        });
+      }
+      checkTodolist(user.userID, petID, todolistID, isCheck, res);
+    } else {
+      return res.status(401).json({
+        code: "AUTH FAILED",
+        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
       });
     }
-    checkTodolist(user.userID, petID, todolistID, isCheck, res);
-  } else {
-    return res.status(401).json({
-      code: "AUTH FAILED",
-      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
-    });
   }
-});
+);
 
 router.put(
   "/pets/:petId/todolists/:todolistId",

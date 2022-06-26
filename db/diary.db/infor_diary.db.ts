@@ -96,16 +96,48 @@ export function dbSelectDiaryPicture(
   callback: (
     success: boolean,
     result: string | null,
-    error: MysqlError | null,
-    message?: string
+    error?: MysqlError
   ) => void
 ): any {
   let sql: string = `SELECT picture FROM diarytbl WHERE diaryID=?`;
   return mql.query(sql, diaryID, (err, row) => {
     if (err) callback(false, null, err);
     // 정상 출력
-    else if (row.length > 0) callback(true, row[0].picture, null);
-    // 다이어리 없음
-    else callback(false, null, null, "DIARY NOT FOUND");
+    else callback(true, row[0].picture);
+  });
+}
+
+// (pet) -> albumPick=1 다이어리 개수가 최대 개수인지 검증
+export function dbValidationAlbumPickDiary(
+  petID: number,
+  maxAlbumPickDiaryLen: number,
+  callback: (success: boolean, error: MysqlError | null, msg?: string) => void
+): any {
+  let sql: string = `SELECT count(*) AS diaryLen FROM diarytbl WHERE petID=? AND albumPick=1`;
+  return mql.query(sql, petID, (err, row) => {
+    if (err) callback(false, err);
+    // max 초과 o
+    else if (row[0].diaryLen === maxAlbumPickDiaryLen)
+      callback(
+        false,
+        null,
+        `EXCEED MAX NUMBER OF DIARYS CAN BE ALBUM (${maxAlbumPickDiaryLen})`
+      );
+    // max 초과 x
+    else callback(true, null);
+  });
+}
+
+// (diary) -> 다이어리 albumPick 수정
+export function dbUpdateDiaryAlbumPick(
+  diaryID: number,
+  albumPick: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = `UPDATE diarytbl SET albumPick=? WHERE diaryID=?`;
+  return mql.query(sql, [diaryID, albumPick], (err, row) => {
+    if (err) callback(false, err);
+    // 정상 출력
+    callback(true);
   });
 }

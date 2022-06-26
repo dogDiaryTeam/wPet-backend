@@ -7,8 +7,8 @@ import {
   checkDate,
   checkMonth,
   checkStringLen,
-  checkTodolistIsCheck,
   checkYear,
+  checkZeroOrOne,
 } from "../validations/validate";
 import {
   dbCheckPetTodolist,
@@ -53,7 +53,7 @@ export const checkTodolist = (
       }
       // 반려견의 투두리스트가 맞는 경우
       // isCheck 유효성 검사
-      else if (!checkTodolistIsCheck(isCheck))
+      else if (!checkZeroOrOne(isCheck))
         return res.status(400).json({
           code: "INVALID FORMAT ERROR",
           errorMessage: `INVALID FORMAT : ISCHECK (0 OR 1)`,

@@ -153,7 +153,7 @@ export function checkDiaryHashTags(hashTags: Array<string>): boolean {
 }
 
 // todolist isChheck 유효성 검사
-export function checkTodolistIsCheck(isCheck: number): boolean {
+export function checkZeroOrOne(isCheck: number): boolean {
   if (isCheck === 0 || isCheck === 1) return true;
   return false;
 }

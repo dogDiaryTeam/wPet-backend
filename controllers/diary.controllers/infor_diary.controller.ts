@@ -1,5 +1,5 @@
 import { DbSelectPetsDTO, DbSelectPetsIdNameDTO } from "../../types/pet";
-import { checkMonth, checkYear } from "../validations/validate";
+import { checkMonth, checkYear, checkZeroOrOne } from "../validations/validate";
 import {
   dbCheckPetIDs,
   dbCheckPetsDiary,
@@ -9,6 +9,8 @@ import {
   dbSelectDiary,
   dbSelectPetAllDiarys,
   dbSelectUserAllDiarys,
+  dbUpdateDiaryAlbumPick,
+  dbValidationAlbumPickDiary,
 } from "../../db/diary.db/infor_diary.db";
 import { dbSelectPets, dbSelectPetsIdName } from "../../db/pet.db/infor_pet.db";
 import {
@@ -18,6 +20,7 @@ import {
 
 import { Response } from "express-serve-static-core";
 import { TodayDiaryWritablePetDTO } from "../../types/diary";
+import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 
 export const getUserDiarys = (
   userID: number,
@@ -226,6 +229,94 @@ export const getOneDiary = (
           );
         }
       });
+    });
+  });
+};
+
+const maxAlbumPickDiaryLen: number = 10;
+
+export const albumPickDiary = (
+  userID: number,
+  petID: number,
+  diaryID: number,
+  albumPick: number,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // (pet의 diary가 맞다면)
+  // albumPick -> 1 or 0
+
+  // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
+  dbCheckPetExist(userID, petID, function (success, result, err, msg) {
+    if (!success && err) {
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+    }
+    // 사용자가 등록한 pet의 petID가 아닌 경우
+    else if (!success && !err) {
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+    }
+    // 사용자의 반려견이 맞는 경우
+
+    // 반려견의 다이어리가 맞는지 검증
+    dbCheckPetsDiary(petID, diaryID, function (success, err, msg) {
+      if (!success && err) {
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+      }
+      // 반려견의 다이어리가 아님
+      else if (!success && !err) {
+        return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+      }
+      // 반려견의 다이어리가 맞음
+      // 요청 데이터 유효성 검사
+      else if (!checkZeroOrOne(albumPick)) {
+        return res.status(400).json({
+          code: "INVALID FORMAT ERROR",
+          errorMessage: `INVALID FORMAT : ALBUM PICK (0 OR 1)`,
+        });
+      }
+      // Pick 1인 경우 -> Pick 1 다이어리 최대 개수 넘는지 검증
+      else if (albumPick === 1) {
+        dbValidationAlbumPickDiary(
+          petID,
+          maxAlbumPickDiaryLen,
+          function (success, err, msg) {
+            if (!success && err) {
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: err });
+            }
+            // max 초과 (더이상 album pick 불가능, 다른 다이어리 하나 제거해야함)
+            else if (!success && !err) {
+              return res
+                .status(400)
+                .json({ code: "EXCEED MAX ERROR", errorMessage: msg });
+            }
+            // pick 가능
+            // Pick (0 or 1) -> DB에 UPDATE
+            dbUpdateDiaryAlbumPick(diaryID, albumPick, function (success, err) {
+              if (!success) {
+                return res
+                  .status(404)
+                  .json({ code: "SQL ERROR", errorMessage: err });
+              }
+              // UPDATE 성공
+              return res.status(201).json({ success: true });
+            });
+          }
+        );
+      }
+      // Pick 0인 경우
+      else {
+        // Pick (0 or 1) -> DB에 UPDATE
+        dbUpdateDiaryAlbumPick(diaryID, albumPick, function (success, err) {
+          if (!success) {
+            return res
+              .status(404)
+              .json({ code: "SQL ERROR", errorMessage: err });
+          }
+          // UPDATE 성공
+          return res.status(201).json({ success: true });
+        });
+      }
     });
   });
 };

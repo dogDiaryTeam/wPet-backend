@@ -153,17 +153,11 @@ export const deleteDiary = (
         // 삭제전 - 사진파일 가져오기
         dbSelectDiaryPicture(
           diaryID,
-          function (success, diaryPictureData, err, msg) {
-            if (!success && err) {
+          function (success, diaryPictureData, err) {
+            if (!success) {
               return res
                 .status(404)
                 .json({ code: "SQL ERROR", errorMessage: err });
-            }
-            // 다이어리 없음
-            else if (!success && !err) {
-              return res
-                .status(404)
-                .json({ code: "NOT FOUND", errorMessage: msg });
             }
             // 사진 파일 데이터 가져오기 성공
             // 다이어리 삭제

@@ -24,7 +24,7 @@ export const kakaoUserInsert = (
       dbFindUser("email", user.userEmail, function (err, isDupeUser, dupeUser) {
         if (err) {
           return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
-        } else if (isUser) {
+        } else if (isDupeUser) {
           // 이메일 중복
           return res
             .status(409)

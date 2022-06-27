@@ -37,8 +37,8 @@ export function dbInsertKakaoUser(
     userID?: number
   ) => void
 ): any {
-  let sql: string = `INSERT INTO usertbl(email, nickName, profilePicture, joinDate, kakaoID) 
-                        VALUES (?,?,?,NOW(),?)`;
+  let sql: string = `INSERT INTO usertbl(email, nickName, profilePicture, joinDate, kakaoID, isAuth) 
+                        VALUES (?,?,?,NOW(),?,1)`;
 
   return mql.query(sql, [email, email, profileUrl, kakaoID], (err, row) => {
     if (err) callback(false, err);

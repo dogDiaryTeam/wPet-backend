@@ -19,6 +19,7 @@ import { DiaryInforDTO } from "../../types/diary";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbSelectDiaryPicture } from "../../db/diary.db/infor_diary.db";
+import { dbUpdatePetLevel } from "../../db/pet.db/infor_pet.db";
 
 export const createDiary = (
   userID: number,
@@ -111,7 +112,15 @@ export const createDiary = (
                   .json({ code: "WRITE DIARY ERROR", errorMessage: msg });
               } else {
                 // 다이어리, 해시태그 삽입 성공
-                res.status(201).json({ success: true });
+                // pet level UPDATE
+                dbUpdatePetLevel(diary.petIDs, function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: err });
+                  }
+                  res.status(201).json({ success: true });
+                });
               }
             });
           });
@@ -178,7 +187,15 @@ export const deleteDiary = (
                   });
                 }
                 // 파일 삭제 성공
-                res.json({ success: true });
+                // pet level UPDATE
+                dbUpdatePetLevel([petID], function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: err });
+                  }
+                  res.json({ success: true });
+                });
               });
             });
           }

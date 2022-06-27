@@ -12,8 +12,6 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
-
-
 -- DELIMITER //
 -- CREATE TRIGGER check_walk_diary_total_time
 -- 	BEFORE INSERT
@@ -22,8 +20,6 @@
 -- 	SET NEW.totalTime = timediff(NEW.walkEndTime,NEW.walkStartTime);
 -- END// 
 -- DELIMITER ;
-
-
 -- DELIMITER //
 -- CREATE TRIGGER check_walk_diary_total_time_update
 -- 	BEFORE UPDATE
@@ -34,8 +30,6 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
-
-
 -- DELIMITER //
 -- CREATE TRIGGER check_hospitaldiary_next_visit_update
 -- 	AFTER UPDATE
@@ -46,7 +40,6 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
-
 -- DELIMITER //
 -- CREATE TRIGGER check_shower_diary_due_Date_calcul
 -- 	BEFORE INSERT
@@ -55,7 +48,6 @@
 -- 	SET NEW.dueDate = DATE_ADD(NEW.lastShowerDate, INTERVAL NEW.cycleDay DAY);
 -- END// 
 -- DELIMITER ;
-
 -- DELIMITER //
 -- CREATE TRIGGER check_shower_diary_due_Date_calcul_update
 -- 	BEFORE UPDATE
@@ -66,7 +58,6 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
-
 -- DELIMITER //
 -- CREATE TRIGGER check_beauty_diary_due_Date_calcul
 -- 	BEFORE INSERT
@@ -75,7 +66,6 @@
 -- 	SET NEW.dueDate = DATE_ADD(NEW.lastBeautyDate, INTERVAL NEW.cycleDay DAY);
 -- END// 
 -- DELIMITER ;
-
 -- DELIMITER //
 -- CREATE TRIGGER check_beauty_diary_due_Date_calcul_update
 -- 	BEFORE UPDATE

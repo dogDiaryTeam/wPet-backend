@@ -55,4 +55,5 @@ export interface DbSelectPetsDTO {
   petID: number;
   name: string;
   photo: string | null;
+  level: number;
 }

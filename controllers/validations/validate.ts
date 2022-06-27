@@ -169,3 +169,18 @@ export function checkMonth(month: number): boolean {
   if (month > 0 && month < 13) return true;
   return false;
 }
+
+// pet level 검사
+const petLevel_1: number = 5;
+const petLevel_2: number = 12;
+const petLevel_3: number = 25;
+const petLevel_4: number = 40;
+const petLevel_5: number = 80;
+
+export function checkPetLevel(diaryLen: number): number {
+  if (diaryLen < petLevel_1) return 1;
+  else if (diaryLen < petLevel_2) return 2;
+  else if (diaryLen < petLevel_3) return 3;
+  else if (diaryLen < petLevel_4) return 4;
+  else return 5;
+}

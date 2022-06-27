@@ -7,6 +7,7 @@ import {
 } from "../../db/diary.db/create_delete_diary.db";
 import {
   dbSelectDiary,
+  dbSelectPetAllAlbumDiarys,
   dbSelectPetAllDiarys,
   dbSelectUserAllDiarys,
   dbUpdateDiaryAlbumPick,
@@ -134,10 +135,68 @@ export const getPetDiarys = (
       // 정상 출력
       else if (result) {
         // result = array..
-        let diaryPictures: Array<string | null> = [];
-        for (let i = 0; i < result.length; i++) {
-          diaryPictures.push(result[i].photo);
-        }
+        let diaryPictures: Array<string | null> = result.map(
+          (diary) => diary.photo
+        );
+
+        // 다이어리 사진url -> 파일안의 데이터 가져오기
+        dbSelectPictureFiles(
+          diaryPictures,
+          function (success, diaryPictureDatas, err) {
+            if (!success) {
+              return res.status(404).json({
+                code: "FIND IMAGE FILE ERROR",
+                errorMessage: err,
+              });
+            } else if (diaryPictureDatas !== null) {
+              // 파일에서 이미지 데이터 가져오기 성공 (array)
+              if (result.length !== diaryPictureDatas.length)
+                return res.status(404).json({
+                  code: "FIND IMAGE FILE ERROR",
+                  errorMessage: "IMAGE FILES NOT FOUND",
+                });
+              for (let i = 0; i < result.length; i++) {
+                result[i].photo = diaryPictureDatas[i];
+              }
+              return res.json({ result });
+            }
+          }
+        );
+      }
+    });
+  });
+};
+
+export const getPetAlbumDiarys = (
+  userID: number,
+  petID: number,
+  res: Response<any, Record<string, any>, number>
+) => {
+  // 반려견의 앨범 다이어리 보여주기
+  // (diaryID, title, date, picture, color, font..)
+
+  // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
+  dbCheckPetIDs(userID, [petID], function (success, err, msg) {
+    if (!success && err) {
+      return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+    }
+    // 사용자가 등록한 pet의 petID가 아닌 경우
+    else if (!success && !err) {
+      return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
+    }
+    // petID 모두 사용자의 반려견이 맞는 경우
+    // 반려견의 다이어리들 중 앨범 다이어리 가져오기
+    dbSelectPetAllAlbumDiarys(petID, function (success, result, err) {
+      if (!success) {
+        return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
+      }
+      // 정상 출력
+      else if (result) {
+        // result = array..
+        let diaryPictures: Array<string | null> = result.map(
+          (diary) => diary.photo
+        );
+
         // 다이어리 사진url -> 파일안의 데이터 가져오기
         dbSelectPictureFiles(
           diaryPictures,

@@ -6,6 +6,7 @@ import {
 } from "../../types/pet";
 
 import { MysqlError } from "mysql";
+import { checkPetLevel } from "../../controllers/validations/validate";
 import mql from "../mysql/mysql";
 
 // 사용자가 등록한 반려견들 정보 (반려견 이름)
@@ -18,7 +19,7 @@ export function dbSelectPets(
   ) => void
 ): any {
   let sql: string =
-    "SELECT petID, name, photo FROM pettbl WHERE ownerID=? ORDER BY petID";
+    "SELECT petID, name, photo, level FROM pettbl WHERE ownerID=? ORDER BY petID";
 
   return mql.query(sql, ownerID, (err, row) => {
     if (err) callback(false, null, err);
@@ -189,5 +190,50 @@ export function dbSelectPetSpecies(
   return mql.query(sql, (err, row) => {
     if (err) callback(false, null, err);
     else callback(true, row);
+  });
+}
+
+// petLevel update
+export function dbUpdatePetLevel(
+  petIDs: Array<number>,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  // 작성한 다이어리 수에 따라 pet level 수정
+  let petNum: number = petIDs.length;
+  let sql: string = `SELECT petID, count(petID) AS diaryLen FROM diarytbl WHERE (petID=?`;
+  for (let i = 0; i < petNum - 1; i++) {
+    sql += " OR petID=?";
+  }
+  sql += ") GROUP BY petID";
+
+  return mql.query(sql, petIDs, (err, row) => {
+    if (err) callback(false, err);
+    else {
+      let petLevel: number = 1;
+      let updateSql: string = ``;
+      let noDiaryPets: Array<number> = []; // 다이어리 0개인 펫들
+      let noDiaryPetLen: number = petNum - row.length; // 다이어리 0개인 펫 마리 수
+      let diaryPets: Array<number> = []; // 다이어리 1개 이상인 펫들
+      let diaryPetLen: number = row.length; // 다이어리 1개 이상인 펫 마리 수
+
+      // 다이어리 1개 이상인 펫들 level update
+      for (let i = 0; i < diaryPetLen; i++) {
+        diaryPets.push(row[i].petID);
+        petLevel = checkPetLevel(row[i].diaryLen);
+        updateSql += `UPDATE pettbl SET level=${petLevel} WHERE petID=${row[i].petID};`;
+      }
+      // 다이어리 0개 이상인 펫들 level update
+      noDiaryPets = petIDs.filter((x) => !diaryPets.includes(x));
+      for (let j = 0; j < noDiaryPetLen; j++) {
+        updateSql += `UPDATE pettbl SET level=1 WHERE petID=${noDiaryPets[j]};`;
+      }
+
+      // level UPDATE
+      mql.query(updateSql, (err, row) => {
+        if (err) callback(false, err);
+        // update 성공
+        callback(true);
+      });
+    }
   });
 }

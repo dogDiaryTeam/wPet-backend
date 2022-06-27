@@ -2,6 +2,7 @@ import { PetAllDiaryModel, PetDiaryModel } from "../../types/diary";
 import {
   albumPickDiary,
   getOneDiary,
+  getPetAlbumDiarys,
   getPetDiarys,
   getTodayDiaryWritablePets,
   getUserDiarys,
@@ -72,6 +73,33 @@ const router = Router();
  *        responses:
  *          "200":
  *            description: "모든 다이어리 정보 가져오기 성공"
+ *          "400":
+ *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
+ *          "401":
+ *            description: "AUTH FAILED: 사용자 인증 실패"
+ *          "404":
+ *            description: "SQL ERROR : DB 에러 / NOT FOUND : 사용자의 반려견이 아님 / FIND IMAGE FILE ERROR : 이미지 처리 중 에러 발생 (반환되는 경우 없어야함)"
+ *        security:
+ *          - petstore_auth:
+ *              - "write:pets"
+ *              - "read:pets"
+ *   /pets/{petId}/diarys/albums:
+ *     get:
+ *        tags:
+ *        - diarys
+ *        description: "반려견이 작성한 모든 다이어리들 중 앨범들의 정보 가져오기"
+ *        produces:
+ *          - "application/json"
+ *        parameters:
+ *        - name: "petId"
+ *          in: "path"
+ *          description: "다이어리를 작성한 반려견의 아이디"
+ *          required: true
+ *          type: "number"
+ *          example: "1"
+ *        responses:
+ *          "200":
+ *            description: "모든 앨범들 정보 가져오기 성공"
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
@@ -284,6 +312,31 @@ router.get("/pets/:petId/diarys", auth, (req, res) => {
   }
 });
 
+// 라우트 순서 체크
+router.get("/pets/:petId/diarys/albums", auth, (req, res) => {
+  // 반려견의 다이어리들 중
+  // 앨범으로 pick된 다이어리의 정보를 반환한다.
+  let user: UserInforDTO | null = req.user;
+
+  if (user) {
+    // 유저 인증 완료
+    const petID: number = Number(req.params.petId);
+    if (checkEmptyValue(petID)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
+      });
+    }
+    getPetAlbumDiarys(user.userID, petID, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
+  }
+});
+
 router.get("/pets/:petId/diarys/:diaryId", auth, (req, res) => {
   // 반려견의 다이어리가 맞다면
   // 다이어리 한개의 정보를 반환한다.
@@ -318,7 +371,7 @@ router.patch("/pets/:petId/diarys/:diaryId/:pick", auth, (req, res) => {
     // 유저 인증 완료
     const petID: number = Number(req.params.petId);
     const diaryID: number = Number(req.params.diaryId);
-    const albumPick: number = Number(req.params.albumPick);
+    const albumPick: number = Number(req.params.pick);
     if (
       checkEmptyValue(petID) ||
       checkEmptyValue(diaryID) ||

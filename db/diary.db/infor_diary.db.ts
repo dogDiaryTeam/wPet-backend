@@ -46,8 +46,30 @@ export function dbSelectPetAllDiarys(
   ) => void
 ): any {
   let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate AS date, diarytbl.title, 
-                    diarytbl.picture AS photo, diarytbl.color, diarytbl.font FROM diarytbl 
+                    diarytbl.picture AS photo, diarytbl.color, diarytbl.font, diarytbl.albumPick FROM diarytbl 
                     WHERE diarytbl.petID=?`;
+
+  return mql.query(sql, petID, (err, row) => {
+    if (err) callback(false, null, err);
+    // 정상 출력
+    else {
+      callback(true, row);
+    }
+  });
+}
+
+// (petID) -> 반려견의 모든 앨범 다이어리 get
+export function dbSelectPetAllAlbumDiarys(
+  petID: number,
+  callback: (
+    success: boolean,
+    result: Array<DbSelectPetAllDiarysDTO> | null,
+    error?: MysqlError
+  ) => void
+): any {
+  let sql: string = `SELECT diarytbl.diaryID, diarytbl.petID, diarytbl.diaryDate AS date, diarytbl.title, 
+                    diarytbl.picture AS photo, diarytbl.color, diarytbl.font, diarytbl.albumPick FROM diarytbl 
+                    WHERE diarytbl.petID=? AND diarytbl.albumPick=1`;
 
   return mql.query(sql, petID, (err, row) => {
     if (err) callback(false, null, err);
@@ -135,7 +157,7 @@ export function dbUpdateDiaryAlbumPick(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string = `UPDATE diarytbl SET albumPick=? WHERE diaryID=?`;
-  return mql.query(sql, [diaryID, albumPick], (err, row) => {
+  return mql.query(sql, [albumPick, diaryID], (err, row) => {
     if (err) callback(false, err);
     // 정상 출력
     callback(true);

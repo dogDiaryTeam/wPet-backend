@@ -60,6 +60,7 @@ export interface DbSelectPetAllDiarysDTO {
   photo: string | null;
   color: string;
   font: string;
+  albumPick: number;
 }
 
 export interface DbSelectDiaryDTO {

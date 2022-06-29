@@ -186,7 +186,7 @@
 -- CREATE TABLE todoListKeywordTBL
 -- (
 --  todoListKeywordID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
---  keyword VARCHAR(20) NOT NULL
+--  keyword VARCHAR(20) NOT NULL UNIQUE
 -- );
 -- CREATE TABLE todoListTBL
 -- (

@@ -107,7 +107,7 @@ export function dbSelectPictureFiles(
   let fileLen: number = fileUrls.length;
   let newFiles: Array<string | null> = [];
   let file: string | null;
-
+  let success: boolean = true;
   let data;
   for (let i = 0; i < fileLen; i++) {
     file = fileUrls[i];
@@ -119,8 +119,10 @@ export function dbSelectPictureFiles(
       data = fs.readFileSync(file);
       newFiles.push(data.toString());
     } else {
-      callback(false, null, "IMAGE FILE NOT FOUND");
+      success = false;
+      break;
     }
   }
-  callback(true, newFiles);
+  if (success) callback(true, newFiles);
+  else callback(false, null, "IMAGE FILE NOT FOUND");
 }

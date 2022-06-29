@@ -77,26 +77,27 @@ export const getUserDiarys = (
                     code: "FIND IMAGE FILE ERROR",
                     errorMessage: "IMAGE FILES NOT FOUND",
                   });
-
-                for (let i = 0; i < diarysLen; i++) {
-                  if (String(diarys[i].date) in result) {
-                    // date key 존재
-                    result[String(diarys[i].date)].push({
-                      diaryID: diarys[i].diaryID,
-                      petID: diarys[i].petID,
-                      photo: diaryPictureDatas[i],
-                    });
-                  } else {
-                    result[String(diarys[i].date)] = [
-                      {
+                else {
+                  for (let i = 0; i < diarysLen; i++) {
+                    if (String(diarys[i].date) in result) {
+                      // date key 존재
+                      result[String(diarys[i].date)].push({
                         diaryID: diarys[i].diaryID,
                         petID: diarys[i].petID,
                         photo: diaryPictureDatas[i],
-                      },
-                    ];
+                      });
+                    } else {
+                      result[String(diarys[i].date)] = [
+                        {
+                          diaryID: diarys[i].diaryID,
+                          petID: diarys[i].petID,
+                          photo: diaryPictureDatas[i],
+                        },
+                      ];
+                    }
                   }
+                  return res.json({ result });
                 }
-                return res.json({ result });
               }
             }
           );

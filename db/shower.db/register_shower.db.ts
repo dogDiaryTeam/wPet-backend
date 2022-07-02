@@ -5,16 +5,20 @@ import mql from "../mysql/mysql";
 // DB에 반려견의 샤워 정보 등록
 export function dbInsertPetShowerData(
   showerData: CreateShowerDTO,
-  callback: (success: boolean, error?: MysqlError) => void
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    showerID?: number
+  ) => void
 ): any {
-  let sql: string = `INSERT INTO showerdiarytbl (petID, cycleDay, lastDate) VALUES (?,?,?)`;
+  let insertShowerSql: string = `INSERT INTO showerdiarytbl (petID, cycleDay, lastDate) VALUES (?,?,?)`;
 
   return mql.query(
-    sql,
+    insertShowerSql,
     [showerData.petID, showerData.cycleDay, showerData.lastDate],
     (err, row) => {
       if (err) callback(false, err);
-      else callback(true);
+      else callback(true, null, row.insertId);
     }
   );
 }

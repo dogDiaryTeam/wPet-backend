@@ -4,7 +4,10 @@ import {
 } from "../../types/todolist";
 import { checkDate, checkStringLen } from "../validations/validate";
 import {
+  dbCheckPetTodolist,
   dbCheckTodolistKeyword,
+} from "../../db/todolist.db/infor_todolist.db";
+import {
   dbDeleteTodolist,
   dbInsertTodolist,
 } from "../../db/todolist.db/create_delete_todolist.db";
@@ -12,7 +15,6 @@ import {
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbCheckPetIDs } from "../../db/diary.db/create_delete_diary.db";
-import { dbCheckPetTodolist } from "../../db/todolist.db/infor_todolist.db";
 
 export const createTodolist = (
   userID: number,

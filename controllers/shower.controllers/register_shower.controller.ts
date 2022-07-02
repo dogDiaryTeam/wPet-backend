@@ -1,4 +1,8 @@
 import { checkDate, checkLastDateIsLessToday } from "../validations/validate";
+import {
+  dbInsertShowerDueDateTodolist,
+  dbInsertTodolist,
+} from "../../db/todolist.db/create_delete_todolist.db";
 
 import { CreateShowerDTO } from "../../types/shower";
 import { Response } from "express-serve-static-core";
@@ -58,15 +62,31 @@ export const registerShowerData = (
                 });
               } else {
                 // shower data 없음
-                // DB에 저장 후, 데이터 반환
-                dbInsertPetShowerData(showerData, function (success, err) {
-                  if (!success) {
-                    return res
-                      .status(404)
-                      .json({ code: "SQL ERROR", errorMessage: err });
+                // shower table DB에 저장
+                dbInsertPetShowerData(
+                  showerData,
+                  function (success, err, showerID) {
+                    if (!success) {
+                      return res
+                        .status(404)
+                        .json({ code: "SQL ERROR", errorMessage: err });
+                    } else if (showerID !== undefined) {
+                      // todolist table DB에도 저장
+                      dbInsertShowerDueDateTodolist(
+                        showerData.petID,
+                        showerID,
+                        function (success, err) {
+                          if (!success) {
+                            return res
+                              .status(404)
+                              .json({ code: "SQL ERROR", errorMessage: err });
+                          }
+                          res.status(201).json({ success: true });
+                        }
+                      );
+                    }
                   }
-                  res.status(201).json({ success: true });
-                });
+                );
               }
             }
           );

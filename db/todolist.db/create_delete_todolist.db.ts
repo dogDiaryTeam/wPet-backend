@@ -1,26 +1,6 @@
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
 
-// DB에 해당 투두리스트 키워드 있는지 확인
-export function dbCheckTodolistKeyword(
-  todolistKeyword: string,
-  callback: (
-    success: boolean,
-    error: MysqlError | null,
-    message?: string
-  ) => void
-): any {
-  let sql: string = `SELECT * FROM todolistkeywordtbl WHERE keyword=?`;
-
-  return mql.query(sql, todolistKeyword, (err, row) => {
-    if (err) callback(false, err);
-    // 키워드가 있는 경우
-    else if (row.length > 0) callback(true, null);
-    // 키워드가 없는 경우
-    else callback(false, null, "KEYWORD NOT FOUND");
-  });
-}
-
 // DB에 투두리스트 저장
 export function dbInsertTodolist(
   petID: number,
@@ -48,6 +28,25 @@ export function dbDeleteTodolist(
   return mql.query(sql, todolistID, (err, row) => {
     if (err) callback(false, err);
     // 삭제 성공
+    else callback(true);
+  });
+}
+
+// shower 예정일로 투두리스트 저장
+export function dbInsertShowerDueDateTodolist(
+  petID: number,
+  showerID: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = `INSERT INTO todolisttbl (petID, showerDiaryID, content, todoListKeywordID, date) 
+                        SELECT ?,?,"목욕 예정일!",todolistkeywordtbl.todoListKeywordID, showerdiarytbl.dueDate 
+                        FROM todolistkeywordtbl, showerdiarytbl 
+                        WHERE todolistkeywordtbl.keyword="Shower" 
+                        AND showerdiarytbl.showerDiaryID=?`;
+
+  // 투두리스트 테이블에 저장
+  return mql.query(sql, [petID, showerID, showerID], (err, row) => {
+    if (err) callback(false, err);
     else callback(true);
   });
 }

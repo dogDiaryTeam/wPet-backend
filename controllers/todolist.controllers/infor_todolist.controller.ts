@@ -12,6 +12,7 @@ import {
 } from "../validations/validate";
 import {
   dbCheckPetTodolist,
+  dbCheckTodolistKeyword,
   dbSelectPetTodolistsInfo,
   dbSelectUserPetsTodolistsInfo,
   dbUpdateTodolistCheck,
@@ -21,7 +22,6 @@ import { dbSelectPets, dbSelectPetsIdName } from "../../db/pet.db/infor_pet.db";
 
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbCheckTodolistKeyword } from "../../db/todolist.db/create_delete_todolist.db";
 
 export const checkTodolist = (
   userID: number,
@@ -264,5 +264,3 @@ export const getPetTodolist = (
     }
   });
 };
-
-// get (All pet's todolist (One Week))

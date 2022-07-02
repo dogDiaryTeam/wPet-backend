@@ -184,3 +184,10 @@ export function checkPetLevel(diaryLen: number): number {
   else if (diaryLen < petLevel_4) return 4;
   else return 5;
 }
+
+export function checkLastDateIsLessToday(lastDate: Date): boolean {
+  let lastDateObj = new Date(lastDate);
+  let today = new Date();
+  if (lastDateObj.getTime() <= today.getTime()) return true;
+  else return false;
+}

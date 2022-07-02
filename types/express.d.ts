@@ -62,3 +62,7 @@ interface DiaryRequest<T> extends Request {
 interface TodolistRequest<T> extends Request {
   body: T;
 }
+
+interface ShowerRequest<T> extends Request {
+  body: T;
+}

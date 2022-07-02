@@ -45,7 +45,7 @@
 -- 	BEFORE INSERT
 --     ON showerdiarytbl FOR EACH ROW
 -- BEGIN
--- 	SET NEW.dueDate = DATE_ADD(NEW.lastShowerDate, INTERVAL NEW.cycleDay DAY);
+-- 	SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
 -- END// 
 -- DELIMITER ;
 -- DELIMITER //

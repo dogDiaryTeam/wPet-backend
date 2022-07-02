@@ -50,3 +50,22 @@ export function dbInsertShowerDueDateTodolist(
     else callback(true);
   });
 }
+
+// beauty 예정일로 투두리스트 저장
+export function dbInsertBeautyDueDateTodolist(
+  petID: number,
+  beautyID: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = `INSERT INTO todolisttbl (petID, beautyDiaryID, content, todoListKeywordID, date) 
+                        SELECT ?,?,"미용 예정일!",todolistkeywordtbl.todoListKeywordID, beautydiarytbl.dueDate 
+                        FROM todolistkeywordtbl, beautydiarytbl 
+                        WHERE todolistkeywordtbl.keyword="Beauty" 
+                        AND beautydiarytbl.beautyDiaryID=?`;
+
+  // 투두리스트 테이블에 저장
+  return mql.query(sql, [petID, beautyID, beautyID], (err, row) => {
+    if (err) callback(false, err);
+    else callback(true);
+  });
+}

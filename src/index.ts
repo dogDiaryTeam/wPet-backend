@@ -6,7 +6,9 @@ import createDeleteDiaryRoutes from "../routes/diary.routes/create_delete_diary.
 import createDeletePetRoutes from "../routes/pet.routes/create_delete_pet.route";
 import createDeleteTodolistRoutes from "../routes/todolist.routes/create_delete_todolist.route";
 import createDeleteUserRoutes from "../routes/user.routes/create_delete_user.route";
+import deleteBeautyRoutes from "../routes/beauty.routes/delete_beauty.route";
 import deleteShowerRoutes from "../routes/shower.routes/delete_shower.route";
+import inforBeautyRoutes from "../routes/beauty.routes/infor_beauty.route";
 import inforDiaryRoutes from "../routes/diary.routes/infor_diary.route";
 import inforPetRoutes from "../routes/pet.routes/infor_pet.route";
 import inforShowerRoutes from "../routes/shower.routes/infor_shower.route";
@@ -14,6 +16,7 @@ import inforTodolistRoutes from "../routes/todolist.routes/infor_todolist.route"
 import inforUserRoutes from "../routes/user.routes/infor_user.route";
 import loginLogoutUserRoutes from "../routes/user.routes/login_logout_user.route";
 import mql from "../db/mysql/mysql";
+import registerBeautyRoutes from "../routes/beauty.routes/register_beauty.route";
 import registerShowerRoutes from "../routes/shower.routes/register_shower.route";
 
 require("dotenv").config();
@@ -45,6 +48,9 @@ app.use(inforTodolistRoutes);
 app.use(registerShowerRoutes);
 app.use(inforShowerRoutes);
 app.use(deleteShowerRoutes);
+app.use(registerBeautyRoutes);
+app.use(inforBeautyRoutes);
+app.use(deleteBeautyRoutes);
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 

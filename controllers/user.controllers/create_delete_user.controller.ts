@@ -5,6 +5,7 @@ import {
   checkName,
   checkPw,
   checkSex,
+  checkStringLen,
 } from "../validations/validate";
 import {
   dbDeleteUser,
@@ -53,15 +54,19 @@ export const creatUser = (
   let isOverlapUserErr: boolean = false;
 
   // 요청 데이터 유효성 검사
+  // location 유효성 체크(?)
   if (
     !checkEmail(user.email) ||
     !checkPw(user.pw) ||
-    !checkName(user.nickName)
+    !checkName(user.nickName) ||
+    (user.location && !checkStringLen(user.location, 255))
   ) {
     let errArr: Array<string> = [];
     if (!checkEmail(user.email)) errArr.push("EMAIL");
     if (!checkPw(user.pw)) errArr.push("PASSWORD");
     if (!checkName(user.nickName)) errArr.push("NICKNAME");
+    if (user.location && !checkStringLen(user.location, 255))
+      errArr.push("LOCATION'S LEN");
 
     return res.status(400).json({
       code: "INVALID FORMAT ERROR",

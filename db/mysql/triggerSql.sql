@@ -53,8 +53,8 @@
 -- 	BEFORE UPDATE
 --     ON showerdiarytbl FOR EACH ROW
 -- BEGIN
--- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastShowerDate != NEW.lastShowerDate THEN
--- 		SET NEW.dueDate = DATE_ADD(NEW.lastShowerDate, INTERVAL NEW.cycleDay DAY);
+-- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastDate != NEW.lastDate THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
@@ -63,7 +63,7 @@
 -- 	BEFORE INSERT
 --     ON beautydiarytbl FOR EACH ROW
 -- BEGIN
--- 	SET NEW.dueDate = DATE_ADD(NEW.lastBeautyDate, INTERVAL NEW.cycleDay DAY);
+-- 	SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
 -- END// 
 -- DELIMITER ;
 -- DELIMITER //
@@ -71,8 +71,8 @@
 -- 	BEFORE UPDATE
 --     ON beautydiarytbl FOR EACH ROW
 -- BEGIN
--- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastBeautyDate != NEW.lastBeautyDate THEN
--- 		SET NEW.dueDate = DATE_ADD(NEW.lastBeautyDate, INTERVAL NEW.cycleDay DAY);
+-- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastDate != NEW.lastDate THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
 -- 	END IF;
 -- END// 
 -- DELIMITER ;

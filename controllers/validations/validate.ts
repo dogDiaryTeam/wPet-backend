@@ -27,12 +27,6 @@ export function checkPw(pw: string): boolean {
   return regExp.test(pw);
 }
 
-// //profilePicture 유효성 검사 (1-10자)
-// function checkLocation(location: string) {
-//   var regExp = /^.{1,10}$/;
-//   return regExp.test(location);
-// }
-
 //location 유효성 검사 (1-15자)
 export function checkLocation(location: string): boolean {
   var regExp = /^.{1,15}$/;

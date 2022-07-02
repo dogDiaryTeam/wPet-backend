@@ -1,37 +1,35 @@
 import { Router } from "express";
-import { ShowerRequest } from "../../types/express";
 import { UserInforDTO } from "../../types/user";
 import { auth } from "../../middleware/auth";
 import { checkEmptyValue } from "../../controllers/validations/validate";
-import { getInfoShowerData } from "../../controllers/shower.controllers/infor_shower.controller";
-import { registerShowerData } from "../../controllers/shower.controllers/register_shower.controller";
+import { getInfoBeautyData } from "../../controllers/beauty.controllers/infor_beauty.controller";
 
 const router = Router();
 
 /**
  * @swagger
  * paths:
- *   /pets/{petId}/showers:
+ *   /pets/{petId}/beauties:
  *     get:
  *        tags:
- *        - showers
- *        description: "반려견의 샤워 데이터 가져오기"
+ *        - beauties
+ *        description: "반려견의 미용 데이터 가져오기"
  *        produces:
  *          - "application/json"
  *        parameters:
  *        - name: "petId"
  *          in: "path"
- *          description: "샤워 데이터를 등록한 반려견의 아이디"
+ *          description: "미용 데이터를 등록한 반려견의 아이디"
  *          required: true
  *          type: "number"
  *          example: "1"
  *        responses:
  *          "200":
- *            description: "샤워 데이터 가져오기 성공"
+ *            description: "미용 데이터 가져오기 성공"
  *            content:
  *              application/json:
  *                schema:
- *                  $ref: '#/definitions/PetShowerInfo'
+ *                  $ref: '#/definitions/PetBeautyInfo'
  *          "400":
  *            description: "INVALID FORMAT ERROR : 요청 값 형식이 유효하지 않음"
  *          "401":
@@ -43,28 +41,31 @@ const router = Router();
  *              - "write:pets"
  *              - "read:pets"
  * definitions:
- *   PetShowerInfo:
+ *   PetBeautyInfo:
  *     type: object
  *     properties:
- *       showerDiaryID:
+ *       beautyDiaryID:
  *         type: number
- *         description: 샤워 데이터의 ID
+ *         description: 미용 데이터의 ID
  *       petID:
  *         type: number
- *         description: 샤워 데이터를 등록한 반려견의 ID
+ *         description: 미용 데이터를 등록한 반려견의 ID
  *       lastDate:
  *         type: date
- *         description: 마지막 샤워 날짜
+ *         description: 마지막 미용 날짜
  *       cycleDay:
  *         type: number
- *         description: 샤워 주기 (일 단위)
+ *         description: 미용 주기 (일 단위)
  *       dueDate:
  *         type: date
- *         description: 다음 샤워 예정일
+ *         description: 다음 미용 예정일
+ *       salon:
+ *         type: string
+ *         description: 미용실 이름
  */
 
-router.get("/pets/:petId/showers", auth, (req, res) => {
-  // 반려견의 샤워 데이터를 반환한다.
+router.get("/pets/:petId/beauties", auth, (req, res) => {
+  // 반려견의 미용 데이터를 반환한다.
   let user: UserInforDTO | null = req.user;
 
   if (user) {
@@ -76,7 +77,7 @@ router.get("/pets/:petId/showers", auth, (req, res) => {
         errorMessage: "PARAMETER IS EMPTY",
       });
     }
-    getInfoShowerData(user.userID, petID, res);
+    getInfoBeautyData(user.userID, petID, res);
   } else {
     // 유저 인증 no
     return res.status(401).json({

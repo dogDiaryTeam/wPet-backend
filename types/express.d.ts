@@ -66,3 +66,7 @@ interface TodolistRequest<T> extends Request {
 interface ShowerRequest<T> extends Request {
   body: T;
 }
+
+interface BeautyRequest<T> extends Request {
+  body: T;
+}

@@ -1,22 +1,30 @@
-import { checkDate, checkLastDateIsLessToday } from "../validations/validate";
+import {
+  checkDate,
+  checkLastDateIsLessToday,
+  checkStringLen,
+} from "../validations/validate";
 
-import { CreateShowerDTO } from "../../types/shower";
+import { CreateBeautyDTO } from "../../types/beauty";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbInsertPetShowerData } from "../../db/shower.db/register_shower.db";
-import { dbInsertShowerDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
-import { dbSelectPetShowerData } from "../../db/shower.db/infor_shower.db";
+import { dbInsertBeautyDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
+import { dbInsertPetBeautyData } from "../../db/beauty.db/register_beauty.db";
+import { dbSelectPetBeautyData } from "../../db/beauty.db/infor_beauty.db";
 
-export const registerShowerData = (
+export const registerBeautyData = (
   userID: number,
-  showerData: CreateShowerDTO,
+  beautyData: CreateBeautyDTO,
   res: Response<any, Record<string, any>, number>
 ) => {
-  // 샤워 데이터 등록
+  // 미용 데이터 등록
+
+  // 미용실 이름 은 빈값일 수 있음
+  beautyData.salon = beautyData.salon === "" ? null : beautyData.salon;
+
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(
     userID,
-    showerData.petID,
+    beautyData.petID,
     function (success, result, err, msg) {
       if (!success && err) {
         return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
@@ -27,51 +35,53 @@ export const registerShowerData = (
       }
       // 사용자의 반려견이 맞는 경우
       else {
-        // 요청 데이터 유효성 검증 (마지막 샤워일)
+        // 요청 데이터 유효성 검증 (마지막 미용일)
         if (
-          !checkDate(showerData.lastDate) ||
-          !checkLastDateIsLessToday(showerData.lastDate)
+          !checkDate(beautyData.lastDate) ||
+          !checkLastDateIsLessToday(beautyData.lastDate) ||
+          (beautyData.salon && !checkStringLen(beautyData.salon, 45))
         ) {
           let errArr: Array<string> = [];
-          if (!checkDate(showerData.lastDate)) errArr.push("DATE FORMAT");
-          if (!checkLastDateIsLessToday(showerData.lastDate))
+          if (!checkDate(beautyData.lastDate)) errArr.push("DATE FORMAT");
+          if (!checkLastDateIsLessToday(beautyData.lastDate))
             errArr.push("LAST DATE IS BIGGER THAN TODAY");
-
+          if (beautyData.salon && !checkStringLen(beautyData.salon, 45))
+            errArr.push("SALON'S LEN");
           return res.status(400).json({
             code: "INVALID FORMAT ERROR",
             errorMessage: `INVALID FORMAT : [${errArr}]`,
           });
         } else {
-          // 반려견이 이미 등록한 shower data 없는지 검증
-          dbSelectPetShowerData(
+          // 반려견이 이미 등록한 beauty data 없는지 검증
+          dbSelectPetBeautyData(
             "petID",
-            showerData.petID,
-            function (success, err, isShowerData, dbShowerData) {
+            beautyData.petID,
+            function (success, err, isBeautyData, dbBeautyData) {
               if (!success) {
                 return res
                   .status(404)
                   .json({ code: "SQL ERROR", errorMessage: err });
-              } else if (isShowerData) {
-                // 이미 shower data 존재
+              } else if (isBeautyData) {
+                // 이미 beauty data 존재
                 return res.status(409).json({
                   code: "CONFLICT ERROR",
-                  errorMessage: `PET IS ALREADY REGISTERED SHOWER INFO`,
+                  errorMessage: `PET IS ALREADY REGISTERED BEAUTY INFO`,
                 });
               } else {
-                // shower data 없음
-                // shower table DB에 저장
-                dbInsertPetShowerData(
-                  showerData,
-                  function (success, err, showerID) {
+                // beauty data 없음
+                // beauty table DB에 저장
+                dbInsertPetBeautyData(
+                  beautyData,
+                  function (success, err, beautyID) {
                     if (!success) {
                       return res
                         .status(404)
                         .json({ code: "SQL ERROR", errorMessage: err });
-                    } else if (showerID !== undefined) {
+                    } else if (beautyID !== undefined) {
                       // todolist table DB에도 저장
-                      dbInsertShowerDueDateTodolist(
-                        showerData.petID,
-                        showerID,
+                      dbInsertBeautyDueDateTodolist(
+                        beautyData.petID,
+                        beautyID,
                         function (success, err) {
                           if (!success) {
                             return res

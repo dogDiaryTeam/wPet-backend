@@ -74,3 +74,6 @@ interface BeautyRequest<T> extends Request {
 interface MedicineRequest<T> extends Request {
   body: T;
 }
+interface HospitalRecordRequest<T> extends Request {
+  body: T;
+}

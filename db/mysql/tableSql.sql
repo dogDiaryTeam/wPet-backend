@@ -63,7 +63,7 @@
 -- );
 -- CREATE TABLE medicinePreWeekTBL
 -- (
---  medicinepreweektblmedicinepreweektblmedicinepreweektblmedicinePreID INT UNSIGNED NOT NULL,
+--  medicinePreID INT UNSIGNED NOT NULL,
 --  dayOfWeek VARCHAR(1) NOT NULL,
 --  UNIQUE KEY (medicinePreID, dayOfWeek),
 --  FOREIGN KEY (medicinePreID) REFERENCES medicinePreTBL(medicinePreID) ON UPDATE CASCADE ON DELETE CASCADE
@@ -86,9 +86,12 @@
 -- (
 --  medicineDiaryID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 --  petID INT UNSIGNED NOT NULL,
---  takeDate DATE NOT NULL,
---  takeTime TIME NOT NULL,
+--  cycleDay TINYINT UNSIGNED,
+--  dueDate DATE,
+--  lastDate DATE,
+--  medicine VARCHAR(45) NOT NULL UNIQUE,
 --  memo VARCHAR(255),
+--  isAlarm TINYINT(1) UNSIGNED NOT NULL,
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE diaryTBL
@@ -199,10 +202,12 @@
 --  todoListKeywordID INT UNSIGNED NOT NULL,
 --  showerDiaryID INT UNSIGNED,
 --  beautyDiaryID INT UNSIGNED,
+--  medicineDiaryID INT UNSIGNED,
 --  FOREIGN KEY (petID) REFERENCES petTBL(petID) ON UPDATE CASCADE ON DELETE CASCADE,
 --  FOREIGN KEY (todoListKeywordID) REFERENCES todoListKeywordTBL(todoListKeywordID) ON UPDATE CASCADE ON DELETE CASCADE,
 --  FOREIGN KEY (showerDiaryID) REFERENCES showerDiaryTBL(showerDiaryID) ON UPDATE CASCADE ON DELETE CASCADE,
---  FOREIGN KEY (beautyDiaryID) REFERENCES beautydiarytbl(beautyDiaryID) ON UPDATE CASCADE ON DELETE CASCADE
+--  FOREIGN KEY (beautyDiaryID) REFERENCES beautydiarytbl(beautyDiaryID) ON UPDATE CASCADE ON DELETE CASCADE,
+--  FOREIGN KEY (medicineDiaryID) REFERENCES medicinediarytbl(medicineDiaryID) ON UPDATE CASCADE ON DELETE CASCADE
 -- );
 -- CREATE TABLE usermail_authstringTBL
 -- (

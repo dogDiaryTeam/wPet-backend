@@ -76,3 +76,13 @@
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
+-- DELIMITER //
+-- CREATE TRIGGER check_medicine_diary_due_Date_calcul
+-- 	BEFORE INSERT
+--     ON medicinediarytbl FOR EACH ROW
+-- BEGIN
+-- 	IF NEW.lastDate IS NOT NULL AND NEW.cycleDay IS NOT NULL THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	END IF;
+-- END// 
+-- DELIMITER ;

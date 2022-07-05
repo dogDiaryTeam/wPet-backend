@@ -70,3 +70,7 @@ interface ShowerRequest<T> extends Request {
 interface BeautyRequest<T> extends Request {
   body: T;
 }
+
+interface MedicineRequest<T> extends Request {
+  body: T;
+}

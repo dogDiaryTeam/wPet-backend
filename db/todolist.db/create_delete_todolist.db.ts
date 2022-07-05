@@ -69,3 +69,22 @@ export function dbInsertBeautyDueDateTodolist(
     else callback(true);
   });
 }
+
+// medicine 예정일로 투두리스트 저장
+export function dbInsertMedicineDueDateTodolist(
+  petID: number,
+  medicineID: number,
+  callback: (success: boolean, error?: MysqlError) => void
+): any {
+  let sql: string = `INSERT INTO todolisttbl (petID, medicineDiaryID, content, todoListKeywordID, date) 
+                        SELECT ?,?,"약 복용 예정일!",todolistkeywordtbl.todoListKeywordID, medicinediarytbl.dueDate 
+                        FROM todolistkeywordtbl, medicinediarytbl 
+                        WHERE todolistkeywordtbl.keyword="Medicine" 
+                        AND medicinediarytbl.medicineDiaryID=?`;
+
+  // 투두리스트 테이블에 저장
+  return mql.query(sql, [petID, medicineID, medicineID], (err, row) => {
+    if (err) callback(false, err);
+    else callback(true);
+  });
+}

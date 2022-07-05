@@ -152,6 +152,12 @@ export function checkZeroOrOne(isCheck: number): boolean {
   return false;
 }
 
+// 0이상 유효성 검사
+export function checkPositiveNum(num: number): boolean {
+  if (num < 0) return false;
+  return true;
+}
+
 // year 유효성 검사
 export function checkYear(year: number): boolean {
   if (year > 2000 && year < 2100) return true;

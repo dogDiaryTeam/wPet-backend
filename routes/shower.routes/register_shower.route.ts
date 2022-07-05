@@ -46,7 +46,7 @@ const router = Router();
  *     required:
  *       - petID
  *       - lastDate
- *       - cycleDate
+ *       - cycleDay
  *     properties:
  *       petID:
  *         type: number

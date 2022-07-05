@@ -170,6 +170,12 @@ export function checkMonth(month: number): boolean {
   return false;
 }
 
+// time 유효성 검사 (0-24)
+export function checkTime(time: number): boolean {
+  if (time >= 0 && time <= 24) return true;
+  return false;
+}
+
 // pet level 검사
 const petLevel_1: number = 5;
 const petLevel_2: number = 12;

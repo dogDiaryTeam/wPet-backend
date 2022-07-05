@@ -2,7 +2,7 @@ import {
   CreateTodolistReqDTO,
   InforTodolistReqDTO,
 } from "../../types/todolist";
-import { checkDate, checkStringLen } from "../validations/validate";
+import { checkDate, checkStringLen, checkTime } from "../validations/validate";
 import {
   dbCheckPetTodolist,
   dbCheckTodolistKeyword,
@@ -23,6 +23,9 @@ export const createTodolist = (
 ) => {
   // 투두리스트 등록 (반려견 한마리 당)
 
+  // time 은 빈값일 수 있음 (후에 논의)
+  // todolist.time = todolist.time === "" ? null : todolist.time;
+
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, todolist.petID, function (success, result, err, msg) {
     if (!success && err) {
@@ -37,10 +40,16 @@ export const createTodolist = (
     // 투두리스트 정보 유효성 검사
     let errArr: Array<string> = [];
 
-    if (!checkDate(todolist.date) || !checkStringLen(todolist.content, 255)) {
+    if (
+      !checkDate(todolist.date) ||
+      !checkStringLen(todolist.content, 255) ||
+      (todolist.time !== null && !checkTime(todolist.time))
+    ) {
       if (!checkDate(todolist.date)) errArr.push("DATE");
       if (!checkStringLen(todolist.content, 255))
         errArr.push("CONTENT LENGTH(1-255)");
+      if (todolist.time !== null && !checkTime(todolist.time))
+        errArr.push("TIME FORMAT");
     }
     // 투두리스트 키워드 검증
     // DB에 저장된 키워드가 맞는지 검증
@@ -79,6 +88,7 @@ export const createTodolist = (
           todolist.date,
           todolist.content,
           todolist.keyword,
+          todolist.time,
           function (success, err) {
             if (!success)
               return res
@@ -92,7 +102,6 @@ export const createTodolist = (
   });
 };
 
-// 개발 중
 export const deleteTodolist = (
   userID: number,
   petID: number,

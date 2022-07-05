@@ -68,12 +68,18 @@ export function dbUpdateTodolistInfo(
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
   let sql: string = `UPDATE todolisttbl as B, (SELECT todoListKeywordID, keyword FROM todolistkeywordtbl) as A 
-                      SET B.date=?, B.content=?, B.todoListKeywordID=A.todoListKeywordID 
+                      SET B.date=?, B.content=?, B.time=?, B.todoListKeywordID=A.todoListKeywordID 
                       WHERE B.todoListID=? AND A.keyword=?`;
 
   return mql.query(
     sql,
-    [updateInfo.date, updateInfo.content, todolistID, updateInfo.keyword],
+    [
+      updateInfo.date,
+      updateInfo.content,
+      updateInfo.time,
+      todolistID,
+      updateInfo.keyword,
+    ],
     (err, row) => {
       if (err) callback(false, err);
       else callback(true);
@@ -95,8 +101,9 @@ export function dbSelectUserPetsTodolistsInfo(
   let petNum: number = petIDs.length;
   // 오늘, 내일 따로 구하기
   // 오늘 투두리스트
-  let sql: string = `SELECT todolisttbl.todoListID, todolisttbl.petID, todolisttbl.date, todolisttbl.content, 
-                      todolisttbl.isCheck, todolistkeywordtbl.keyword FROM todolisttbl, todolistkeywordtbl 
+  let sql: string = `SELECT todolisttbl.todoListID, todolisttbl.petID, todolisttbl.date, todolisttbl.content,
+                      todolisttbl.time, todolisttbl.isCheck, todolistkeywordtbl.keyword 
+                      FROM todolisttbl, todolistkeywordtbl 
                       WHERE todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID AND 
                       (todolisttbl.date=CURDATE() OR todolisttbl.date=CURDATE()+INTERVAL 1 DAY) AND 
                       (todolisttbl.petID=?`;
@@ -156,8 +163,9 @@ export function dbSelectPetTodolistsInfo(
     result?: Array<InforPetTodolistDTO>
   ) => void
 ): any {
-  let sql: string = `SELECT todolisttbl.todoListID, todolisttbl.petID, todolisttbl.date, todolisttbl.content, 
-                      todolisttbl.isCheck, todolistkeywordtbl.keyword FROM todolisttbl, todolistkeywordtbl 
+  let sql: string = `SELECT todolisttbl.todoListID, todolisttbl.petID, todolisttbl.date, todolisttbl.content,
+                      todolisttbl.time, todolisttbl.isCheck, todolistkeywordtbl.keyword 
+                      FROM todolisttbl, todolistkeywordtbl 
                       WHERE todolisttbl.petID=? AND todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID AND 
                       DATE_FORMAT(todolisttbl.date, '%Y-%m') = '?-${month}' ORDER BY todolisttbl.date`;
   return mql.query(sql, [petID, year], (err, row) => {

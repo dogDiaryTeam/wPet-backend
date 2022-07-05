@@ -87,6 +87,10 @@ const router = Router();
  *                    type: date
  *                    description: 투두리스트 날짜
  *                    example: "2022-01-02"
+ *                  time:
+ *                    type: number
+ *                    description: 투두리스트 시간 (0-24)
+ *                    example: "12"
  *                  content:
  *                    type: string
  *                    description: 투두리스트 내용
@@ -261,6 +265,9 @@ const router = Router();
  *             content:
  *               type: string
  *               description: 투두리스트 내용
+ *             time:
+ *               type: number
+ *               description: 투두리스트 시간 (null일수도)
  *             isCheck:
  *               type: number
  *               description: 완료 유무 (0-미완료 / 1-완료)

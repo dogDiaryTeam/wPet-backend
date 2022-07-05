@@ -3,12 +3,14 @@ interface CreateTodolistModel extends mongoose.Document {
   date: Date;
   content: string;
   keyword: string;
+  time: number | null;
 }
 
 interface UpdateTodolistModel extends mongoose.Document {
   date: Date;
   content: string;
   keyword: string;
+  time: number | null;
 }
 
 interface InforTodolistModel extends mongoose.Document {
@@ -21,12 +23,14 @@ export interface CreateTodolistReqDTO {
   date: Date;
   content: string;
   keyword: string;
+  time: number | null;
 }
 
 export interface UpdateTodolistReqDTO {
   date: Date;
   content: string;
   keyword: string;
+  time: number | null;
 }
 
 export interface InforTodolistReqDTO {
@@ -41,6 +45,7 @@ export interface InforPetTodolistDTO {
   content: string;
   isCheck: number;
   keyword: string;
+  time: number | null;
 }
 
 export interface InforUserPetsTodolistDTO {

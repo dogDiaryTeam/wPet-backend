@@ -7,6 +7,7 @@ import {
   checkDate,
   checkMonth,
   checkStringLen,
+  checkTime,
   checkYear,
   checkZeroOrOne,
 } from "../validations/validate";
@@ -105,11 +106,14 @@ export const updateTodolist = (
 
         if (
           !checkDate(updateInfo.date) ||
-          !checkStringLen(updateInfo.content, 255)
+          !checkStringLen(updateInfo.content, 255) ||
+          (updateInfo.time !== null && !checkTime(updateInfo.time))
         ) {
           if (!checkDate(updateInfo.date)) errArr.push("DATE");
           if (!checkStringLen(updateInfo.content, 255))
             errArr.push("CONTENT LENGTH(1-255)");
+          if (updateInfo.time !== null && !checkTime(updateInfo.time))
+            errArr.push("TIME FORMAT");
         }
         // 투두리스트 키워드 검증
         // DB에 저장된 키워드가 맞는지 검증
@@ -138,7 +142,7 @@ export const updateTodolist = (
                   errorMessage: `INVALID FORMAT : ${msg}`,
                 });
             }
-            // 키워드 정상 + date, content 유효성 오류
+            // 키워드 정상 + date, content, time 유효성 오류
             else if (errArr.length > 0) {
               return res.status(400).json({
                 code: "INVALID FORMAT ERROR",

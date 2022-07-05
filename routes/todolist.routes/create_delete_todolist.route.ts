@@ -63,6 +63,10 @@ const router = Router();
  *         type: date
  *         description: 투두리스트 날짜
  *         example: "2022-01-01"
+ *       time:
+ *         type: number
+ *         description: 투두리스트 시간 (0-24)
+ *         example: "12"
  *       content:
  *         type: string
  *         description: 투두리스트 내용

@@ -16,6 +16,7 @@ import inforHospitalRecordRoutes from "../routes/hospital.routes/infor_hospital_
 import inforMedicineRoutes from "../routes/medicine.routes/infor_medicine.route";
 import inforPetRoutes from "../routes/pet.routes/infor_pet.route";
 import inforShowerRoutes from "../routes/shower.routes/infor_shower.route";
+import inforTodolistKeywordRoutes from "../routes/todolist_keyword.routes/infor_todolist_keyword.route";
 import inforTodolistRoutes from "../routes/todolist.routes/infor_todolist.route";
 import inforUserRoutes from "../routes/user.routes/infor_user.route";
 import loginLogoutUserRoutes from "../routes/user.routes/login_logout_user.route";
@@ -63,6 +64,7 @@ app.use(deleteMedicineRoutes);
 app.use(registerHospitalRecordRoutes);
 app.use(inforHospitalRecordRoutes);
 app.use(deleteHospitalRecordRoutes);
+app.use(inforTodolistKeywordRoutes);
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 

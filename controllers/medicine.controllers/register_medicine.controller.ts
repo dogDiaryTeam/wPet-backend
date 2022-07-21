@@ -28,9 +28,7 @@ export const registerMedicineData = (
 
   // 약 설명 memo 는 빈값일 수 있음
   medicineData.memo = medicineData.memo === "" ? null : medicineData.memo;
-  // isAlarm === false 라면,  마지막 먹은 날과 주기 는 빈값 (null)
-  medicineData.lastDate = medicineData.isAlarm ? medicineData.lastDate : null;
-  medicineData.cycleDay = medicineData.isAlarm ? medicineData.cycleDay : null;
+  // cycleDay는 빈값일 수 있음 (애초에 null값)
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(
@@ -49,25 +47,12 @@ export const registerMedicineData = (
         // 요청 데이터 유효성 검증
         if (
           !checkStringLen(medicineData.medicine, 45) ||
-          !checkZeroOrOne(medicineData.isAlarm) ||
-          (medicineData.lastDate && !checkDate(medicineData.lastDate)) ||
-          (medicineData.lastDate &&
-            !checkLastDateIsLessToday(medicineData.lastDate)) ||
           (medicineData.cycleDay && !checkPositiveNum(medicineData.cycleDay)) ||
           (medicineData.memo && !checkStringLen(medicineData.memo, 255))
         ) {
           let errArr: Array<string> = [];
           if (!checkStringLen(medicineData.medicine, 45))
             errArr.push("MEDICINE'S LEN");
-          if (!checkZeroOrOne(medicineData.isAlarm))
-            errArr.push("ISALARM FORMAT");
-          if (medicineData.lastDate && !checkDate(medicineData.lastDate))
-            errArr.push("DATE FORMAT");
-          if (
-            medicineData.lastDate &&
-            !checkLastDateIsLessToday(medicineData.lastDate)
-          )
-            errArr.push("LAST DATE IS BIGGER THAN TODAY");
           if (medicineData.cycleDay && !checkPositiveNum(medicineData.cycleDay))
             errArr.push("CYCLEDAY IS NEGATIVE NUMBER");
           if (medicineData.memo && !checkStringLen(medicineData.memo, 255))
@@ -100,34 +85,13 @@ export const registerMedicineData = (
               } else {
                 // 약 명 중복 안됨
                 // medicine table DB에 저장
-                dbInsertPetMedicineData(
-                  medicineData,
-                  function (success, err, medicineID) {
-                    if (!success) {
-                      return res
-                        .status(404)
-                        .json({ code: "SQL ERROR", errorMessage: err });
-                    } else if (medicineID !== undefined) {
-                      if (medicineData.isAlarm) {
-                        // todolist table DB에도 저장
-                        dbInsertMedicineDueDateTodolist(
-                          medicineData.petID,
-                          medicineID,
-                          function (success, err) {
-                            if (!success) {
-                              return res
-                                .status(404)
-                                .json({ code: "SQL ERROR", errorMessage: err });
-                            }
-                            res.status(201).json({ success: true });
-                          }
-                        );
-                      } else {
-                        res.status(201).json({ success: true });
-                      }
-                    }
-                  }
-                );
+                dbInsertPetMedicineData(medicineData, function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: err });
+                  } else res.status(201).json({ success: true });
+                });
               }
             }
           );

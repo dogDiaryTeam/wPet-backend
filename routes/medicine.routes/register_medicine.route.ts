@@ -48,7 +48,6 @@ const router = Router();
  *     required:
  *       - petID
  *       - medicine
- *       - isAlarm
  *     properties:
  *       petID:
  *         type: number
@@ -62,17 +61,9 @@ const router = Router();
  *         type: string
  *         description: 약 설명 (null이라면 ""로 전송)
  *         example: "aaaa"
- *       isAlarm:
- *         type: number
- *         description: 약 데이터를 투두리스트에 연동할 지 유무 (true=1, false=0)
- *         example: "1"
- *       lastDate:
- *         type: date
- *         description: 마지막 약 복용 날짜 (isAlarm=0 -> "로 전송")
- *         example: "2022-01-01"
  *       cycleDay:
  *         type: number
- *         description: 약 복용 주기 (일 단위) (isAlarm=0 -> "로 전송")
+ *         description: 약 복용 주기 (일 단위) (null이라면 null로 전송)
  *         example: "3"
  */
 
@@ -92,16 +83,7 @@ router.post(
 
       if (
         checkEmptyValue(medicine.petID) ||
-        checkEmptyValue(medicine.medicine) ||
-        checkEmptyValue(medicine.isAlarm)
-      ) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      } else if (
-        (medicine.isAlarm === 1 && checkEmptyValue(medicine.lastDate)) ||
-        checkEmptyValue(medicine.cycleDay)
+        checkEmptyValue(medicine.medicine)
       ) {
         return res.status(400).json({
           code: "INVALID FORMAT ERROR",

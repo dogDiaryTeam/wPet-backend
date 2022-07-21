@@ -87,13 +87,14 @@ export const kakaoUserLogin = (
       return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
     }
     // 쿠키 유효기간 : 일주일
-    return res
-      .cookie("x_auth", userToken, {
-        maxAge: 14 * 24 * 60 * 60 * 1000,
-      })
-      .status(201)
-      .json({
-        success: true,
-      });
+    else
+      return res
+        .cookie("x_auth", userToken, {
+          maxAge: 14 * 24 * 60 * 60 * 1000,
+        })
+        .status(201)
+        .json({
+          success: true,
+        });
   });
 };

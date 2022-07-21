@@ -45,7 +45,9 @@
 -- 	BEFORE INSERT
 --     ON showerdiarytbl FOR EACH ROW
 -- BEGIN
--- 	SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	IF NEW.lastDate IS NOT NULL THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	END IF;
 -- END// 
 -- DELIMITER ;
 -- DELIMITER //
@@ -53,8 +55,10 @@
 -- 	BEFORE UPDATE
 --     ON showerdiarytbl FOR EACH ROW
 -- BEGIN
--- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastDate != NEW.lastDate THEN
+--  IF NEW.lastDate IS NOT NULL THEN
 -- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+--  ELSEIF NEW.lastDate IS NULL THEN
+-- 		SET NEW.dueDate = NULL;
 -- 	END IF;
 -- END// 
 -- DELIMITER ;
@@ -63,7 +67,9 @@
 -- 	BEFORE INSERT
 --     ON beautydiarytbl FOR EACH ROW
 -- BEGIN
--- 	SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	IF NEW.lastDate IS NOT NULL THEN
+-- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	END IF;
 -- END// 
 -- DELIMITER ;
 -- DELIMITER //
@@ -71,18 +77,10 @@
 -- 	BEFORE UPDATE
 --     ON beautydiarytbl FOR EACH ROW
 -- BEGIN
--- 	IF OLD.cycleDay != NEW.cycleDay or OLD.lastDate != NEW.lastDate THEN
+-- 	IF NEW.lastDate IS NOT NULL THEN
 -- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
--- 	END IF;
--- END// 
--- DELIMITER ;
--- DELIMITER //
--- CREATE TRIGGER check_medicine_diary_due_Date_calcul
--- 	BEFORE INSERT
---     ON medicinediarytbl FOR EACH ROW
--- BEGIN
--- 	IF NEW.lastDate IS NOT NULL AND NEW.cycleDay IS NOT NULL THEN
--- 		SET NEW.dueDate = DATE_ADD(NEW.lastDate, INTERVAL NEW.cycleDay DAY);
+-- 	ELSEIF NEW.lastDate IS NULL THEN
+--  	SET NEW.dueDate = NULL;
 -- 	END IF;
 -- END// 
 -- DELIMITER ;

@@ -134,7 +134,7 @@ export const createPet = (
                           .json({ code: "SQL ERROR", errorMessage: err });
                       }
                       // insert 성공
-                      return res.status(201).json({ success: true });
+                      else return res.status(201).json({ success: true });
                     });
                   }
                 }
@@ -182,7 +182,7 @@ export const deletePet = (
               });
             }
             // 파일 삭제 성공
-            return res.json({ success: true });
+            else return res.json({ success: true });
           });
         }
         // 사진 데이터 없음

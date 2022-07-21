@@ -6,26 +6,6 @@ import {
 import { MysqlError } from "mysql";
 import mql from "../mysql/mysql";
 
-// DB에 해당 투두리스트 키워드 있는지 확인
-export function dbCheckTodolistKeyword(
-  todolistKeyword: string,
-  callback: (
-    success: boolean,
-    error: MysqlError | null,
-    message?: string
-  ) => void
-): any {
-  let sql: string = `SELECT * FROM todolistkeywordtbl WHERE keyword=?`;
-
-  return mql.query(sql, todolistKeyword, (err, row) => {
-    if (err) callback(false, err);
-    // 키워드가 있는 경우
-    else if (row.length > 0) callback(true, null);
-    // 키워드가 없는 경우
-    else callback(false, null, "KEYWORD NOT FOUND");
-  });
-}
-
 // 해당 투두리스트가 반려견의 것이 맞는지 검증
 export function dbCheckPetTodolist(
   petID: number,
@@ -51,13 +31,26 @@ export function dbCheckPetTodolist(
 export function dbUpdateTodolistCheck(
   todolistID: number,
   isCheck: number,
-  callback: (success: boolean, error?: MysqlError) => void
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    keyword?: string
+  ) => void
 ): any {
-  let sql: string = `UPDATE todolisttbl SET isCheck=? WHERE todoListID=?`;
-
-  return mql.query(sql, [isCheck, todolistID], (err, row) => {
+  let sql1: string = `UPDATE todolisttbl SET isCheck=${isCheck} WHERE todoListID=${todolistID};`; // CHECK UPDATE
+  // check UPDATE
+  return mql.query(sql1, (err, row) => {
     if (err) callback(false, err);
-    else callback(true);
+    else {
+      let sql2: string = `SELECT todolistkeywordtbl.keyword FROM todolisttbl,todolistkeywordtbl 
+                          WHERE todolisttbl.todoListID=${todolistID} 
+                          AND todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID;`; // SELECT KEYWORD
+      // 키워드 가져오기
+      mql.query(sql2, (err, row) => {
+        if (err) callback(false, err);
+        else callback(true, null, row[0].keyword);
+      });
+    }
   });
 }
 
@@ -171,5 +164,34 @@ export function dbSelectPetTodolistsInfo(
   return mql.query(sql, [petID, year], (err, row) => {
     if (err) callback(false, err);
     else callback(true, null, row);
+  });
+}
+
+// 키워드(shower, beauty, medicine..) 에 해당하는 투두리스트 일정의
+//  가장 마지막 날짜 가져오기
+export function dbGetPetKewordTodolistLastDate(
+  petID: number,
+  keyword: string,
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    lastDate?: Date | null
+  ) => void
+): any {
+  let sql: string = `SELECT todolisttbl.date FROM todolisttbl,todolistkeywordtbl 
+                    WHERE todolisttbl.petID=? AND todolistkeywordtbl.keyword=?
+                    AND todolisttbl.isCheck=1
+                    AND todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID
+                    ORDER BY todolisttbl.date`;
+
+  return mql.query(sql, [petID, keyword], (err, row) => {
+    if (err) callback(false, err);
+    // 해당 키워드의 일정이 있는 경우
+    else if (row.length > 0) {
+      let rowLen: number = row.length;
+      callback(true, null, row[rowLen - 1].date);
+    }
+    // 해당 키워드의 일정이 없는 경우
+    else callback(true, null, null);
   });
 }

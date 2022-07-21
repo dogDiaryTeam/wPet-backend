@@ -5,7 +5,7 @@ import {
 import { checkDate, checkStringLen, checkTime } from "../validations/validate";
 import {
   dbCheckPetTodolist,
-  dbCheckTodolistKeyword,
+  dbGetPetKewordTodolistLastDate,
 } from "../../db/todolist.db/infor_todolist.db";
 import {
   dbDeleteTodolist,
@@ -15,6 +15,8 @@ import {
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbCheckPetIDs } from "../../db/diary.db/create_delete_diary.db";
+import { dbCheckTodolistKeyword } from "../../db/todolist_keyword.db/infor_todolist_keyword.db";
+import { dbUpdatePetShowerLastDate } from "../../db/shower.db/register_shower.db";
 
 export const createTodolist = (
   userID: number,
@@ -22,9 +24,6 @@ export const createTodolist = (
   res: Response<any, Record<string, any>, number>
 ) => {
   // 투두리스트 등록 (반려견 한마리 당)
-
-  // time 은 빈값일 수 있음 (후에 논의)
-  // todolist.time = todolist.time === "" ? null : todolist.time;
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
   dbCheckPetExist(userID, todolist.petID, function (success, result, err, msg) {
@@ -94,7 +93,7 @@ export const createTodolist = (
               return res
                 .status(404)
                 .json({ code: "SQL ERROR", errorMessage: err });
-            return res.status(201).json({ success: true });
+            else return res.status(201).json({ success: true });
           }
         );
       }

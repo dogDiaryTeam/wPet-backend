@@ -10,11 +10,11 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /pets/{petId}/hospital-record:
+ *   /pets/{petId}/hospitals:
  *     get:
  *        tags:
  *        - hospitals
- *        description: "반려견의 모든 병원 기록 데이터들 가져오기"
+ *        description: "반려견의 모든 병원 기록 데이터들 (배열) 가져오기"
  *        produces:
  *          - "application/json"
  *        parameters:
@@ -65,7 +65,7 @@ const router = Router();
  *         description: 비고
  */
 
-router.get("/pets/:petId/hospital-record", auth, (req, res) => {
+router.get("/pets/:petId/hospitals", auth, (req, res) => {
   // 반려견의 병원 기록 데이터를 반환한다.
   let user: UserInforDTO | null = req.user;
 

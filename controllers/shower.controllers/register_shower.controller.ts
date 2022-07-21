@@ -1,9 +1,17 @@
-import { checkDate, checkLastDateIsLessToday } from "../validations/validate";
+import {
+  checkDate,
+  checkLastDateIsLessToday,
+  checkPositiveNum,
+} from "../validations/validate";
+import {
+  dbInsertPetShowerData,
+  dbUpdatePetShowerLastDate,
+} from "../../db/shower.db/register_shower.db";
 
 import { CreateShowerDTO } from "../../types/shower";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbInsertPetShowerData } from "../../db/shower.db/register_shower.db";
+import { dbGetPetKewordTodolistLastDate } from "../../db/todolist.db/infor_todolist.db";
 import { dbInsertShowerDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
 import { dbSelectPetShowerData } from "../../db/shower.db/infor_shower.db";
 
@@ -27,21 +35,13 @@ export const registerShowerData = (
       }
       // 사용자의 반려견이 맞는 경우
       else {
-        // 요청 데이터 유효성 검증 (마지막 샤워일)
-        if (
-          !checkDate(showerData.lastDate) ||
-          !checkLastDateIsLessToday(showerData.lastDate)
-        ) {
-          let errArr: Array<string> = [];
-          if (!checkDate(showerData.lastDate)) errArr.push("DATE FORMAT");
-          if (!checkLastDateIsLessToday(showerData.lastDate))
-            errArr.push("LAST DATE IS BIGGER THAN TODAY");
-
+        // 요청 데이터 유효성 검증 (주기 >= 0)
+        if (!checkPositiveNum(showerData.cycleDay))
           return res.status(400).json({
             code: "INVALID FORMAT ERROR",
-            errorMessage: `INVALID FORMAT : [${errArr}]`,
+            errorMessage: `INVALID FORMAT : CYCLE DAY FORMAT`,
           });
-        } else {
+        else {
           // 반려견이 이미 등록한 shower data 없는지 검증
           dbSelectPetShowerData(
             "petID",
@@ -60,30 +60,13 @@ export const registerShowerData = (
               } else {
                 // shower data 없음
                 // shower table DB에 저장
-                dbInsertPetShowerData(
-                  showerData,
-                  function (success, err, showerID) {
-                    if (!success) {
-                      return res
-                        .status(404)
-                        .json({ code: "SQL ERROR", errorMessage: err });
-                    } else if (showerID !== undefined) {
-                      // todolist table DB에도 저장
-                      dbInsertShowerDueDateTodolist(
-                        showerData.petID,
-                        showerID,
-                        function (success, err) {
-                          if (!success) {
-                            return res
-                              .status(404)
-                              .json({ code: "SQL ERROR", errorMessage: err });
-                          }
-                          res.status(201).json({ success: true });
-                        }
-                      );
-                    }
-                  }
-                );
+                dbInsertPetShowerData(showerData, function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: err });
+                  } else res.status(201).json({ success: true });
+                });
               }
             }
           );

@@ -118,8 +118,7 @@ export const createDiary = (
                     return res
                       .status(404)
                       .json({ code: "SQL ERROR", errorMessage: err });
-                  }
-                  res.status(201).json({ success: true });
+                  } else return res.status(201).json({ success: true });
                 });
               }
             });
@@ -193,8 +192,7 @@ export const deleteDiary = (
                     return res
                       .status(404)
                       .json({ code: "SQL ERROR", errorMessage: err });
-                  }
-                  res.json({ success: true });
+                  } else return res.json({ success: true });
                 });
               });
             });

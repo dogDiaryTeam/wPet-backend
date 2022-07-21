@@ -142,8 +142,9 @@ export const logoutUser = (
   dbDeleteUserToken(userID, function (success, error) {
     if (!success) {
       return res.status(404).json({ code: "SQL ERROR", errorMessage: error });
+    } else {
+      res.clearCookie("x_auth");
+      return res.status(201).json({ success: true });
     }
-    res.clearCookie("x_auth");
-    return res.status(201).json({ success: true });
   });
 };

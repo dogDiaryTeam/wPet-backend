@@ -45,17 +45,12 @@ const router = Router();
  *     type: object
  *     required:
  *       - petID
- *       - lastDate
  *       - cycleDay
  *     properties:
  *       petID:
  *         type: number
  *         description: 미용 데이터 등록할 반려견의 ID
  *         example: "1"
- *       lastDate:
- *         type: date
- *         description: 마지막 미용 날짜
- *         example: "2022-01-01"
  *       cycleDay:
  *         type: number
  *         description: 미용 주기 (일 단위)
@@ -76,11 +71,7 @@ router.post("/beauties", auth, (req: BeautyRequest<CreateBeautyModel>, res) => {
     // 유저 인증 완료
     const beauty: CreateBeautyDTO = req.body;
 
-    if (
-      checkEmptyValue(beauty.petID) ||
-      checkEmptyValue(beauty.lastDate) ||
-      checkEmptyValue(beauty.cycleDay)
-    ) {
+    if (checkEmptyValue(beauty.petID) || checkEmptyValue(beauty.cycleDay)) {
       return res.status(400).json({
         code: "INVALID FORMAT ERROR",
         errorMessage: "PARAMETER IS EMPTY",

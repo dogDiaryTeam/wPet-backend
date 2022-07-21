@@ -1,13 +1,11 @@
 interface CreateBeautyModel extends mongoose.Document {
   petID: number;
-  lastDate: Date;
   cycleDay: number;
   salon: string | null;
 }
 
 export interface CreateBeautyDTO {
   petID: number;
-  lastDate: Date;
   cycleDay: number;
   salon: string | null;
 }
@@ -15,8 +13,8 @@ export interface CreateBeautyDTO {
 export interface InfoBeautyDataDTO {
   beautyDiaryID: number;
   petID: number;
-  lastDate: Date;
+  lastDate: Date | null;
   cycleDay: number;
-  dueDate: Date;
+  dueDate: Date | null;
   salon: string | null;
 }

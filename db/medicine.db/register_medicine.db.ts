@@ -7,27 +7,21 @@ import mql from "../mysql/mysql";
 // DB에 반려견의 약 정보 등록
 export function dbInsertPetMedicineData(
   medicineData: CreateMedicineDTO,
-  callback: (
-    success: boolean,
-    error: MysqlError | null,
-    medicineID?: number
-  ) => void
+  callback: (success: boolean, error?: MysqlError) => void
 ): any {
-  let sql: string = `INSERT INTO medicinediarytbl (petID, cycleDay, lastDate, medicine, memo, isAlarm) VALUES (?,?,?,?,?,?)`;
+  let sql: string = `INSERT INTO medicinediarytbl (petID, cycleDay, medicine, memo) VALUES (?,?,?,?)`;
 
   return mql.query(
     sql,
     [
       medicineData.petID,
       medicineData.cycleDay,
-      medicineData.lastDate,
       medicineData.medicine,
       medicineData.memo,
-      medicineData.isAlarm,
     ],
     (err, row) => {
       if (err) callback(false, err);
-      else callback(true, null, row.insertId);
+      else callback(true);
     }
   );
 }

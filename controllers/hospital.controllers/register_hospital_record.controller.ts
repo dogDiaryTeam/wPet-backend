@@ -21,7 +21,7 @@ export const registerHospitalRecordData = (
   // 병원 기록 데이터 등록
 
   // 병원비, memo 는 빈값일 수 있음
-  hospitalRecord.cost = hospitalRecord.cost === 0 ? null : hospitalRecord.cost;
+  // 병원비는 빈값이라면 null
   hospitalRecord.memo = hospitalRecord.memo === "" ? null : hospitalRecord.memo;
 
   // userID의 유저가 등록한 pet들 중 pet 존재하는지 검증
@@ -66,8 +66,7 @@ export const registerHospitalRecordData = (
                 return res
                   .status(404)
                   .json({ code: "SQL ERROR", errorMessage: err });
-              }
-              res.status(201).json({ success: true });
+              } else return res.status(201).json({ success: true });
             }
           );
         }

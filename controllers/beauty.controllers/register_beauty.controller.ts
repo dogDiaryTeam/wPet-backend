@@ -36,22 +36,12 @@ export const registerBeautyData = (
       // 사용자의 반려견이 맞는 경우
       else {
         // 요청 데이터 유효성 검증 (마지막 미용일)
-        if (
-          !checkDate(beautyData.lastDate) ||
-          !checkLastDateIsLessToday(beautyData.lastDate) ||
-          (beautyData.salon && !checkStringLen(beautyData.salon, 45))
-        ) {
-          let errArr: Array<string> = [];
-          if (!checkDate(beautyData.lastDate)) errArr.push("DATE FORMAT");
-          if (!checkLastDateIsLessToday(beautyData.lastDate))
-            errArr.push("LAST DATE IS BIGGER THAN TODAY");
-          if (beautyData.salon && !checkStringLen(beautyData.salon, 45))
-            errArr.push("SALON'S LEN");
+        if (beautyData.salon && !checkStringLen(beautyData.salon, 45))
           return res.status(400).json({
             code: "INVALID FORMAT ERROR",
-            errorMessage: `INVALID FORMAT : [${errArr}]`,
+            errorMessage: `INVALID FORMAT : SALON'S LEN`,
           });
-        } else {
+        else {
           // 반려견이 이미 등록한 beauty data 없는지 검증
           dbSelectPetBeautyData(
             "petID",
@@ -70,30 +60,15 @@ export const registerBeautyData = (
               } else {
                 // beauty data 없음
                 // beauty table DB에 저장
-                dbInsertPetBeautyData(
-                  beautyData,
-                  function (success, err, beautyID) {
-                    if (!success) {
-                      return res
-                        .status(404)
-                        .json({ code: "SQL ERROR", errorMessage: err });
-                    } else if (beautyID !== undefined) {
-                      // todolist table DB에도 저장
-                      dbInsertBeautyDueDateTodolist(
-                        beautyData.petID,
-                        beautyID,
-                        function (success, err) {
-                          if (!success) {
-                            return res
-                              .status(404)
-                              .json({ code: "SQL ERROR", errorMessage: err });
-                          }
-                          res.status(201).json({ success: true });
-                        }
-                      );
-                    }
+                dbInsertPetBeautyData(beautyData, function (success, err) {
+                  if (!success) {
+                    return res
+                      .status(404)
+                      .json({ code: "SQL ERROR", errorMessage: err });
+                  } else {
+                    res.status(201).json({ success: true });
                   }
-                );
+                });
               }
             }
           );

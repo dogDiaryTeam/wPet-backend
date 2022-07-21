@@ -44,8 +44,7 @@ export const deleteMedicineData = (
             return res
               .status(404)
               .json({ code: "SQL ERROR", errorMessage: err });
-          }
-          return res.json({ success: true });
+          } else return res.json({ success: true });
         });
       }
     );

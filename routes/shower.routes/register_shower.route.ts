@@ -45,17 +45,12 @@ const router = Router();
  *     type: object
  *     required:
  *       - petID
- *       - lastDate
  *       - cycleDay
  *     properties:
  *       petID:
  *         type: number
  *         description: 샤워 데이터 등록할 반려견의 ID
  *         example: "1"
- *       lastDate:
- *         type: date
- *         description: 마지막 샤워 날짜
- *         example: "2022-01-01"
  *       cycleDay:
  *         type: number
  *         description: 샤워 주기 (일 단위)
@@ -72,11 +67,7 @@ router.post("/showers", auth, (req: ShowerRequest<CreateShowerModel>, res) => {
     // 유저 인증 완료
     const shower: CreateShowerDTO = req.body;
 
-    if (
-      checkEmptyValue(shower.petID) ||
-      checkEmptyValue(shower.lastDate) ||
-      checkEmptyValue(shower.cycleDay)
-    ) {
+    if (checkEmptyValue(shower.petID) || checkEmptyValue(shower.cycleDay)) {
       return res.status(400).json({
         code: "INVALID FORMAT ERROR",
         errorMessage: "PARAMETER IS EMPTY",

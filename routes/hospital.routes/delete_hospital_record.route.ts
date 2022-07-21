@@ -15,7 +15,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /pets/{petId}/hospital-record/{hospitalRecordId}:
+ *   /pets/{petId}/hospital-record/{hospitalId}:
  *     delete:
  *        tags:
  *        - hospitals
@@ -29,7 +29,7 @@ const router = Router();
  *          required: true
  *          type: "number"
  *          example: "1"
- *        - name: "hospitalRecordId"
+ *        - name: "hospitalId"
  *          in: "path"
  *          description: "병원 기록 데이터 ID"
  *          required: true
@@ -50,33 +50,29 @@ const router = Router();
  *              - "read:pets"
  */
 
-router.delete(
-  "/pets/:petId/hospital-record/:hospitalRecordId",
-  auth,
-  (req, res) => {
-    // 반려견의 미용 데이터를 삭제
-    let user: UserInforDTO | null = req.user;
+router.delete("/pets/:petId/hospitals/:hospitalId", auth, (req, res) => {
+  // 반려견의 미용 데이터를 삭제
+  let user: UserInforDTO | null = req.user;
 
-    if (user) {
-      // 유저 인증 완료
-      const petID: number = Number(req.params.petId);
-      const hospitalRecordID: number = Number(req.params.hospitalRecordId);
+  if (user) {
+    // 유저 인증 완료
+    const petID: number = Number(req.params.petId);
+    const hospitalId: number = Number(req.params.hospitalId);
 
-      if (checkEmptyValue(petID) || checkEmptyValue(hospitalRecordID)) {
-        return res.status(400).json({
-          code: "INVALID FORMAT ERROR",
-          errorMessage: "PARAMETER IS EMPTY",
-        });
-      }
-      deleteHospitalRecordData(user.userID, petID, hospitalRecordID, res);
-    } else {
-      // 유저 인증 no
-      return res.status(401).json({
-        code: "AUTH FAILED",
-        errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    if (checkEmptyValue(petID) || checkEmptyValue(hospitalId)) {
+      return res.status(400).json({
+        code: "INVALID FORMAT ERROR",
+        errorMessage: "PARAMETER IS EMPTY",
       });
     }
+    deleteHospitalRecordData(user.userID, petID, hospitalId, res);
+  } else {
+    // 유저 인증 no
+    return res.status(401).json({
+      code: "AUTH FAILED",
+      errorMessage: "USER AUTH FAILED (COOKIE ERROR)",
+    });
   }
-);
+});
 
 export default router;

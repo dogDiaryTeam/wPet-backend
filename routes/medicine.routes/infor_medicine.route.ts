@@ -126,18 +126,9 @@ const router = Router();
  *       memo:
  *         type: string
  *         description: 약 설명
- *       isAlarm:
- *         type: number
- *         description: 약 데이터를 투두리스트에 연동할지 유무 (0 OR 1)
- *       lastDate:
- *         type: date
- *         description: 마지막 약 복용 날짜
  *       cycleDay:
  *         type: number
  *         description: 약 복용 주기 (일 단위)
- *       dueDate:
- *         type: date
- *         description: 다음 약 복용 예정일
  */
 
 router.get("/pets/:petId/medicines", auth, (req, res) => {

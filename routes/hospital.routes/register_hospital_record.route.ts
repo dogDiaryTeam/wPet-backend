@@ -23,7 +23,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /hospital-record:
+ *   /hospitals:
  *     post:
  *        tags:
  *        - hospitals
@@ -71,7 +71,7 @@ const router = Router();
  *         example: "2022-01-01"
  *       cost:
  *         type: number
- *         description: 병원비 (null이라면 ""로 전송)
+ *         description: 병원비 (null이라면 null로 전송)
  *         example: "1"
  *       memo:
  *         type: string
@@ -80,7 +80,7 @@ const router = Router();
  */
 
 router.post(
-  "/hospital-record",
+  "/hospitals",
   auth,
   (req: HospitalRecordRequest<CreateHospitalRecordModel>, res) => {
     // 반려견 병원 기록을 client에서 가져오면

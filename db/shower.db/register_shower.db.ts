@@ -29,15 +29,22 @@ export function dbInsertPetShowerData(
   );
 }
 
-// DB에 반려견의 샤워 정보에서 lastDate UDPATE
+// 반려견의 shower 투두리스트 목록 중 가장 마지막 날을 가져와
+// showerDiary table의 lastDate UDPATE
 export function dbUpdatePetShowerLastDate(
   petID: number,
-  lastDate: Date | null,
   callback: (success: boolean, error?: MysqlError) => void
 ): any {
-  let sql: string = `UPDATE showerdiarytbl SET lastDate=? WHERE petID=?`;
+  let sql: string = `UPDATE showerdiarytbl as B, (SELECT IFNULL(max(todolisttbl.date), null) as lastDate
+                                  FROM todolisttbl, todolistkeywordtbl 
+                                  WHERE todolisttbl.petID=? AND todolistkeywordtbl.keyword="Shower" 
+                                  AND todolistkeywordtbl.todoListKeywordID=todolisttbl.todoListKeywordID  
+                                  AND todolisttbl.isCheck=1 
+                                  ORDER BY todolisttbl.date DESC LIMIT 1) as A 
+                                  SET B.lastDate=A.lastDate
+                                  WHERE B.petID=?`;
 
-  return mql.query(sql, [lastDate, petID], (err, row) => {
+  return mql.query(sql, [petID, petID], (err, row) => {
     if (err) callback(false, err);
     else callback(true);
   });

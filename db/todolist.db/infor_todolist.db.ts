@@ -27,6 +27,27 @@ export function dbCheckPetTodolist(
   });
 }
 
+// 해당 투두리스트의 키워드 가져오기
+export function dbSelectTodolistKeyword(
+  todolistID: number,
+  callback: (
+    success: boolean,
+    error: MysqlError | null,
+    keyword?: string
+  ) => void
+): any {
+  let sql: string = `SELECT todolistkeywordtbl.keyword 
+                      FROM todolisttbl,todolistkeywordtbl
+                      WHERE todolisttbl.todoListID=?
+                      AND todolisttbl.todoListKeywordID = todolistkeywordtbl.todoListKeywordID`;
+
+  return mql.query(sql, [todolistID], (err, row) => {
+    if (err) callback(false, err);
+    // 투두리스트가 반려견의 것이 맞는 경우
+    else callback(true, null, row[0].keyword);
+  });
+}
+
 // 투두리스트 완료 (체크 update)
 export function dbUpdateTodolistCheck(
   todolistID: number,
@@ -164,34 +185,5 @@ export function dbSelectPetTodolistsInfo(
   return mql.query(sql, [petID, year], (err, row) => {
     if (err) callback(false, err);
     else callback(true, null, row);
-  });
-}
-
-// 키워드(shower, beauty, medicine..) 에 해당하는 투두리스트 일정의
-//  가장 마지막 날짜 가져오기
-export function dbGetPetKewordTodolistLastDate(
-  petID: number,
-  keyword: string,
-  callback: (
-    success: boolean,
-    error: MysqlError | null,
-    lastDate?: Date | null
-  ) => void
-): any {
-  let sql: string = `SELECT todolisttbl.date FROM todolisttbl,todolistkeywordtbl 
-                    WHERE todolisttbl.petID=? AND todolistkeywordtbl.keyword=?
-                    AND todolisttbl.isCheck=1
-                    AND todolisttbl.todoListKeywordID=todolistkeywordtbl.todoListKeywordID
-                    ORDER BY todolisttbl.date`;
-
-  return mql.query(sql, [petID, keyword], (err, row) => {
-    if (err) callback(false, err);
-    // 해당 키워드의 일정이 있는 경우
-    else if (row.length > 0) {
-      let rowLen: number = row.length;
-      callback(true, null, row[rowLen - 1].date);
-    }
-    // 해당 키워드의 일정이 없는 경우
-    else callback(true, null, null);
   });
 }

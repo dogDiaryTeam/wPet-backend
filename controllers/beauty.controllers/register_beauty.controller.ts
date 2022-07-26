@@ -1,13 +1,7 @@
-import {
-  checkDate,
-  checkLastDateIsLessToday,
-  checkStringLen,
-} from "../validations/validate";
-
 import { CreateBeautyDTO } from "../../types/beauty";
 import { Response } from "express-serve-static-core";
+import { checkStringLen } from "../validations/validate";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbInsertBeautyDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
 import { dbInsertPetBeautyData } from "../../db/beauty.db/register_beauty.db";
 import { dbSelectPetBeautyData } from "../../db/beauty.db/infor_beauty.db";
 

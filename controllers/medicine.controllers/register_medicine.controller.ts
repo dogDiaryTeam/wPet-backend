@@ -1,22 +1,9 @@
-import {
-  checkDate,
-  checkLastDateIsLessToday,
-  checkPositiveNum,
-  checkStringLen,
-  checkZeroOrOne,
-} from "../validations/validate";
-import {
-  dbInsertBeautyDueDateTodolist,
-  dbInsertMedicineDueDateTodolist,
-} from "../../db/todolist.db/create_delete_todolist.db";
+import { checkPositiveNum, checkStringLen } from "../validations/validate";
 
-import { CreateBeautyDTO } from "../../types/beauty";
 import { CreateMedicineDTO } from "../../types/medicine";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbInsertPetBeautyData } from "../../db/beauty.db/register_beauty.db";
 import { dbInsertPetMedicineData } from "../../db/medicine.db/register_medicine.db";
-import { dbSelectPetBeautyData } from "../../db/beauty.db/infor_beauty.db";
 import { dbSelectPetMedicineData } from "../../db/medicine.db/infor_medicine.db";
 
 export const registerMedicineData = (

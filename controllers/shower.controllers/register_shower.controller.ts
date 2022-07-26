@@ -1,18 +1,8 @@
-import {
-  checkDate,
-  checkLastDateIsLessToday,
-  checkPositiveNum,
-} from "../validations/validate";
-import {
-  dbInsertPetShowerData,
-  dbUpdatePetShowerLastDate,
-} from "../../db/shower.db/register_shower.db";
-
 import { CreateShowerDTO } from "../../types/shower";
 import { Response } from "express-serve-static-core";
+import { checkPositiveNum } from "../validations/validate";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbGetPetKewordTodolistLastDate } from "../../db/todolist.db/infor_todolist.db";
-import { dbInsertShowerDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
+import { dbInsertPetShowerData } from "../../db/shower.db/register_shower.db";
 import { dbSelectPetShowerData } from "../../db/shower.db/infor_shower.db";
 
 export const registerShowerData = (

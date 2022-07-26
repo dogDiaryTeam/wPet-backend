@@ -4,14 +4,10 @@ import {
   checkStringLen,
 } from "../validations/validate";
 
-import { CreateBeautyDTO } from "../../types/beauty";
 import { CreateHospitalRecordDTO } from "../../types/hospital";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbInsertBeautyDueDateTodolist } from "../../db/todolist.db/create_delete_todolist.db";
-import { dbInsertPetBeautyData } from "../../db/beauty.db/register_beauty.db";
 import { dbInsertPetHospitalRecordData } from "../../db/hospital.db/register_hospital_record.db";
-import { dbSelectPetBeautyData } from "../../db/beauty.db/infor_beauty.db";
 
 export const registerHospitalRecordData = (
   userID: number,

@@ -1,21 +1,18 @@
-import {
-  CreateTodolistReqDTO,
-  InforTodolistReqDTO,
-} from "../../types/todolist";
 import { checkDate, checkStringLen, checkTime } from "../validations/validate";
 import {
   dbCheckPetTodolist,
-  dbGetPetKewordTodolistLastDate,
+  dbSelectTodolistKeyword,
 } from "../../db/todolist.db/infor_todolist.db";
 import {
   dbDeleteTodolist,
   dbInsertTodolist,
 } from "../../db/todolist.db/create_delete_todolist.db";
 
+import { CreateTodolistReqDTO } from "../../types/todolist";
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
-import { dbCheckPetIDs } from "../../db/diary.db/create_delete_diary.db";
 import { dbCheckTodolistKeyword } from "../../db/todolist_keyword.db/infor_todolist_keyword.db";
+import { dbUpdatePetBeautyLastDate } from "../../db/beauty.db/register_beauty.db";
 import { dbUpdatePetShowerLastDate } from "../../db/shower.db/register_shower.db";
 
 export const createTodolist = (
@@ -128,14 +125,50 @@ export const deleteTodolist = (
         return res.status(404).json({ code: "NOT FOUND", errorMessage: msg });
       }
       // 반려견의 투두리스트가 맞는 경우
-      // 삭제
-      dbDeleteTodolist(todolistID, function (success, err) {
-        if (!success) {
-          return res.status(404).json({ code: "SQL ERROR", errorMessage: err });
-        } else {
-          return res.json({ success: true });
+      // keyword 가져오기
+      dbSelectTodolistKeyword(
+        todolistID,
+        function (success, err, todolistKeyword) {
+          if (!success) {
+            return res
+              .status(404)
+              .json({ code: "SQL ERROR", errorMessage: err });
+          }
+          // 삭제
+          dbDeleteTodolist(todolistID, function (success, err) {
+            if (!success) {
+              return res
+                .status(404)
+                .json({ code: "SQL ERROR", errorMessage: err });
+            } else {
+              // 키워드가 Shower라면
+              if (todolistKeyword === "Shower") {
+                // 키워드가 Shower라면
+                // lastDate UPDATE
+                dbUpdatePetShowerLastDate(petID, function (success, err) {
+                  if (!success) {
+                    return res.status(404).json({
+                      code: "SQL ERROR",
+                      errorMessage: err,
+                    });
+                  } else return res.json({ success: true });
+                });
+              } else if (todolistKeyword === "Beauty") {
+                // 키워드가 Beauty라면
+                // lastDate UPDATE
+                dbUpdatePetBeautyLastDate(petID, function (success, err) {
+                  if (!success) {
+                    return res.status(404).json({
+                      code: "SQL ERROR",
+                      errorMessage: err,
+                    });
+                  } else return res.json({ success: true });
+                });
+              } else return res.json({ success: true });
+            }
+          });
         }
-      });
+      );
     });
   });
 };

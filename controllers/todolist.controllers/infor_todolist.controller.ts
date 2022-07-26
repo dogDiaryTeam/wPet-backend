@@ -1,5 +1,4 @@
 import {
-  InforTodolistReqDTO,
   InforUserPetsTodolistDTO,
   UpdateTodolistReqDTO,
 } from "../../types/todolist";
@@ -13,17 +12,17 @@ import {
 } from "../validations/validate";
 import {
   dbCheckPetTodolist,
-  dbGetPetKewordTodolistLastDate,
   dbSelectPetTodolistsInfo,
   dbSelectUserPetsTodolistsInfo,
   dbUpdateTodolistCheck,
   dbUpdateTodolistInfo,
 } from "../../db/todolist.db/infor_todolist.db";
-import { dbSelectPets, dbSelectPetsIdName } from "../../db/pet.db/infor_pet.db";
 
 import { Response } from "express-serve-static-core";
 import { dbCheckPetExist } from "../../db/pet.db/create_delete_pet.db";
 import { dbCheckTodolistKeyword } from "../../db/todolist_keyword.db/infor_todolist_keyword.db";
+import { dbSelectPetsIdName } from "../../db/pet.db/infor_pet.db";
+import { dbUpdatePetBeautyLastDate } from "../../db/beauty.db/register_beauty.db";
 import { dbUpdatePetShowerLastDate } from "../../db/shower.db/register_shower.db";
 
 export const checkTodolist = (
@@ -70,55 +69,30 @@ export const checkTodolist = (
             return res
               .status(404)
               .json({ code: "SQL ERROR", errorMessage: err });
-          } else if (keyword === "Shower") {
-            // 키워드가 Shower라면
-            // lastDate UPDATE
-            dbGetPetKewordTodolistLastDate(
-              petID,
-              "Shower",
-              function (success, err, lastDate) {
-                if (!success) {
-                  return res
-                    .status(404)
-                    .json({ code: "SQL ERROR", errorMessage: err });
-                } else if (lastDate) {
-                  // shower 키워드의 일정이 존재
-                  // lastDate UPDATE
-                  dbUpdatePetShowerLastDate(
-                    petID,
-                    lastDate,
-                    function (success, err) {
-                      if (!success) {
-                        return res.status(404).json({
-                          code: "SQL ERROR",
-                          errorMessage: err,
-                        });
-                      }
-                      res.status(201).json({ success: true });
-                    }
-                  );
-                } else {
-                  // shower 키워드의 일정이 존재하지 않음
-                  // pet shower 정보 lastDate = null
-                  dbUpdatePetShowerLastDate(
-                    petID,
-                    null,
-                    function (success, err) {
-                      if (!success) {
-                        return res.status(404).json({
-                          code: "SQL ERROR",
-                          errorMessage: err,
-                        });
-                      }
-                      res.status(201).json({ success: true });
-                    }
-                  );
-                }
-              }
-            );
           } else {
-            // UPDATE 성공
-            return res.status(201).json({ success: true });
+            if (keyword === "Shower") {
+              // 키워드가 Shower라면
+              // lastDate UPDATE
+              dbUpdatePetShowerLastDate(petID, function (success, err) {
+                if (!success) {
+                  return res.status(404).json({
+                    code: "SQL ERROR",
+                    errorMessage: err,
+                  });
+                } else return res.status(201).json({ success: true });
+              });
+            } else if (keyword === "Beauty") {
+              // 키워드가 Beauty라면
+              // lastDate UPDATE
+              dbUpdatePetBeautyLastDate(petID, function (success, err) {
+                if (!success) {
+                  return res.status(404).json({
+                    code: "SQL ERROR",
+                    errorMessage: err,
+                  });
+                } else return res.status(201).json({ success: true });
+              });
+            } else return res.status(201).json({ success: true });
           }
         }
       );
